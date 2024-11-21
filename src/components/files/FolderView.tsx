@@ -1,8 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useFiles } from "@/hooks/useFiles";
 import { FileList } from "./FileList";
 import { ArrowLeft, Upload } from "lucide-react";
@@ -13,7 +12,6 @@ const FolderView = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { folders, addFile, deleteFile, addTag, addTagToFile, removeTagFromFile, tags } = useFiles();
-  const [newTagName, setNewTagName] = useState("");
 
   const folder = folders.find(f => f.id === folderId);
 
