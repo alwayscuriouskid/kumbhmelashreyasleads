@@ -6,6 +6,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 interface LeadsFiltersProps {
   statusFilter: string;
   setStatusFilter: (value: string) => void;
+  searchQuery: string;
+  setSearchQuery: (value: string) => void;
   visibleColumns: Record<string, boolean>;
   toggleColumn: (column: string) => void;
   customStatuses: string[];
@@ -15,6 +17,8 @@ interface LeadsFiltersProps {
 const LeadsFilters = ({
   statusFilter,
   setStatusFilter,
+  searchQuery,
+  setSearchQuery,
   visibleColumns,
   toggleColumn,
   customStatuses,
