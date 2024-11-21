@@ -1,24 +1,39 @@
 import { useState } from "react";
-import { FollowUp } from "@/types/leads";
+import { FollowUp, Activity } from "@/types/leads";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Plus } from "lucide-react";
 import NewFollowUpForm from "./NewFollowUpForm";
+import ActivityTracker from "./ActivityTracker";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface LeadFollowUpsProps {
   leadId: string;
   followUps: FollowUp[];
   onFollowUpSubmit?: (followUp: FollowUp) => void;
+  onActivityAdd?: (activity: Activity) => void;
+  contactPerson?: string;
 }
 
-const LeadFollowUps = ({ leadId, followUps = [], onFollowUpSubmit }: LeadFollowUpsProps) => {
+const LeadFollowUps = ({ 
+  leadId, 
+  followUps = [], 
+  onFollowUpSubmit,
+  onActivityAdd,
+  contactPerson = ""
+}: LeadFollowUpsProps) => {
   const [showNewForm, setShowNewForm] = useState(false);
 
   const handleFollowUpSubmit = (followUp: FollowUp) => {
     console.log("Submitting follow-up:", followUp);
     onFollowUpSubmit?.(followUp);
     setShowNewForm(false);
+  };
+
+  const handleActivityAdd = (activity: Activity) => {
+    console.log("Adding new activity:", activity);
+    onActivityAdd?.(activity);
   };
 
   return (
@@ -39,11 +54,26 @@ const LeadFollowUps = ({ leadId, followUps = [], onFollowUpSubmit }: LeadFollowU
       {showNewForm && (
         <Card className="border-dashed animate-fade-in">
           <CardContent className="pt-6">
-            <NewFollowUpForm
-              leadId={leadId}
-              onCancel={() => setShowNewForm(false)}
-              onSubmit={handleFollowUpSubmit}
-            />
+            <Tabs defaultValue="followup" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="followup">Follow-up</TabsTrigger>
+                <TabsTrigger value="activity">Activity</TabsTrigger>
+              </TabsList>
+              <TabsContent value="followup">
+                <NewFollowUpForm
+                  leadId={leadId}
+                  onCancel={() => setShowNewForm(false)}
+                  onSubmit={handleFollowUpSubmit}
+                />
+              </TabsContent>
+              <TabsContent value="activity">
+                <ActivityTracker
+                  leadId={leadId}
+                  onActivityAdd={handleActivityAdd}
+                  contactPerson={contactPerson}
+                />
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       )}

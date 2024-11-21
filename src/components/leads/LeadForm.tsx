@@ -3,12 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Lead, Activity } from "@/types/leads";
 import LeadFormRequirements from "./LeadFormRequirements";
 import LeadFormStatus from "./LeadFormStatus";
-import ActivityTracker from "./ActivityTracker";
 import ActivityList from "./ActivityList";
+import LeadFollowUps from "./LeadFollowUps";
+import { useToast } from "@/hooks/use-toast";
 
 interface LeadFormProps {
   onSubmit: (lead: Partial<Lead>) => void;
@@ -27,6 +28,7 @@ const LeadForm = ({
   customStatuses,
   onAddCustomStatus 
 }: LeadFormProps) => {
+  const { toast } = useToast();
   const [formData, setFormData] = useState<Partial<Lead>>(
     initialData || {
       clientName: "",
@@ -56,10 +58,15 @@ const LeadForm = ({
   };
 
   const handleActivityAdd = (activity: Activity) => {
+    console.log("Adding activity in LeadForm:", activity);
     setFormData(prev => ({
       ...prev,
       activities: [...(prev.activities || []), activity]
     }));
+    toast({
+      title: "Activity Added",
+      description: `New ${activity.type} activity has been recorded.`,
+    });
   };
 
   const handleInputChange = (field: keyof Lead, value: any) => {
@@ -69,19 +76,10 @@ const LeadForm = ({
     }));
   };
 
-  const handleRequirementChange = (field: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      requirement: {
-        ...prev.requirement,
-        [field]: field === "customRequirements" ? value : (parseInt(value) || 0),
-      },
-    }));
-  };
-
   return (
     <div className="p-4">
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Basic Information Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="clientName">Client Name</Label>
@@ -164,6 +162,7 @@ const LeadForm = ({
           </div>
         </div>
 
+        {/* Status and Requirements Section */}
         <LeadFormStatus
           status={formData.status || "pending"}
           onStatusChange={(value) => handleInputChange("status", value)}
@@ -173,20 +172,28 @@ const LeadForm = ({
 
         <LeadFormRequirements
           requirement={formData.requirement || {}}
-          onRequirementChange={handleRequirementChange}
+          onRequirementChange={(field, value) => 
+            handleInputChange("requirement", {
+              ...formData.requirement,
+              [field]: field === "customRequirements" ? value : (parseInt(value) || 0),
+            })
+          }
         />
 
+        {/* Activities and Follow-ups Section */}
         {mode === "edit" && (
           <div className="space-y-4">
-            <ActivityTracker
+            <LeadFollowUps
               leadId={formData.id || ""}
+              followUps={formData.followUps || []}
               onActivityAdd={handleActivityAdd}
-              contactPerson={formData.contactPerson || ""}
+              contactPerson={formData.contactPerson}
             />
             <ActivityList activities={formData.activities || []} />
           </div>
         )}
 
+        {/* Remarks Section */}
         <div className="space-y-2">
           <Label htmlFor="remarks">Remarks</Label>
           <Textarea
@@ -196,6 +203,7 @@ const LeadForm = ({
           />
         </div>
 
+        {/* Form Actions */}
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
