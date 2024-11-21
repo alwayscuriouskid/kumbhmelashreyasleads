@@ -15,7 +15,7 @@ const LeadsTable = ({ leads, visibleColumns, onUpdateLead, customStatuses }: Lea
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[40px] sticky left-0 z-20 bg-background"></TableHead>
+            <TableHead className="w-[40px] sticky left-0 bg-background"></TableHead>
             {visibleColumns.date && <TableHead className="min-w-[100px]">Date</TableHead>}
             {visibleColumns.clientName && <TableHead className="min-w-[150px]">Client Name</TableHead>}
             {visibleColumns.location && <TableHead className="min-w-[150px]">Location</TableHead>}
@@ -29,6 +29,7 @@ const LeadsTable = ({ leads, visibleColumns, onUpdateLead, customStatuses }: Lea
             {visibleColumns.budget && <TableHead className="min-w-[120px]">Budget</TableHead>}
             {visibleColumns.leadRef && <TableHead className="min-w-[120px]">Lead Reference</TableHead>}
             {visibleColumns.leadSource && <TableHead className="min-w-[120px]">Lead Source</TableHead>}
+            <TableHead className="w-[100px] sticky right-0 bg-background">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

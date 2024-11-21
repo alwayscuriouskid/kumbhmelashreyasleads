@@ -62,9 +62,9 @@ const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProp
 
   return (
     <>
-      <TableRow className="group hover:bg-muted/50 relative">
-        <TableCell className="w-[40px] sticky left-0 z-30 bg-background">
-          <div className="flex items-center gap-0.5">
+      <TableRow className="group hover:bg-muted/50">
+        <TableCell className="sticky left-0 bg-background">
+          <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="sm"
@@ -77,6 +77,20 @@ const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProp
                 <ChevronDown className="h-4 w-4" />
               )}
             </Button>
+          </div>
+        </TableCell>
+        
+        <LeadRowContent 
+          lead={lead}
+          visibleColumns={visibleColumns}
+          isEditing={isEditing}
+          editedLead={editedLead}
+          handleInputChange={handleInputChange}
+          customStatuses={customStatuses}
+        />
+
+        <TableCell className="sticky right-0 bg-background/80 backdrop-blur-sm">
+          <div className="flex items-center justify-end gap-1">
             {!isEditing ? (
               <Button
                 variant="ghost"
@@ -88,7 +102,7 @@ const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProp
                 <Pencil className="h-3.5 w-3.5" />
               </Button>
             ) : (
-              <div className="flex items-center gap-0.5">
+              <>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -107,19 +121,10 @@ const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProp
                 >
                   <X className="h-3.5 w-3.5" />
                 </Button>
-              </div>
+              </>
             )}
           </div>
         </TableCell>
-        
-        <LeadRowContent 
-          lead={lead}
-          visibleColumns={visibleColumns}
-          isEditing={isEditing}
-          editedLead={editedLead}
-          handleInputChange={handleInputChange}
-          customStatuses={customStatuses}
-        />
       </TableRow>
       
       {isExpanded && (
