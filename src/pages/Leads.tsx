@@ -1,15 +1,11 @@
 import { useState } from "react";
-import { Table, TableHeader, TableBody, TableHead, TableRow } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Plus, Search } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Lead } from "@/types/leads";
-import LeadRow from "@/components/leads/LeadRow";
 import { useToast } from "@/components/ui/use-toast";
-import LeadsTableFilters from "@/components/leads/LeadsTableFilters";
+import LeadsHeader from "@/components/leads/LeadsHeader";
+import LeadsFilters from "@/components/leads/LeadsFilters";
+import LeadsTable from "@/components/leads/LeadsTable";
 import LeadForm from "@/components/leads/LeadForm";
-import { Input } from "@/components/ui/input";
 
 const mockLeads: Lead[] = [
   {
@@ -63,7 +59,6 @@ const Leads = () => {
   const [leads, setLeads] = useState<Lead[]>(mockLeads);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [showFilters, setShowFilters] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [customStatuses, setCustomStatuses] = useState<string[]>([]);
   const { toast } = useToast();
@@ -97,10 +92,6 @@ const Leads = () => {
         lead.id === updatedLead.id ? updatedLead : lead
       )
     );
-    toast({
-      title: "Lead Updated",
-      description: "The lead has been successfully updated.",
-    });
   };
 
   const handleAddLead = (newLead: Partial<Lead>) => {
@@ -135,90 +126,39 @@ const Leads = () => {
     );
 
   return (
-    <div className="space-y-6">
-      <Card className="p-6">
-        <div className="flex flex-col space-y-6">
-          {/* Header Section */}
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-            <h1 className="text-2xl font-bold">Leads Management</h1>
-            <div className="flex flex-col lg:flex-row gap-4 w-full lg:w-auto">
-              <div className="relative w-full lg:w-64">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
-                <Input
-                  placeholder="Search leads..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <Button onClick={() => setShowAddForm(true)} className="whitespace-nowrap">
-                <Plus className="h-4 w-4 mr-2" />
-                Add New Lead
-              </Button>
-            </div>
+    <div className="max-w-[1400px] mx-auto">
+      <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <LeadsHeader
+          onAddNew={() => setShowAddForm(true)}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+        />
+
+        {showAddForm && (
+          <div className="mb-6">
+            <LeadForm
+              onSubmit={handleAddLead}
+              onCancel={() => setShowAddForm(false)}
+              customStatuses={customStatuses}
+            />
           </div>
+        )}
 
-          {/* Add Form Section */}
-          {showAddForm && (
-            <div className="mb-6">
-              <LeadForm
-                onSubmit={handleAddLead}
-                onCancel={() => setShowAddForm(false)}
-                customStatuses={customStatuses}
-              />
-            </div>
-          )}
+        <LeadsFilters
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          visibleColumns={visibleColumns}
+          toggleColumn={toggleColumn}
+          customStatuses={customStatuses}
+          onAddCustomStatus={handleAddCustomStatus}
+        />
 
-          {/* Filters Section */}
-          <LeadsTableFilters
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            visibleColumns={visibleColumns}
-            toggleColumn={toggleColumn}
-            customStatuses={customStatuses}
-            onAddCustomStatus={handleAddCustomStatus}
-          />
-
-          {/* Table Section with horizontal scroll */}
-          <div className="border rounded-lg">
-            <ScrollArea className="w-full" type="always">
-              <div className="min-w-max">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[50px]"></TableHead>
-                      {visibleColumns.date && <TableHead>Date</TableHead>}
-                      {visibleColumns.clientName && <TableHead>Client Name</TableHead>}
-                      {visibleColumns.location && <TableHead>Location</TableHead>}
-                      {visibleColumns.contactPerson && <TableHead>Contact Person</TableHead>}
-                      {visibleColumns.phone && <TableHead>Phone</TableHead>}
-                      {visibleColumns.email && <TableHead>Email</TableHead>}
-                      {visibleColumns.requirements && <TableHead>Requirements</TableHead>}
-                      {visibleColumns.status && <TableHead>Status</TableHead>}
-                      {visibleColumns.remarks && <TableHead>Remarks</TableHead>}
-                      {visibleColumns.nextFollowUp && <TableHead>Next Follow Up</TableHead>}
-                      {visibleColumns.budget && <TableHead>Budget</TableHead>}
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredLeads.map((lead) => (
-                      <LeadRow 
-                        key={lead.id} 
-                        lead={lead} 
-                        visibleColumns={visibleColumns}
-                        onUpdate={handleUpdateLead}
-                        customStatuses={customStatuses}
-                      />
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </ScrollArea>
-          </div>
-        </div>
+        <LeadsTable
+          leads={filteredLeads}
+          visibleColumns={visibleColumns}
+          onUpdateLead={handleUpdateLead}
+          customStatuses={customStatuses}
+        />
       </Card>
     </div>
   );
