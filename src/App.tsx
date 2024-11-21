@@ -7,12 +7,13 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
 import Leads from "./pages/Leads";
 import Notes from "./pages/Notes";
+import Templates from "./pages/Templates";
 import Todo from "./pages/Todo";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000,
       retry: 1,
     },
   },
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/" element={<Navigate to="/leads" replace />} />
             <Route path="/leads" element={<Leads />} />
             <Route path="/notes" element={<Notes />} />
+            <Route path="/templates" element={<Templates />} />
             <Route path="/todo" element={<Todo />} />
           </Routes>
         </Layout>

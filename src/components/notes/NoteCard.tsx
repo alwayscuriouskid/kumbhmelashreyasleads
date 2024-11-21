@@ -69,10 +69,19 @@ const NoteCard = ({ note, onUpdate, categories, tags, onAddCategory }: NoteCardP
       onStart={handleDragStart}
       defaultPosition={note.position || { x: 0, y: 0 }}
       onStop={(e, data) => {
-        onUpdate({
-          ...editedNote,
-          position: { x: data.x, y: data.y }
-        });
+        const container = document.querySelector('.notes-container');
+        if (container) {
+          const bounds = container.getBoundingClientRect();
+          const noteElement = nodeRef.current as HTMLElement | null;
+          if (noteElement) {
+            const noteBounds = noteElement.getBoundingClientRect();
+            const x = Math.min(Math.max(data.x, 0), bounds.width - noteBounds.width);
+            onUpdate({
+              ...editedNote,
+              position: { x, y: data.y }
+            });
+          }
+        }
       }}
     >
       <div 
@@ -80,8 +89,9 @@ const NoteCard = ({ note, onUpdate, categories, tags, onAddCategory }: NoteCardP
         className="absolute"
         style={{ 
           zIndex,
-          width: note.width || 300,
-          height: note.height || 'auto'
+          width: Math.min(note.width || 300, window.innerWidth - 40),
+          height: note.height || 'auto',
+          maxWidth: 'calc(100vw - 40px)'
         }}
       >
         <Card className="group hover:border-primary/50 transition-colors w-full h-full resize overflow-auto rounded-lg">

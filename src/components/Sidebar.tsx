@@ -1,4 +1,4 @@
-import { FileText, ListTodo, Users, Menu, X } from "lucide-react";
+import { FileText, ListTodo, Users, Menu, X, FileTemplate } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -20,6 +20,7 @@ const Sidebar = () => {
   const navigation = [
     { name: "Leads", icon: Users, path: "/leads" },
     { name: "Notes", icon: FileText, path: "/notes" },
+    { name: "Templates", icon: FileTemplate, path: "/templates" },
     { name: "Todo", icon: ListTodo, path: "/todo" }
   ];
 
