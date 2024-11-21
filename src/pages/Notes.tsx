@@ -50,7 +50,7 @@ const Notes = () => {
       </div>
 
       <ScrollArea className="h-[calc(100vh-12rem)]">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-8">
+        <div className="grid grid-cols-1 gap-4 pb-8">
           {filteredNotes.length === 0 ? (
             <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">
               <p>No notes found</p>

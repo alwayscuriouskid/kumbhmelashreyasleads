@@ -55,54 +55,56 @@ const NoteCard = ({ note, onUpdate, categories, tags }: NoteCardProps) => {
   };
 
   return (
-    <ResizablePanelGroup direction="horizontal" className="min-h-[200px]">
-      <ResizablePanel defaultSize={50}>
-        <Card className="group hover:border-primary/50 transition-colors h-full">
-          <CardHeader className="space-y-1">
-            <NoteHeader
-              isEditing={isEditing}
-              editedNote={editedNote}
-              setEditedNote={setEditedNote}
-              setIsEditing={setIsEditing}
-              handleSave={handleSave}
-              categories={categories}
-              originalNote={note}
-            />
-          </CardHeader>
-          <CardContent>
-            {isEditing ? (
-              <Textarea
-                value={editedNote.content}
-                onChange={(e) =>
-                  setEditedNote({ ...editedNote, content: e.target.value })
-                }
-                className="min-h-[100px] text-sm"
-                placeholder="Note Content"
+    <div className="resize overflow-auto rounded-lg border border-border">
+      <ResizablePanelGroup direction="horizontal">
+        <ResizablePanel>
+          <Card className="group hover:border-primary/50 transition-colors h-full border-0">
+            <CardHeader className="space-y-1">
+              <NoteHeader
+                isEditing={isEditing}
+                editedNote={editedNote}
+                setEditedNote={setEditedNote}
+                setIsEditing={setIsEditing}
+                handleSave={handleSave}
+                categories={categories}
+                originalNote={note}
               />
-            ) : (
-              <p className="text-sm text-muted-foreground line-clamp-3">
-                {note.content}
-              </p>
-            )}
-          </CardContent>
-          <CardFooter className="flex flex-wrap gap-2">
-            <NoteTags
-              isEditing={isEditing}
-              editedNote={editedNote}
-              newTag={newTag}
-              setNewTag={setNewTag}
-              handleAddTag={handleAddTag}
-              handleRemoveTag={handleRemoveTag}
-              availableTags={tags}
-            />
-          </CardFooter>
-        </Card>
-      </ResizablePanel>
-      <ResizableHandle withHandle />
-      <ResizablePanel defaultSize={50}>
-        <div className="h-full bg-muted/10 rounded-md" />
-      </ResizablePanel>
-    </ResizablePanelGroup>
+            </CardHeader>
+            <CardContent>
+              {isEditing ? (
+                <Textarea
+                  value={editedNote.content}
+                  onChange={(e) =>
+                    setEditedNote({ ...editedNote, content: e.target.value })
+                  }
+                  className="min-h-[100px] text-sm"
+                  placeholder="Note Content"
+                />
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {note.content}
+                </p>
+              )}
+            </CardContent>
+            <CardFooter className="flex flex-wrap gap-2">
+              <NoteTags
+                isEditing={isEditing}
+                editedNote={editedNote}
+                newTag={newTag}
+                setNewTag={setNewTag}
+                handleAddTag={handleAddTag}
+                handleRemoveTag={handleRemoveTag}
+                availableTags={tags}
+              />
+            </CardFooter>
+          </Card>
+        </ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel>
+          <div className="h-full bg-muted/10 rounded-md" />
+        </ResizablePanel>
+      </ResizablePanelGroup>
+    </div>
   );
 };
 
