@@ -9,14 +9,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
+import { X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface CreateNoteDialogProps {
   open: boolean;
@@ -36,6 +31,8 @@ const CreateNoteDialog = ({
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [newTag, setNewTag] = useState("");
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -51,7 +48,7 @@ const CreateNoteDialog = ({
     }
 
     // Add note creation logic here
-    console.log("Creating note:", { title, content, category });
+    console.log("Creating note:", { title, content, category, tags: selectedTags });
     
     toast({
       title: "Success",
@@ -62,6 +59,26 @@ const CreateNoteDialog = ({
     setTitle("");
     setContent("");
     setCategory("");
+    setSelectedTags([]);
+    setNewTag("");
+  };
+
+  const handleAddTag = () => {
+    if (newTag && !selectedTags.includes(newTag)) {
+      setSelectedTags([...selectedTags, newTag]);
+      setNewTag("");
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setSelectedTags(selectedTags.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleCategoryChange = (value: string) => {
+    if (!categories.includes(value)) {
+      onAddCategory(value);
+    }
+    setCategory(value);
   };
 
   return (
@@ -88,18 +105,53 @@ const CreateNoteDialog = ({
               />
             </div>
             <div className="space-y-2">
-              <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Input
+                placeholder="Enter category"
+                value={category}
+                onChange={(e) => handleCategoryChange(e.target.value)}
+                list="categories"
+              />
+              <datalist id="categories">
+                {categories.map((cat) => (
+                  <option key={cat} value={cat} />
+                ))}
+              </datalist>
+            </div>
+            <div className="space-y-2">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Add tag"
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddTag();
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleAddTag}
+                  disabled={!newTag}
+                >
+                  Add Tag
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {selectedTags.map((tag) => (
+                  <Badge
+                    key={tag}
+                    variant="secondary"
+                    className="text-xs cursor-pointer"
+                    onClick={() => handleRemoveTag(tag)}
+                  >
+                    {tag}
+                    <X className="h-3 w-3 ml-1" />
+                  </Badge>
+                ))}
+              </div>
             </div>
           </div>
           <DialogFooter>
