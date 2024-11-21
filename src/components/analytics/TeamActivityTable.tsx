@@ -11,9 +11,10 @@ interface Activity {
   time: string;
   teamMember: string;
   date: string;
+  leadName: string; // Added lead name field
 }
 
-// This would typically come from your API/database
+// Updated mock data to include lead information
 const activities: Activity[] = [
   {
     id: "1",
@@ -22,6 +23,7 @@ const activities: Activity[] = [
     time: "10:00 AM",
     teamMember: "john",
     date: "2024-03-20",
+    leadName: "ABC Corp"
   },
   {
     id: "2",
@@ -30,6 +32,7 @@ const activities: Activity[] = [
     time: "2:00 PM",
     teamMember: "jane",
     date: "2024-03-20",
+    leadName: "XYZ Ltd"
   },
   {
     id: "3",
@@ -38,6 +41,7 @@ const activities: Activity[] = [
     time: "11:30 AM",
     teamMember: "mike",
     date: "2024-03-20",
+    leadName: "Tech Solutions"
   },
 ];
 
@@ -94,6 +98,7 @@ const TeamActivityTable = ({ selectedDate: propSelectedDate, selectedTeamMember:
             <TableHead>Type</TableHead>
             <TableHead>Description</TableHead>
             <TableHead>Team Member</TableHead>
+            <TableHead>Lead</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -103,11 +108,12 @@ const TeamActivityTable = ({ selectedDate: propSelectedDate, selectedTeamMember:
               <TableCell className="capitalize">{activity.type}</TableCell>
               <TableCell>{activity.description}</TableCell>
               <TableCell className="capitalize">{activity.teamMember}</TableCell>
+              <TableCell>{activity.leadName}</TableCell>
             </TableRow>
           ))}
           {filteredActivities.length === 0 && (
             <TableRow>
-              <TableCell colSpan={4} className="text-center py-4">
+              <TableCell colSpan={5} className="text-center py-4">
                 No activities found for the selected filters
               </TableCell>
             </TableRow>
