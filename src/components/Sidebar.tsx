@@ -9,6 +9,7 @@ import {
   CheckSquare,
   Users,
   FileStack,
+  Activity,
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -21,6 +22,7 @@ const Sidebar = () => {
   const menuItems = [
     { path: "/leads", icon: Users, label: "Leads" },
     { path: "/leads/analytics", icon: BarChart, label: "Lead Analytics" },
+    { path: "/team-activities", icon: Activity, label: "Team Activities" },
     { path: "/notes", icon: FileText, label: "Notes" },
     { path: "/templates", icon: FolderKanban, label: "Templates" },
     { path: "/todo", icon: ListTodo, label: "Todo" },
