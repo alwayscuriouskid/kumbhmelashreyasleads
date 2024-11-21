@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface LeadFormStatusProps {
   status: string;
@@ -13,11 +14,37 @@ interface LeadFormStatusProps {
 
 const LeadFormStatus = ({ status, onStatusChange, customStatuses, onAddCustomStatus }: LeadFormStatusProps) => {
   const [newStatus, setNewStatus] = useState("");
+  const { toast } = useToast();
 
   const handleAddStatus = () => {
     if (newStatus.trim()) {
-      onAddCustomStatus(newStatus.trim().toLowerCase());
+      const formattedStatus = newStatus.trim().toLowerCase();
+      
+      // Check if status already exists
+      if ([...customStatuses, "pending", "approved", "rejected", "followup"].includes(formattedStatus)) {
+        toast({
+          title: "Status already exists",
+          description: "Please enter a different status name.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log("Adding new status:", formattedStatus);
+      onAddCustomStatus(formattedStatus);
       setNewStatus("");
+      
+      toast({
+        title: "Status Added",
+        description: `New status "${formattedStatus}" has been added successfully.`,
+      });
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddStatus();
     }
   };
 
@@ -34,9 +61,9 @@ const LeadFormStatus = ({ status, onStatusChange, customStatuses, onAddCustomSta
             <SelectItem value="approved">Approved</SelectItem>
             <SelectItem value="rejected">Rejected</SelectItem>
             <SelectItem value="followup">Follow Up</SelectItem>
-            {customStatuses.map((status) => (
-              <SelectItem key={status} value={status}>
-                {status.charAt(0).toUpperCase() + status.slice(1)}
+            {customStatuses.map((customStatus) => (
+              <SelectItem key={customStatus} value={customStatus}>
+                {customStatus.charAt(0).toUpperCase() + customStatus.slice(1)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -48,6 +75,7 @@ const LeadFormStatus = ({ status, onStatusChange, customStatuses, onAddCustomSta
           placeholder="Add new status..."
           value={newStatus}
           onChange={(e) => setNewStatus(e.target.value)}
+          onKeyPress={handleKeyPress}
         />
         <Button type="button" onClick={handleAddStatus}>
           Add Status
