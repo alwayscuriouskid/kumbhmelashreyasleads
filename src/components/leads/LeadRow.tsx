@@ -89,7 +89,7 @@ const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProp
   return (
     <>
       <TableRow className="group hover:bg-muted/50">
-        <TableCell className="w-[50px]">
+        <TableCell className="w-[50px] sticky left-0 z-20 bg-background">
           <Button
             variant="ghost"
             size="sm"
@@ -163,7 +163,8 @@ const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProp
         {visibleColumns.budget && (
           <TableCell>{renderCell("budget", lead.budget || "-")}</TableCell>
         )}
-        <TableCell>
+
+        <TableCell className="sticky right-0 z-20 bg-background">
           {!isEditing ? (
             <Button
               variant="ghost"

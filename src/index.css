@@ -45,7 +45,8 @@
   @apply w-full overflow-x-auto;
   scrollbar-width: thin;
   scrollbar-color: var(--primary) transparent;
-  max-width: 100%;
+  max-width: 100vw;
+  position: relative;
 }
 
 .table-container::-webkit-scrollbar {
