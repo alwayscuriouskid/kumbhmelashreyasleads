@@ -9,15 +9,22 @@ import WeeklyActivityChart from "@/components/analytics/WeeklyActivityChart";
 import TeamPerformance from "@/components/analytics/TeamPerformance";
 import { useState } from "react";
 
+interface Filters {
+  timeRange: string;
+  teamMember?: string;
+  startDate?: Date;
+  endDate?: Date;
+}
+
 const LeadAnalytics = () => {
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<Filters>({
     timeRange: "today",
-    teamMember: undefined,
-    startDate: undefined,
-    endDate: undefined,
   });
 
-  console.log("Rendering LeadAnalytics page with filters:", filters);
+  const handleFilterChange = (newFilters: Filters) => {
+    setFilters(newFilters);
+    console.log("Filters updated:", newFilters);
+  };
 
   return (
     <div className="space-y-4 w-full max-w-[calc(100vw-280px)]">
@@ -26,7 +33,7 @@ const LeadAnalytics = () => {
       </div>
 
       <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <ActivityFilters onFilterChange={setFilters} />
+        <ActivityFilters onFilterChange={handleFilterChange} />
       </Card>
       
       <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

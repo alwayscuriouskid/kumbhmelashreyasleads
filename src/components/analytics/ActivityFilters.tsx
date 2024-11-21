@@ -1,6 +1,5 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 interface ActivityFiltersProps {
@@ -14,9 +13,9 @@ interface ActivityFiltersProps {
 
 const ActivityFilters = ({ onFilterChange }: ActivityFiltersProps) => {
   const [timeRange, setTimeRange] = useState("today");
-  const [teamMember, setTeamMember] = useState<string>();
-  const [startDate, setStartDate] = useState<Date>();
-  const [endDate, setEndDate] = useState<Date>();
+  const [teamMember, setTeamMember] = useState<string | undefined>();
+  const [startDate, setStartDate] = useState<Date | undefined>();
+  const [endDate, setEndDate] = useState<Date | undefined>();
 
   const handleFilterChange = () => {
     onFilterChange({
