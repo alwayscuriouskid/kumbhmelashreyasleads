@@ -1,5 +1,4 @@
 import { Table, TableHeader, TableBody, TableHead, TableRow } from "@/components/ui/table";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import LeadRow from "./LeadRow";
 import { Lead } from "@/types/leads";
 

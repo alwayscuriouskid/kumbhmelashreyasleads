@@ -147,6 +147,8 @@ const Leads = () => {
         <LeadsFilters
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
           visibleColumns={visibleColumns}
           toggleColumn={toggleColumn}
           customStatuses={customStatuses}
