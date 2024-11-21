@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useFiles } from "@/hooks/useFiles";
 import { FileType } from "@/types/files";
 import { CreateFolderDialog } from "@/components/files/CreateFolderDialog";
-import { FileList } from "@/components/files/FileList";
+import { useNavigate } from "react-router-dom";
 import {
   Sheet,
   SheetContent,
@@ -19,7 +19,8 @@ const Files = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedType, setSelectedType] = useState<FileType | "all">("all");
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
-  const { folders, tags, addFolder, deleteFolder, addFile, deleteFile, addTag, addTagToFile, removeTagFromFile } = useFiles();
+  const { folders, tags, addFolder } = useFiles();
+  const navigate = useNavigate();
 
   const filteredFolders = folders.filter((folder) => {
     const matchesSearch = folder.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -29,7 +30,6 @@ const Files = () => {
       );
     
     const matchesType = selectedType === "all" || folder.type === selectedType;
-
     const matchesTags = selectedTags.length === 0 ||
       folder.files.some(file =>
         file.tags.some(tag => selectedTags.includes(tag.id))
@@ -110,16 +110,23 @@ const Files = () => {
         </Sheet>
       </div>
 
-      <FileList
-        folders={filteredFolders}
-        onDeleteFolder={deleteFolder}
-        onAddFile={addFile}
-        onDeleteFile={deleteFile}
-        onAddTag={addTag}
-        onAddTagToFile={addTagToFile}
-        onRemoveTagFromFile={removeTagFromFile}
-        availableTags={tags}
-      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {filteredFolders.map((folder) => (
+          <Button
+            key={folder.id}
+            variant="outline"
+            size="lg"
+            className="h-32 flex flex-col items-center justify-center gap-2"
+            onClick={() => navigate(`/files/${folder.id}`)}
+          >
+            <FolderPlus className="h-8 w-8" />
+            <span className="font-medium">{folder.name}</span>
+            <span className="text-sm text-muted-foreground">
+              ({folder.files.length} files)
+            </span>
+          </Button>
+        ))}
+      </div>
 
       <CreateFolderDialog
         open={isCreateFolderOpen}
