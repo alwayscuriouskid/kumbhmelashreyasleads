@@ -5,4 +5,7 @@ export interface Note {
   category?: string;
   tags?: string[];
   createdAt: string;
+  position?: { x: number; y: number };
+  width?: number;
+  height?: number;
 }

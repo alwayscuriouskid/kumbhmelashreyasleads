@@ -10,6 +10,7 @@ export const useNotes = () => {
       category: "Work",
       tags: ["feature", "research"],
       createdAt: new Date().toISOString(),
+      position: { x: 100, y: 100 },
     },
     {
       id: "2",
@@ -18,6 +19,7 @@ export const useNotes = () => {
       category: "Work",
       tags: ["meeting", "followup"],
       createdAt: new Date().toISOString(),
+      position: { x: 450, y: 100 },
     },
     {
       id: "3",
@@ -26,16 +28,24 @@ export const useNotes = () => {
       category: "Important",
       tags: ["deadline", "urgent"],
       createdAt: new Date().toISOString(),
+      position: { x: 800, y: 100 },
     },
   ]);
 
-  const categories = ["Work", "Personal", "Important", "Ideas"];
-  const tags = ["feature", "research", "meeting", "followup", "deadline", "urgent"];
+  const [categories, setCategories] = useState<string[]>(["Work", "Personal", "Important", "Ideas"]);
+  const [tags, setTags] = useState<string[]>(["feature", "research", "meeting", "followup", "deadline", "urgent"]);
+
+  const addCategory = (category: string) => {
+    if (!categories.includes(category)) {
+      setCategories([...categories, category]);
+    }
+  };
 
   return {
     notes,
     setNotes,
     categories,
     tags,
+    addCategory,
   };
 };

@@ -3,6 +3,7 @@ import { CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, X, Edit2 } from "lucide-react";
 import { Note } from "@/types/notes";
+import { useState } from "react";
 
 interface NoteHeaderProps {
   isEditing: boolean;
@@ -12,6 +13,7 @@ interface NoteHeaderProps {
   handleSave: () => void;
   categories: string[];
   originalNote: Note;
+  onAddCategory: (category: string) => void;
 }
 
 export const NoteHeader = ({
@@ -22,7 +24,18 @@ export const NoteHeader = ({
   handleSave,
   categories,
   originalNote,
+  onAddCategory,
 }: NoteHeaderProps) => {
+  const [newCategory, setNewCategory] = useState("");
+
+  const handleCategoryChange = (value: string) => {
+    if (!categories.includes(value)) {
+      onAddCategory(value);
+    }
+    setEditedNote({ ...editedNote, category: value });
+    setNewCategory("");
+  };
+
   return (
     <>
       <div className="flex items-start justify-between">
@@ -78,11 +91,10 @@ export const NoteHeader = ({
       {isEditing && (
         <Input
           value={editedNote.category || ""}
-          onChange={(e) =>
-            setEditedNote({ ...editedNote, category: e.target.value })
-          }
+          onChange={(e) => handleCategoryChange(e.target.value)}
           placeholder="Enter category"
           list="categories"
+          className="mt-2"
         />
       )}
       <datalist id="categories">
