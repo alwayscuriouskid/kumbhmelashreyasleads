@@ -4,11 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Plus } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Lead } from "@/types/leads";
 import LeadRow from "@/components/leads/LeadRow";
+import { useToast } from "@/components/ui/use-toast";
 
 const mockLeads: Lead[] = [
   {
@@ -54,14 +55,16 @@ const mockLeads: Lead[] = [
     status: "approved",
     remarks: "Contract signed",
     budget: "₹750,000",
-    followUps: [] // Added empty followUps array
+    followUps: []
   }
 ];
 
 const Leads = () => {
-  const [leads] = useState<Lead[]>(mockLeads);
+  const [leads, setLeads] = useState<Lead[]>(mockLeads);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(true);
+  const { toast } = useToast();
   const [visibleColumns, setVisibleColumns] = useState({
     date: true,
     clientName: true,
@@ -76,9 +79,23 @@ const Leads = () => {
     budget: true
   });
 
-  const filteredLeads = statusFilter === "all" 
-    ? leads 
-    : leads.filter(lead => lead.status === statusFilter);
+  const handleUpdateLead = (updatedLead: Lead) => {
+    setLeads(prevLeads =>
+      prevLeads.map(lead =>
+        lead.id === updatedLead.id ? updatedLead : lead
+      )
+    );
+  };
+
+  const filteredLeads = leads
+    .filter(lead => statusFilter === "all" || lead.status === statusFilter)
+    .filter(lead =>
+      searchQuery
+        ? lead.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          lead.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          lead.contactPerson.toLowerCase().includes(searchQuery.toLowerCase())
+        : true
+    );
 
   const toggleColumn = (column: keyof typeof visibleColumns) => {
     setVisibleColumns(prev => ({
@@ -100,6 +117,10 @@ const Leads = () => {
               {showFilters ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
               {showFilters ? "Hide Filters" : "Show Filters"}
             </Button>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Add New Lead
+            </Button>
           </div>
         </div>
 
@@ -120,7 +141,11 @@ const Leads = () => {
               </Select>
 
               <div className="flex-1">
-                <Input placeholder="Search by client name, location, or contact person..." />
+                <Input 
+                  placeholder="Search by client name, location, or contact person..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
             </div>
 
@@ -160,6 +185,7 @@ const Leads = () => {
                 {visibleColumns.remarks && <TableHead>Remarks</TableHead>}
                 {visibleColumns.nextFollowUp && <TableHead>Next Follow Up</TableHead>}
                 {visibleColumns.budget && <TableHead>Budget</TableHead>}
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -168,6 +194,7 @@ const Leads = () => {
                   key={lead.id} 
                   lead={lead} 
                   visibleColumns={visibleColumns}
+                  onUpdate={handleUpdateLead}
                 />
               ))}
             </TableBody>
