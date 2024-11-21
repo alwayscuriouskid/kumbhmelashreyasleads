@@ -1,12 +1,17 @@
 import { useState } from "react";
 import { Lead } from "@/types/leads";
 import { TableRow, TableCell } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp, Pencil, Save, X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import LeadRowContent from "./LeadRowContent";
 import LeadRowExpanded from "./LeadRowExpanded";
-import LeadRowActions from "./LeadRowActions";
+import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface LeadRowProps {
   lead: Lead;
@@ -63,23 +68,6 @@ const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProp
   return (
     <>
       <TableRow className="group hover:bg-muted/50">
-        <TableCell className="sticky left-0 bg-background">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="h-8 w-8 p-0"
-            >
-              {isExpanded ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-        </TableCell>
-        
         <LeadRowContent 
           lead={lead}
           visibleColumns={visibleColumns}
@@ -89,40 +77,34 @@ const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProp
           customStatuses={customStatuses}
         />
 
-        <TableCell className="sticky right-0 bg-background/80 backdrop-blur-sm">
-          <div className="flex items-center justify-end gap-1">
-            {!isEditing ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleEdit}
-                className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                title="Edit"
-              >
-                <Pencil className="h-3.5 w-3.5" />
-              </Button>
-            ) : (
-              <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleSave}
-                  className="h-8 w-8 p-0 text-green-500 hover:text-green-600"
-                  title="Save"
-                >
-                  <Save className="h-3.5 w-3.5" />
+        <TableCell className="sticky right-0 bg-background/80 backdrop-blur-sm w-[60px] p-0">
+          <div className="flex items-center justify-center h-full">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <ChevronDown className="h-4 w-4" />
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleCancel}
-                  className="h-8 w-8 p-0 text-red-500 hover:text-red-600"
-                  title="Cancel"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </Button>
-              </>
-            )}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[150px]">
+                <DropdownMenuItem onClick={() => setIsExpanded(!isExpanded)}>
+                  {isExpanded ? "Hide Details" : "Show Details"}
+                </DropdownMenuItem>
+                {!isEditing ? (
+                  <DropdownMenuItem onClick={handleEdit}>
+                    Edit Lead
+                  </DropdownMenuItem>
+                ) : (
+                  <>
+                    <DropdownMenuItem onClick={handleSave}>
+                      Save Changes
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleCancel}>
+                      Cancel Edit
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </TableCell>
       </TableRow>

@@ -80,20 +80,15 @@
   vertical-align: top;
 }
 
-.table-container th:first-child,
-.table-container td:first-child {
-  position: sticky;
-  left: 0;
-  z-index: 2;
-  @apply bg-background;
-}
-
 .table-container th:last-child,
 .table-container td:last-child {
   position: sticky;
   right: 0;
   z-index: 2;
   @apply bg-background/80 backdrop-blur-sm;
+  padding: 0;
+  width: 60px;
+  min-width: 60px;
 }
 
 .table-container::-webkit-scrollbar {
