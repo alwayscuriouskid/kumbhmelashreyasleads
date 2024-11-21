@@ -128,7 +128,7 @@ const Leads = () => {
   return (
     <div className="space-y-4">
       <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container max-w-[1400px]">
+        <div className="container max-w-full">
           <LeadsHeader
             onAddNew={() => setShowAddForm(true)}
             searchQuery={searchQuery}
@@ -159,7 +159,7 @@ const Leads = () => {
       </Card>
 
       <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container max-w-[1400px]">
+        <div className="container max-w-full">
           <LeadsTable
             leads={filteredLeads}
             visibleColumns={visibleColumns}

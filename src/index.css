@@ -42,10 +42,11 @@
 }
 
 .table-container {
-  @apply w-full overflow-x-auto;
+  @apply w-full;
+  overflow-x: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--primary) transparent;
-  max-width: 100vw;
+  max-width: calc(100vw - 3rem); /* Account for padding */
   position: relative;
 }
 
