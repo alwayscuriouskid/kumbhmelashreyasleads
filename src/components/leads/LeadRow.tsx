@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Lead } from "@/types/leads";
 import { TableRow, TableCell } from "@/components/ui/table";
-import { ChevronDown, ChevronUp, Pencil, Save, X } from "lucide-react";
+import { ChevronDown, ChevronUp, MoreHorizontal } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import LeadRowContent from "./LeadRowContent";
 import LeadRowExpanded from "./LeadRowExpanded";
@@ -77,35 +77,42 @@ const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProp
           customStatuses={customStatuses}
         />
 
-        <TableCell className="sticky right-0 bg-background/80 backdrop-blur-sm w-[60px] p-0">
-          <div className="flex items-center justify-center h-full">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[150px]">
-                <DropdownMenuItem onClick={() => setIsExpanded(!isExpanded)}>
-                  {isExpanded ? "Hide Details" : "Show Details"}
-                </DropdownMenuItem>
-                {!isEditing ? (
-                  <DropdownMenuItem onClick={handleEdit}>
-                    Edit Lead
-                  </DropdownMenuItem>
+        <TableCell className="sticky right-0 bg-background/80 backdrop-blur-sm w-[40px] p-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8 p-0 opacity-50 hover:opacity-100"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[150px]">
+              <DropdownMenuItem onClick={() => setIsExpanded(!isExpanded)}>
+                {isExpanded ? (
+                  <ChevronUp className="h-4 w-4 mr-2" />
                 ) : (
-                  <>
-                    <DropdownMenuItem onClick={handleSave}>
-                      Save Changes
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleCancel}>
-                      Cancel Edit
-                    </DropdownMenuItem>
-                  </>
+                  <ChevronDown className="h-4 w-4 mr-2" />
                 )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+                {isExpanded ? "Hide Details" : "Show Details"}
+              </DropdownMenuItem>
+              {!isEditing ? (
+                <DropdownMenuItem onClick={handleEdit}>
+                  Edit Lead
+                </DropdownMenuItem>
+              ) : (
+                <>
+                  <DropdownMenuItem onClick={handleSave}>
+                    Save Changes
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleCancel}>
+                    Cancel Edit
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </TableCell>
       </TableRow>
       
