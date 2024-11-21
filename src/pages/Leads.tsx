@@ -128,7 +128,7 @@ const Leads = () => {
   return (
     <div className="space-y-4">
       <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="max-w-[1400px] mx-auto">
+        <div className="container max-w-[1400px]">
           <LeadsHeader
             onAddNew={() => setShowAddForm(true)}
             searchQuery={searchQuery}
@@ -159,12 +159,14 @@ const Leads = () => {
       </Card>
 
       <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <LeadsTable
-          leads={filteredLeads}
-          visibleColumns={visibleColumns}
-          onUpdateLead={handleUpdateLead}
-          customStatuses={customStatuses}
-        />
+        <div className="container max-w-[1400px]">
+          <LeadsTable
+            leads={filteredLeads}
+            visibleColumns={visibleColumns}
+            onUpdateLead={handleUpdateLead}
+            customStatuses={customStatuses}
+          />
+        </div>
       </Card>
     </div>
   );
