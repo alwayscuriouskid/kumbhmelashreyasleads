@@ -14,7 +14,7 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className={cn(
+    <aside className={cn(
       "h-screen bg-sidebar p-4 transition-all duration-300 z-50 flex-shrink-0",
       isCollapsed ? "w-16" : "w-64"
     )}>
@@ -57,7 +57,7 @@ const Sidebar = () => {
           );
         })}
       </nav>
-    </div>
+    </aside>
   );
 };
 
