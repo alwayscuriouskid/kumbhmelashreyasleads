@@ -34,7 +34,11 @@ const mockLeads: Lead[] = [
         outcome: "Positive response",
         nextFollowUpDate: "2024-02-25"
       }
-    ]
+    ],
+    activities: [], // Added missing property
+    createdAt: "2024-02-20T10:00:00Z", // Added missing property
+    updatedAt: "2024-02-20T10:00:00Z", // Added missing property
+    score: 75 // Optional property added
   },
   {
     id: "2",
@@ -52,7 +56,11 @@ const mockLeads: Lead[] = [
     status: "approved",
     remarks: "Contract signed",
     budget: "₹750,000",
-    followUps: []
+    followUps: [],
+    activities: [], // Added missing property
+    createdAt: "2024-02-21T09:00:00Z", // Added missing property
+    updatedAt: "2024-02-21T09:00:00Z", // Added missing property
+    score: 90 // Optional property added
   }
 ];
 
