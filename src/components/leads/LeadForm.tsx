@@ -6,15 +6,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Lead } from "@/types/leads";
+import CustomStatusInput from "./CustomStatusInput";
 
 interface LeadFormProps {
   onSubmit: (lead: Partial<Lead>) => void;
   onCancel: () => void;
   initialData?: Partial<Lead>;
   mode?: "add" | "edit";
+  customStatuses: string[];
 }
 
-const LeadForm = ({ onSubmit, onCancel, initialData, mode = "add" }: LeadFormProps) => {
+const LeadForm = ({ onSubmit, onCancel, initialData, mode = "add", customStatuses }: LeadFormProps) => {
   const [formData, setFormData] = useState<Partial<Lead>>(
     initialData || {
       clientName: "",
@@ -137,6 +139,11 @@ const LeadForm = ({ onSubmit, onCancel, initialData, mode = "add" }: LeadFormPro
                   <SelectItem value="approved">Approved</SelectItem>
                   <SelectItem value="rejected">Rejected</SelectItem>
                   <SelectItem value="followup">Follow Up</SelectItem>
+                  {customStatuses.map((status) => (
+                    <SelectItem key={status} value={status}>
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

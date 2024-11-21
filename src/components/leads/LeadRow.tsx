@@ -6,14 +6,16 @@ import { ChevronDown, ChevronUp, Edit2, Save, X } from "lucide-react";
 import LeadFollowUps from "./LeadFollowUps";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface LeadRowProps {
   lead: Lead;
   visibleColumns: Record<string, boolean>;
   onUpdate?: (updatedLead: Lead) => void;
+  customStatuses: string[];
 }
 
-const LeadRow = ({ lead, visibleColumns, onUpdate }: LeadRowProps) => {
+const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedLead, setEditedLead] = useState<Lead>(lead);
@@ -49,16 +51,25 @@ const LeadRow = ({ lead, visibleColumns, onUpdate }: LeadRowProps) => {
     
     if (field === "status") {
       return (
-        <select
-          className="w-full p-2 border rounded"
+        <Select
           value={editedLead.status}
-          onChange={(e) => handleInputChange("status", e.target.value)}
+          onValueChange={(value) => handleInputChange("status", value)}
         >
-          <option value="pending">Pending</option>
-          <option value="approved">Approved</option>
-          <option value="rejected">Rejected</option>
-          <option value="followup">Follow Up</option>
-        </select>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Select status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="approved">Approved</SelectItem>
+            <SelectItem value="rejected">Rejected</SelectItem>
+            <SelectItem value="followup">Follow Up</SelectItem>
+            {customStatuses.map((status) => (
+              <SelectItem key={status} value={status}>
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       );
     }
 
