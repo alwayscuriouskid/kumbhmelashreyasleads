@@ -13,9 +13,9 @@ const LeadsTable = ({ leads, visibleColumns, onUpdateLead, customStatuses }: Lea
   return (
     <div className="table-container">
       <Table>
-        <TableHeader>
+        <TableHeader className="sticky left-0">
           <TableRow>
-            <TableHead className="w-[50px]"></TableHead>
+            <TableHead className="w-[50px] bg-background"></TableHead>
             {visibleColumns.date && <TableHead>Date</TableHead>}
             {visibleColumns.clientName && <TableHead>Client Name</TableHead>}
             {visibleColumns.location && <TableHead>Location</TableHead>}
@@ -27,7 +27,7 @@ const LeadsTable = ({ leads, visibleColumns, onUpdateLead, customStatuses }: Lea
             {visibleColumns.remarks && <TableHead>Remarks</TableHead>}
             {visibleColumns.nextFollowUp && <TableHead>Next Follow Up</TableHead>}
             {visibleColumns.budget && <TableHead>Budget</TableHead>}
-            <TableHead>Actions</TableHead>
+            <TableHead className="sticky right-0 bg-background">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

@@ -63,17 +63,17 @@ const Leads = () => {
   const [customStatuses, setCustomStatuses] = useState<string[]>([]);
   const { toast } = useToast();
   const [visibleColumns, setVisibleColumns] = useState({
-    date: true,
-    clientName: true,
+    date: false,
+    clientName: false,
     location: true,
     contactPerson: true,
-    phone: true,
-    email: true,
-    requirements: true,
-    status: true,
+    phone: false,
+    email: false,
+    requirements: false,
+    status: false,
     remarks: true,
-    nextFollowUp: true,
-    budget: true
+    nextFollowUp: false,
+    budget: false
   });
 
   const handleAddCustomStatus = (status: string) => {
