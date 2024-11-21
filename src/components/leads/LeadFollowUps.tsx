@@ -22,14 +22,14 @@ const LeadFollowUps = ({ leadId, followUps = [], onFollowUpSubmit }: LeadFollowU
   };
 
   return (
-    <div className="space-y-4 max-w-3xl mx-auto px-4 sm:px-6">
-      <div className="flex flex-col items-center justify-center gap-4 text-center">
+    <div className="space-y-4 max-w-3xl mx-auto px-2 sm:px-6">
+      <div className="flex flex-row items-center justify-between gap-2 flex-wrap">
         <h3 className="text-lg font-semibold">Follow-ups & Activities</h3>
         <Button
           onClick={() => setShowNewForm(!showNewForm)}
           variant="outline"
           size="sm"
-          className="w-full sm:w-auto min-w-[160px]"
+          className="shrink-0"
         >
           <Plus className="h-4 w-4 mr-2" />
           Add Follow-up
@@ -48,28 +48,28 @@ const LeadFollowUps = ({ leadId, followUps = [], onFollowUpSubmit }: LeadFollowU
         </Card>
       )}
 
-      <ScrollArea className="h-[400px] w-full rounded-md border p-2 sm:p-4">
-        <div className="space-y-4 pr-2 sm:pr-4">
+      <ScrollArea className="h-[400px] w-full rounded-md border">
+        <div className="space-y-3 p-2 sm:p-4">
           {followUps.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">No follow-ups yet</p>
           ) : (
             followUps.map((followUp) => (
               <Card key={followUp.id} className="animate-fade-in">
-                <CardHeader className="pb-2 space-y-2">
-                  <div className="flex flex-col items-center gap-2 text-center">
-                    <CardTitle className="text-base font-medium">
+                <CardHeader className="p-3 sm:p-4 space-y-1">
+                  <div className="flex flex-row justify-between items-start gap-2 flex-wrap">
+                    <CardTitle className="text-sm font-medium">
                       {new Date(followUp.date).toLocaleDateString()}
                     </CardTitle>
                     {followUp.nextFollowUpDate && (
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-xs text-muted-foreground">
                         Next: {new Date(followUp.nextFollowUpDate).toLocaleDateString()}
                       </span>
                     )}
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-sm mb-2 break-words">{followUp.notes}</p>
-                  <p className="text-sm text-muted-foreground text-center">
+                <CardContent className="p-3 sm:p-4 pt-0">
+                  <p className="text-sm break-words">{followUp.notes}</p>
+                  <p className="text-xs text-muted-foreground mt-2">
                     Outcome: {followUp.outcome}
                   </p>
                 </CardContent>
