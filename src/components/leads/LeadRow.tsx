@@ -64,7 +64,7 @@ const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProp
     <>
       <TableRow className="group hover:bg-muted/50">
         <TableCell className="w-[40px] sticky left-0 z-20 bg-background">
-          <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-0.5">
             <Button
               variant="ghost"
               size="sm"
@@ -82,13 +82,13 @@ const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProp
                 variant="ghost"
                 size="sm"
                 onClick={handleEdit}
-                className="h-8 w-8 p-0"
+                className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
                 title="Edit"
               >
-                <Pencil className="h-4 w-4" />
+                <Pencil className="h-3.5 w-3.5" />
               </Button>
             ) : (
-              <>
+              <div className="flex items-center gap-0.5">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -96,7 +96,7 @@ const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProp
                   className="h-8 w-8 p-0 text-green-500 hover:text-green-600"
                   title="Save"
                 >
-                  <Save className="h-4 w-4" />
+                  <Save className="h-3.5 w-3.5" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -105,9 +105,9 @@ const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProp
                   className="h-8 w-8 p-0 text-red-500 hover:text-red-600"
                   title="Cancel"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-3.5 w-3.5" />
                 </Button>
-              </>
+              </div>
             )}
           </div>
         </TableCell>
