@@ -27,7 +27,7 @@ const Notes = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between sticky top-0 z-10 bg-background/80 backdrop-blur-sm pb-4">
         <h1 className="text-2xl font-bold">Notes</h1>
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <div className="relative flex-1 sm:w-[300px]">
@@ -50,9 +50,9 @@ const Notes = () => {
       </div>
 
       <ScrollArea className="h-[calc(100vh-12rem)]">
-        <div className="grid grid-cols-1 gap-4 pb-8">
+        <div className="relative min-h-[200px] p-4">
           {filteredNotes.length === 0 ? (
-            <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">
+            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
               <p>No notes found</p>
               <Button
                 variant="link"
@@ -63,15 +63,17 @@ const Notes = () => {
               </Button>
             </div>
           ) : (
-            filteredNotes.map((note) => (
-              <NoteCard
-                key={note.id}
-                note={note}
-                onUpdate={handleUpdateNote}
-                categories={categories}
-                tags={tags}
-              />
-            ))
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredNotes.map((note) => (
+                <NoteCard
+                  key={note.id}
+                  note={note}
+                  onUpdate={handleUpdateNote}
+                  categories={categories}
+                  tags={tags}
+                />
+              ))}
+            </div>
           )}
         </div>
       </ScrollArea>

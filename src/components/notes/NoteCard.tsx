@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Note } from "@/types/notes";
-import { ResizablePanel, ResizablePanelGroup, ResizableHandle } from "@/components/ui/resizable";
 import { useToast } from "@/components/ui/use-toast";
 import { NoteHeader } from "./NoteHeader";
 import { NoteTags } from "./NoteTags";
+import Draggable from "react-draggable";
 
 interface NoteCardProps {
   note: Note;
@@ -55,56 +55,51 @@ const NoteCard = ({ note, onUpdate, categories, tags }: NoteCardProps) => {
   };
 
   return (
-    <div className="resize overflow-auto rounded-lg border border-border">
-      <ResizablePanelGroup direction="horizontal">
-        <ResizablePanel>
-          <Card className="group hover:border-primary/50 transition-colors h-full border-0">
-            <CardHeader className="space-y-1">
-              <NoteHeader
-                isEditing={isEditing}
-                editedNote={editedNote}
-                setEditedNote={setEditedNote}
-                setIsEditing={setIsEditing}
-                handleSave={handleSave}
-                categories={categories}
-                originalNote={note}
+    <Draggable handle=".drag-handle" bounds="parent">
+      <div className="relative">
+        <Card className="group hover:border-primary/50 transition-colors min-w-[300px] resize overflow-auto rounded-lg">
+          <div className="absolute inset-x-0 top-0 h-6 bg-background/80 backdrop-blur-sm cursor-move drag-handle" />
+          <CardHeader className="space-y-1 pt-8">
+            <NoteHeader
+              isEditing={isEditing}
+              editedNote={editedNote}
+              setEditedNote={setEditedNote}
+              setIsEditing={setIsEditing}
+              handleSave={handleSave}
+              categories={categories}
+              originalNote={note}
+            />
+          </CardHeader>
+          <CardContent>
+            {isEditing ? (
+              <Textarea
+                value={editedNote.content}
+                onChange={(e) =>
+                  setEditedNote({ ...editedNote, content: e.target.value })
+                }
+                className="min-h-[100px] text-sm resize-y"
+                placeholder="Note Content"
               />
-            </CardHeader>
-            <CardContent>
-              {isEditing ? (
-                <Textarea
-                  value={editedNote.content}
-                  onChange={(e) =>
-                    setEditedNote({ ...editedNote, content: e.target.value })
-                  }
-                  className="min-h-[100px] text-sm"
-                  placeholder="Note Content"
-                />
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  {note.content}
-                </p>
-              )}
-            </CardContent>
-            <CardFooter className="flex flex-wrap gap-2">
-              <NoteTags
-                isEditing={isEditing}
-                editedNote={editedNote}
-                newTag={newTag}
-                setNewTag={setNewTag}
-                handleAddTag={handleAddTag}
-                handleRemoveTag={handleRemoveTag}
-                availableTags={tags}
-              />
-            </CardFooter>
-          </Card>
-        </ResizablePanel>
-        <ResizableHandle withHandle />
-        <ResizablePanel>
-          <div className="h-full bg-muted/10 rounded-md" />
-        </ResizablePanel>
-      </ResizablePanelGroup>
-    </div>
+            ) : (
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                {note.content}
+              </p>
+            )}
+          </CardContent>
+          <CardFooter className="flex flex-wrap gap-2">
+            <NoteTags
+              isEditing={isEditing}
+              editedNote={editedNote}
+              newTag={newTag}
+              setNewTag={setNewTag}
+              handleAddTag={handleAddTag}
+              handleRemoveTag={handleRemoveTag}
+              availableTags={tags}
+            />
+          </CardFooter>
+        </Card>
+      </div>
+    </Draggable>
   );
 };
 
