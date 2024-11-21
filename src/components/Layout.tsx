@@ -9,7 +9,7 @@ const Layout = ({ children }: LayoutProps) => {
   return (
     <div className="min-h-screen bg-background flex">
       <Sidebar />
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 max-w-[calc(100vw-256px)]">
         <ScrollArea className="h-screen">
           <div className="p-4 lg:p-8">
             <main className="animate-fade-in">

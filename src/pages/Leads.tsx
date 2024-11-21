@@ -126,7 +126,7 @@ const Leads = () => {
     );
 
   return (
-    <div className="max-w-[1400px] mx-auto">
+    <div className="w-full max-w-[1400px] mx-auto">
       <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <LeadsHeader
           onAddNew={() => setShowAddForm(true)}
@@ -153,12 +153,14 @@ const Leads = () => {
           onAddCustomStatus={handleAddCustomStatus}
         />
 
-        <LeadsTable
-          leads={filteredLeads}
-          visibleColumns={visibleColumns}
-          onUpdateLead={handleUpdateLead}
-          customStatuses={customStatuses}
-        />
+        <div className="overflow-hidden">
+          <LeadsTable
+            leads={filteredLeads}
+            visibleColumns={visibleColumns}
+            onUpdateLead={handleUpdateLead}
+            customStatuses={customStatuses}
+          />
+        </div>
       </Card>
     </div>
   );

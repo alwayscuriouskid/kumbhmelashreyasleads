@@ -13,7 +13,7 @@ interface LeadsTableProps {
 const LeadsTable = ({ leads, visibleColumns, onUpdateLead, customStatuses }: LeadsTableProps) => {
   return (
     <div className="border rounded-lg bg-background/50">
-      <ScrollArea className="w-full" type="always">
+      <div className="overflow-x-auto">
         <div className="min-w-max">
           <Table>
             <TableHeader>
@@ -46,7 +46,7 @@ const LeadsTable = ({ leads, visibleColumns, onUpdateLead, customStatuses }: Lea
             </TableBody>
           </Table>
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
 };
