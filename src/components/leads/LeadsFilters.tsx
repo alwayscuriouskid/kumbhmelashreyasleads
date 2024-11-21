@@ -26,8 +26,8 @@ const LeadsFilters = ({
 }: LeadsFiltersProps) => {
   return (
     <div className="space-y-4 mb-6 p-4 rounded-lg border border-muted bg-background/50">
-      <div className="flex gap-4 items-start">
-        <div className="space-y-2 flex-1">
+      <div className="flex flex-wrap gap-4">
+        <div className="space-y-2 min-w-[200px]">
           <div className="flex gap-2">
             <Input
               placeholder="Enter custom status..."
@@ -74,7 +74,7 @@ const LeadsFilters = ({
                 checked={isVisible}
                 onCheckedChange={() => toggleColumn(column)}
               />
-              <label htmlFor={column} className="text-sm text-muted-foreground capitalize">
+              <label htmlFor={column} className="text-sm text-muted-foreground capitalize whitespace-nowrap">
                 {column.replace(/([A-Z])/g, " $1").trim()}
               </label>
             </div>
