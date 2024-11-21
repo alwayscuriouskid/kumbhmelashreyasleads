@@ -14,9 +14,17 @@ interface LeadFormProps {
   initialData?: Partial<Lead>;
   mode?: "add" | "edit";
   customStatuses: string[];
+  onAddCustomStatus: (status: string) => void;
 }
 
-const LeadForm = ({ onSubmit, onCancel, initialData, mode = "add", customStatuses }: LeadFormProps) => {
+const LeadForm = ({ 
+  onSubmit, 
+  onCancel, 
+  initialData, 
+  mode = "add", 
+  customStatuses,
+  onAddCustomStatus 
+}: LeadFormProps) => {
   const [formData, setFormData] = useState<Partial<Lead>>(
     initialData || {
       clientName: "",
@@ -58,109 +66,101 @@ const LeadForm = ({ onSubmit, onCancel, initialData, mode = "add", customStatuse
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{mode === "add" ? "Add New Lead" : "Edit Lead"}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="clientName">Client Name</Label>
-              <Input
-                id="clientName"
-                value={formData.clientName}
-                onChange={(e) => handleInputChange("clientName", e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
-              <Input
-                id="location"
-                value={formData.location}
-                onChange={(e) => handleInputChange("location", e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="contactPerson">Contact Person</Label>
-              <Input
-                id="contactPerson"
-                value={formData.contactPerson}
-                onChange={(e) => handleInputChange("contactPerson", e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
-              <Input
-                id="phone"
-                value={formData.phone}
-                onChange={(e) => handleInputChange("phone", e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange("email", e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="budget">Budget</Label>
-              <Input
-                id="budget"
-                value={formData.budget}
-                onChange={(e) => handleInputChange("budget", e.target.value)}
-              />
-            </div>
-          </div>
-
-          <LeadFormStatus
-            status={formData.status || "pending"}
-            onStatusChange={(value) => handleInputChange("status", value)}
-            customStatuses={customStatuses}
-            onAddCustomStatus={(status) => {
-              console.log("Adding new status:", status);
-              handleInputChange("status", status);
-            }}
-          />
-
-          <LeadFormRequirements
-            requirement={formData.requirement || {}}
-            onRequirementChange={handleRequirementChange}
-          />
-
+    <div className="p-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="remarks">Remarks</Label>
-            <Textarea
-              id="remarks"
-              value={formData.remarks}
-              onChange={(e) => handleInputChange("remarks", e.target.value)}
+            <Label htmlFor="clientName">Client Name</Label>
+            <Input
+              id="clientName"
+              value={formData.clientName}
+              onChange={(e) => handleInputChange("clientName", e.target.value)}
+              required
             />
           </div>
 
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-            <Button type="submit">
-              {mode === "add" ? "Add Lead" : "Save Changes"}
-            </Button>
+          <div className="space-y-2">
+            <Label htmlFor="location">Location</Label>
+            <Input
+              id="location"
+              value={formData.location}
+              onChange={(e) => handleInputChange("location", e.target.value)}
+              required
+            />
           </div>
-        </form>
-      </CardContent>
-    </Card>
+
+          <div className="space-y-2">
+            <Label htmlFor="contactPerson">Contact Person</Label>
+            <Input
+              id="contactPerson"
+              value={formData.contactPerson}
+              onChange={(e) => handleInputChange("contactPerson", e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone</Label>
+            <Input
+              id="phone"
+              value={formData.phone}
+              onChange={(e) => handleInputChange("phone", e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={formData.email}
+              onChange={(e) => handleInputChange("email", e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="budget">Budget</Label>
+            <Input
+              id="budget"
+              value={formData.budget}
+              onChange={(e) => handleInputChange("budget", e.target.value)}
+            />
+          </div>
+        </div>
+
+        <LeadFormStatus
+          status={formData.status || "pending"}
+          onStatusChange={(value) => handleInputChange("status", value)}
+          customStatuses={customStatuses}
+          onAddCustomStatus={onAddCustomStatus}
+        />
+
+        <LeadFormRequirements
+          requirement={formData.requirement || {}}
+          onRequirementChange={handleRequirementChange}
+        />
+
+        <div className="space-y-2">
+          <Label htmlFor="remarks">Remarks</Label>
+          <Textarea
+            id="remarks"
+            value={formData.remarks}
+            onChange={(e) => handleInputChange("remarks", e.target.value)}
+          />
+        </div>
+
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="submit">
+            {mode === "add" ? "Add Lead" : "Save Changes"}
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 };
 

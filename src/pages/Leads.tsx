@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Lead } from "@/types/leads";
 import { useToast } from "@/components/ui/use-toast";
 import LeadsHeader from "@/components/leads/LeadsHeader";
@@ -77,12 +78,10 @@ const Leads = () => {
   });
 
   const handleAddCustomStatus = (status: string) => {
+    console.log("Parent: Adding custom status:", status);
     if (!customStatuses.includes(status)) {
       setCustomStatuses(prev => [...prev, status]);
-      toast({
-        title: "Status Added",
-        description: `New status "${status}" has been added successfully.`,
-      });
+      console.log("Updated custom statuses:", [...customStatuses, status]);
     }
   };
 
@@ -127,6 +126,17 @@ const Leads = () => {
 
   return (
     <div className="space-y-4 w-full max-w-[calc(100vw-280px)]">
+      <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <LeadForm
+            onSubmit={handleAddLead}
+            onCancel={() => setShowAddForm(false)}
+            customStatuses={customStatuses}
+            onAddCustomStatus={handleAddCustomStatus}
+          />
+        </DialogContent>
+      </Dialog>
+
       <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="w-full">
           <LeadsHeader
@@ -134,16 +144,6 @@ const Leads = () => {
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
           />
-
-          {showAddForm && (
-            <div className="mb-6">
-              <LeadForm
-                onSubmit={handleAddLead}
-                onCancel={() => setShowAddForm(false)}
-                customStatuses={customStatuses}
-              />
-            </div>
-          )}
 
           <LeadsFilters
             statusFilter={statusFilter}
