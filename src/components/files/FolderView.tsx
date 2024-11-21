@@ -1,17 +1,27 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useFiles } from "@/hooks/useFiles";
 import { FileList } from "./FileList";
-import { ArrowLeft, Upload } from "lucide-react";
+import { ArrowLeft, Upload, Search, Filter } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const FolderView = () => {
   const { folderId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { folders, addFile, deleteFile, addTag, addTagToFile, removeTagFromFile, tags } = useFiles();
+  const [search, setSearch] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   const folder = folders.find(f => f.id === folderId);
 
@@ -39,6 +49,15 @@ const FolderView = () => {
     return <div>Folder not found</div>;
   }
 
+  const filteredFiles = folder.files.filter(file => {
+    const matchesSearch = file.name.toLowerCase().includes(search.toLowerCase());
+    const matchesTags = selectedTags.length === 0 || 
+      file.tags.some(tag => selectedTags.includes(tag.id));
+    return matchesSearch && matchesTags;
+  });
+
+  const updatedFolder = { ...folder, files: filteredFiles };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -47,6 +66,54 @@ const FolderView = () => {
           Back to Folders
         </Button>
         <h1 className="text-2xl font-bold">{folder.name}</h1>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search files..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="outline">
+              <Filter className="h-4 w-4 mr-2" />
+              Filters
+            </Button>
+          </SheetTrigger>
+          <SheetContent>
+            <SheetHeader>
+              <SheetTitle>Filters</SheetTitle>
+            </SheetHeader>
+            <div className="py-4 space-y-4">
+              <div>
+                <h3 className="text-sm font-medium mb-2">Tags</h3>
+                <div className="flex flex-wrap gap-2">
+                  {tags.map((tag) => (
+                    <Button
+                      key={tag.id}
+                      variant={selectedTags.includes(tag.id) ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        setSelectedTags(prev =>
+                          prev.includes(tag.id)
+                            ? prev.filter(id => id !== tag.id)
+                            : [...prev, tag.id]
+                        );
+                      }}
+                    >
+                      {tag.name}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
 
       <div
@@ -66,7 +133,7 @@ const FolderView = () => {
       </div>
 
       <FileList
-        folders={[folder]}
+        folders={[updatedFolder]}
         onDeleteFolder={() => {}}
         onAddFile={addFile}
         onDeleteFile={deleteFile}

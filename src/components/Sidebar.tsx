@@ -32,7 +32,7 @@ const Sidebar = () => {
     <div className="pb-12 min-h-screen w-full sm:w-64 bg-muted/40 border-r">
       <div className="space-y-4 py-4">
         <div className="px-3 py-2">
-          <h2 className="mb-2 px-4 text-lg font-semibold">Sales Navigator Pro</h2>
+          <h2 className="mb-2 px-4 text-lg font-semibold">Kumbh Mela Leads</h2>
           <div className="space-y-1">
             <ScrollArea className="h-[calc(100vh-8rem)]">
               {menuItems.map(({ path, icon: Icon, label }) => (
