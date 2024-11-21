@@ -11,12 +11,12 @@ interface LeadsTableProps {
 
 const LeadsTable = ({ leads, visibleColumns, onUpdateLead, customStatuses }: LeadsTableProps) => {
   return (
-    <div className="border rounded-lg bg-background/50">
-      <div className="table-container">
+    <div className="w-full overflow-x-auto">
+      <div className="min-w-max">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[50px] sticky left-0 bg-background/50"></TableHead>
+              <TableHead className="w-[50px]"></TableHead>
               {visibleColumns.date && <TableHead>Date</TableHead>}
               {visibleColumns.clientName && <TableHead>Client Name</TableHead>}
               {visibleColumns.location && <TableHead>Location</TableHead>}
