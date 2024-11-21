@@ -27,6 +27,8 @@ const LeadsTable = ({ leads, visibleColumns, onUpdateLead, customStatuses }: Lea
             {visibleColumns.remarks && <TableHead className="min-w-[200px]">Remarks</TableHead>}
             {visibleColumns.nextFollowUp && <TableHead className="min-w-[130px]">Next Follow Up</TableHead>}
             {visibleColumns.budget && <TableHead className="min-w-[120px]">Budget</TableHead>}
+            {visibleColumns.leadRef && <TableHead className="min-w-[120px]">Lead Reference</TableHead>}
+            {visibleColumns.leadSource && <TableHead className="min-w-[120px]">Lead Source</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>

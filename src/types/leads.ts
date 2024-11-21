@@ -31,4 +31,6 @@ export interface Lead {
   nextFollowUp?: string;
   budget?: string;
   followUps: FollowUp[];
+  leadRef?: string;
+  leadSource?: string;
 }

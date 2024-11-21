@@ -119,6 +119,12 @@ const LeadRowContent = ({
       {visibleColumns.budget && (
         <TableCell>{renderCell("budget", lead.budget || "-")}</TableCell>
       )}
+      {visibleColumns.leadRef && (
+        <TableCell>{renderCell("leadRef", lead.leadRef || "-")}</TableCell>
+      )}
+      {visibleColumns.leadSource && (
+        <TableCell>{renderCell("leadSource", lead.leadSource || "-")}</TableCell>
+      )}
     </>
   );
 };

@@ -59,6 +59,7 @@ const mockLeads: Lead[] = [
 const Leads = () => {
   const [leads, setLeads] = useState<Lead[]>(mockLeads);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [leadRefFilter, setLeadRefFilter] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [customStatuses, setCustomStatuses] = useState<string[]>([]);
@@ -74,7 +75,9 @@ const Leads = () => {
     status: false,
     remarks: true,
     nextFollowUp: false,
-    budget: false
+    budget: false,
+    leadRef: true,
+    leadSource: true
   });
 
   const handleAddCustomStatus = (status: string) => {
@@ -116,6 +119,7 @@ const Leads = () => {
 
   const filteredLeads = leads
     .filter(lead => statusFilter === "all" || lead.status === statusFilter)
+    .filter(lead => !leadRefFilter || (lead.leadRef && lead.leadRef.toLowerCase().includes(leadRefFilter.toLowerCase())))
     .filter(lead =>
       searchQuery
         ? lead.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -148,6 +152,8 @@ const Leads = () => {
           <LeadsFilters
             statusFilter={statusFilter}
             setStatusFilter={setStatusFilter}
+            leadRefFilter={leadRefFilter}
+            setLeadRefFilter={setLeadRefFilter}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             visibleColumns={visibleColumns}

@@ -5,6 +5,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 interface LeadsFiltersProps {
   statusFilter: string;
   setStatusFilter: (value: string) => void;
+  leadRefFilter: string;
+  setLeadRefFilter: (value: string) => void;
   searchQuery: string;
   setSearchQuery: (value: string) => void;
   visibleColumns: Record<string, boolean>;
@@ -16,6 +18,8 @@ interface LeadsFiltersProps {
 const LeadsFilters = ({
   statusFilter,
   setStatusFilter,
+  leadRefFilter,
+  setLeadRefFilter,
   searchQuery,
   setSearchQuery,
   visibleColumns,
@@ -44,6 +48,14 @@ const LeadsFilters = ({
               ))}
             </SelectContent>
           </Select>
+        </div>
+        <div className="space-y-2 w-full sm:w-auto">
+          <Input
+            placeholder="Filter by lead reference..."
+            value={leadRefFilter}
+            onChange={(e) => setLeadRefFilter(e.target.value)}
+            className="w-full sm:w-[180px]"
+          />
         </div>
       </div>
 

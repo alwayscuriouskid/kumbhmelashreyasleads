@@ -37,6 +37,8 @@ const LeadForm = ({
       remarks: "",
       budget: "",
       followUps: [],
+      leadRef: "",
+      leadSource: "",
     }
   );
 
@@ -126,6 +128,26 @@ const LeadForm = ({
               id="budget"
               value={formData.budget}
               onChange={(e) => handleInputChange("budget", e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="leadRef">Lead Reference</Label>
+            <Input
+              id="leadRef"
+              value={formData.leadRef}
+              onChange={(e) => handleInputChange("leadRef", e.target.value)}
+              placeholder="Enter reference person name"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="leadSource">Lead Source</Label>
+            <Input
+              id="leadSource"
+              value={formData.leadSource}
+              onChange={(e) => handleInputChange("leadSource", e.target.value)}
+              placeholder="Enter lead source"
             />
           </div>
         </div>
