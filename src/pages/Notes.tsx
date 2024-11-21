@@ -8,6 +8,7 @@ import { useNotes } from "@/hooks/useNotes";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Note } from "@/types/notes";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useToast } from "@/components/ui/use-toast";
 
 const Notes = () => {
   const [search, setSearch] = useState("");
@@ -18,6 +19,7 @@ const Notes = () => {
   }>({ categories: [], tags: [] });
   
   const { notes, setNotes, categories, tags, addCategory } = useNotes();
+  const { toast } = useToast();
 
   const filteredNotes = notes.filter((note) => {
     const matchesSearch = 
@@ -37,6 +39,16 @@ const Notes = () => {
 
   const handleUpdateNote = (updatedNote: Note) => {
     setNotes(notes.map((note) => (note.id === updatedNote.id ? updatedNote : note)));
+  };
+
+  const handleAddCategory = (category: string) => {
+    if (!categories.includes(category)) {
+      addCategory(category);
+      toast({
+        title: "Success",
+        description: `Category "${category}" has been added`,
+      });
+    }
   };
 
   const toggleFilter = (type: 'categories' | 'tags', value: string) => {
@@ -136,7 +148,7 @@ const Notes = () => {
                 onUpdate={handleUpdateNote}
                 categories={categories}
                 tags={tags}
-                onAddCategory={addCategory}
+                onAddCategory={handleAddCategory}
               />
             ))}
           </div>
@@ -148,7 +160,7 @@ const Notes = () => {
         onOpenChange={setIsCreateOpen}
         categories={categories}
         tags={tags}
-        onAddCategory={addCategory}
+        onAddCategory={handleAddCategory}
       />
     </div>
   );

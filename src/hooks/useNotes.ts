@@ -37,9 +37,14 @@ export const useNotes = () => {
 
   const addCategory = (category: string) => {
     if (!categories.includes(category)) {
-      setCategories([...categories, category]);
+      setCategories(prev => [...prev, category]);
+      console.log("Added new category:", category);
     }
   };
+
+  useEffect(() => {
+    console.log("Categories updated:", categories);
+  }, [categories]);
 
   return {
     notes,
