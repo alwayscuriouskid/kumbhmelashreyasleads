@@ -10,6 +10,7 @@ interface LeadsFiltersProps {
   visibleColumns: Record<string, boolean>;
   toggleColumn: (column: string) => void;
   customStatuses: string[];
+  onAddCustomStatus: (status: string) => void;  // Added this prop to the interface
 }
 
 const LeadsFilters = ({
@@ -20,6 +21,7 @@ const LeadsFilters = ({
   visibleColumns,
   toggleColumn,
   customStatuses,
+  onAddCustomStatus,  // Added this to the props destructuring
 }: LeadsFiltersProps) => {
   return (
     <div className="space-y-4 mb-6 p-4 rounded-lg border border-muted bg-background/50">
