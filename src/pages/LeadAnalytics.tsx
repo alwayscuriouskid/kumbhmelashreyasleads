@@ -11,7 +11,6 @@ import { useState } from "react";
 
 interface Filters {
   timeRange: string;
-  teamMember?: string;
   startDate?: Date;
   endDate?: Date;
 }
@@ -21,9 +20,10 @@ const LeadAnalytics = () => {
     timeRange: "today",
   });
 
+  console.log("Analytics filters updated:", filters);
+
   const handleFilterChange = (newFilters: Filters) => {
     setFilters(newFilters);
-    console.log("Filters updated:", newFilters);
   };
 
   return (
@@ -32,9 +32,7 @@ const LeadAnalytics = () => {
         <h1 className="text-3xl font-bold">Lead Analytics Dashboard</h1>
       </div>
 
-      <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <ActivityFilters onFilterChange={handleFilterChange} />
-      </Card>
+      <ActivityFilters onFilterChange={handleFilterChange} />
       
       <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <LeadMetrics />
