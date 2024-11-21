@@ -19,11 +19,11 @@ export interface FollowUp {
 
 export interface Activity {
   id: string;
-  type: 'call' | 'meeting' | 'email' | 'note';
+  type: 'call' | 'meeting' | 'email' | 'note' | 'status_change';
   date: string;
   startTime?: string;
   endTime?: string;
-  duration?: number; // in minutes
+  duration?: number;
   outcome: string;
   notes: string;
   nextAction?: string;
@@ -33,6 +33,10 @@ export interface Activity {
   callType?: 'incoming' | 'outgoing';
   meetingType?: 'in-person' | 'virtual';
   emailType?: 'sent' | 'received';
+  statusChange?: {
+    from: string;
+    to: string;
+  };
 }
 
 export interface Lead {
