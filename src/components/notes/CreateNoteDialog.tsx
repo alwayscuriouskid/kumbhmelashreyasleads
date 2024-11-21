@@ -23,6 +23,7 @@ interface CreateNoteDialogProps {
   onOpenChange: (open: boolean) => void;
   categories: string[];
   tags: string[];
+  onAddCategory: (category: string) => void;
 }
 
 const CreateNoteDialog = ({
@@ -30,6 +31,7 @@ const CreateNoteDialog = ({
   onOpenChange,
   categories,
   tags,
+  onAddCategory,
 }: CreateNoteDialogProps) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
