@@ -15,21 +15,21 @@ const LeadsTable = ({ leads, visibleColumns, onUpdateLead, customStatuses }: Lea
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[40px] sticky left-0 bg-background"></TableHead>
-            {visibleColumns.date && <TableHead className="min-w-[100px]">Date</TableHead>}
-            {visibleColumns.clientName && <TableHead className="min-w-[150px]">Client Name</TableHead>}
-            {visibleColumns.location && <TableHead className="min-w-[150px]">Location</TableHead>}
-            {visibleColumns.contactPerson && <TableHead className="min-w-[150px]">Contact Person</TableHead>}
-            {visibleColumns.phone && <TableHead className="min-w-[130px]">Phone</TableHead>}
-            {visibleColumns.email && <TableHead className="min-w-[200px]">Email</TableHead>}
+            <TableHead className="w-[50px] sticky left-0 bg-background z-20"></TableHead>
+            {visibleColumns.date && <TableHead>Date</TableHead>}
+            {visibleColumns.clientName && <TableHead>Client Name</TableHead>}
+            {visibleColumns.location && <TableHead>Location</TableHead>}
+            {visibleColumns.contactPerson && <TableHead>Contact Person</TableHead>}
+            {visibleColumns.phone && <TableHead>Phone</TableHead>}
+            {visibleColumns.email && <TableHead>Email</TableHead>}
             {visibleColumns.requirements && <TableHead className="min-w-[200px]">Requirements</TableHead>}
-            {visibleColumns.status && <TableHead className="min-w-[120px]">Status</TableHead>}
+            {visibleColumns.status && <TableHead>Status</TableHead>}
             {visibleColumns.remarks && <TableHead className="min-w-[200px]">Remarks</TableHead>}
-            {visibleColumns.nextFollowUp && <TableHead className="min-w-[130px]">Next Follow Up</TableHead>}
-            {visibleColumns.budget && <TableHead className="min-w-[120px]">Budget</TableHead>}
-            {visibleColumns.leadRef && <TableHead className="min-w-[120px]">Lead Reference</TableHead>}
-            {visibleColumns.leadSource && <TableHead className="min-w-[120px]">Lead Source</TableHead>}
-            <TableHead className="w-[100px] sticky right-0 bg-background">Actions</TableHead>
+            {visibleColumns.nextFollowUp && <TableHead>Next Follow Up</TableHead>}
+            {visibleColumns.budget && <TableHead>Budget</TableHead>}
+            {visibleColumns.leadRef && <TableHead>Lead Reference</TableHead>}
+            {visibleColumns.leadSource && <TableHead>Lead Source</TableHead>}
+            <TableHead className="w-[100px] sticky right-0 bg-background z-20">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
