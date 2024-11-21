@@ -28,6 +28,7 @@ const LoginPage = () => {
             }
           }}
           providers={[]}
+          redirectTo={window.location.origin}
         />
       </div>
     </div>
