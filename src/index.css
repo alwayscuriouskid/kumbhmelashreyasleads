@@ -25,6 +25,7 @@
     --ring: 224.3 76.3% 48%;
     --radius: 0.5rem;
   }
+
   * {
     @apply border-border;
   }
@@ -42,11 +43,10 @@
 }
 
 .table-container {
-  @apply w-full;
+  width: 100%;
   overflow-x: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--primary) transparent;
-  max-width: calc(100vw - 3rem); /* Account for padding */
   position: relative;
 }
 
