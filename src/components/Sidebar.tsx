@@ -15,16 +15,19 @@ const Sidebar = () => {
 
   return (
     <div className={cn(
-      "h-screen bg-sidebar fixed left-0 top-0 p-4 transition-all duration-300",
+      "fixed left-0 top-0 h-screen bg-sidebar p-4 transition-all duration-300 z-50",
       isCollapsed ? "w-16" : "w-64"
     )}>
       <div className="flex items-center justify-between mb-8">
-        <div className={cn(
-          "text-white font-bold transition-all duration-300",
-          isCollapsed ? "text-sm" : "text-xl px-4"
-        )}>
-          {isCollapsed ? "KM" : "Kumbh Mela - Shreyas"}
-        </div>
+        {!isCollapsed ? (
+          <h1 className="text-white font-bold text-xl px-2 truncate">
+            Kumbh Mela - Shreyas
+          </h1>
+        ) : (
+          <h1 className="text-white font-bold text-sm px-1">
+            KM
+          </h1>
+        )}
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="text-white hover:text-gray-300 transition-colors"
@@ -48,8 +51,8 @@ const Sidebar = () => {
                   : "text-gray-300 hover:bg-gray-700"
               )}
             >
-              <Icon className="h-5 w-5" />
-              {!isCollapsed && <span>{item.name}</span>}
+              <Icon className="h-5 w-5 flex-shrink-0" />
+              {!isCollapsed && <span className="truncate">{item.name}</span>}
             </Link>
           );
         })}
