@@ -62,6 +62,10 @@ const LeadRow = ({ lead, visibleColumns, onUpdate }: LeadRowProps) => {
       );
     }
 
+    if (field === "requirement") {
+      return content;
+    }
+
     return (
       <Input
         value={typeof editedLead[field] === 'string' ? editedLead[field] as string : ''}

@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { Table, TableHeader, TableBody, TableHead, TableRow } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Lead } from "@/types/leads";
 import LeadRow from "@/components/leads/LeadRow";
 import { useToast } from "@/components/ui/use-toast";
+import LeadsTableFilters from "@/components/leads/LeadsTableFilters";
+import LeadForm from "@/components/leads/LeadForm";
 
 const mockLeads: Lead[] = [
   {
@@ -64,6 +63,7 @@ const Leads = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(true);
+  const [showAddForm, setShowAddForm] = useState(false);
   const { toast } = useToast();
   const [visibleColumns, setVisibleColumns] = useState({
     date: true,
@@ -85,6 +85,31 @@ const Leads = () => {
         lead.id === updatedLead.id ? updatedLead : lead
       )
     );
+    toast({
+      title: "Lead Updated",
+      description: "The lead has been successfully updated.",
+    });
+  };
+
+  const handleAddLead = (newLead: Partial<Lead>) => {
+    const leadToAdd: Lead = {
+      ...newLead as Lead,
+      id: `${Date.now()}`,
+      followUps: [],
+    };
+    setLeads(prev => [leadToAdd, ...prev]);
+    setShowAddForm(false);
+    toast({
+      title: "Lead Added",
+      description: "The new lead has been successfully added.",
+    });
+  };
+
+  const toggleColumn = (column: keyof typeof visibleColumns) => {
+    setVisibleColumns(prev => ({
+      ...prev,
+      [column]: !prev[column]
+    }));
   };
 
   const filteredLeads = leads
@@ -97,77 +122,34 @@ const Leads = () => {
         : true
     );
 
-  const toggleColumn = (column: keyof typeof visibleColumns) => {
-    setVisibleColumns(prev => ({
-      ...prev,
-      [column]: !prev[column]
-    }));
-  };
-
   return (
     <div className="space-y-6">
       <Card className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Leads Management</h1>
-          <div className="flex gap-4">
-            <Button 
-              variant="outline" 
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              {showFilters ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
-              {showFilters ? "Hide Filters" : "Show Filters"}
-            </Button>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Add New Lead
-            </Button>
-          </div>
+          <Button onClick={() => setShowAddForm(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add New Lead
+          </Button>
         </div>
 
-        {showFilters && (
-          <div className="mb-6 p-4 border rounded-lg space-y-4">
-            <div className="flex flex-wrap gap-4">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Filter by status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="approved">Approved</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
-                  <SelectItem value="followup">Follow Up</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <div className="flex-1">
-                <Input 
-                  placeholder="Search by client name, location, or contact person..." 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-medium mb-2">Visible Columns:</h3>
-              <div className="flex flex-wrap gap-4">
-                {Object.entries(visibleColumns).map(([column, isVisible]) => (
-                  <div key={column} className="flex items-center space-x-2">
-                    <Checkbox 
-                      id={column} 
-                      checked={isVisible}
-                      onCheckedChange={() => toggleColumn(column as keyof typeof visibleColumns)}
-                    />
-                    <label htmlFor={column} className="text-sm capitalize">
-                      {column.replace(/([A-Z])/g, ' $1').trim()}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
+        {showAddForm && (
+          <div className="mb-6">
+            <LeadForm
+              onSubmit={handleAddLead}
+              onCancel={() => setShowAddForm(false)}
+            />
           </div>
         )}
+
+        <LeadsTableFilters
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          visibleColumns={visibleColumns}
+          toggleColumn={toggleColumn}
+        />
 
         <ScrollArea className="rounded-md border">
           <Table>
