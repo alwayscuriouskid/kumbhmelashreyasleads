@@ -3,21 +3,42 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
+import { FollowUp } from "@/types/leads";
 
 interface NewFollowUpFormProps {
   leadId: string;
   onCancel: () => void;
+  onSubmit?: (followUp: FollowUp) => void;
 }
 
-const NewFollowUpForm = ({ leadId, onCancel }: NewFollowUpFormProps) => {
+const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) => {
   const [notes, setNotes] = useState("");
   const [outcome, setOutcome] = useState("");
   const [nextFollowUpDate, setNextFollowUpDate] = useState("");
+  const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement form submission logic
-    console.log("New follow-up:", { leadId, notes, outcome, nextFollowUpDate });
+    
+    const newFollowUp: FollowUp = {
+      id: `followup-${Date.now()}`,
+      date: new Date().toISOString(),
+      notes,
+      outcome,
+      nextFollowUpDate: nextFollowUpDate || undefined
+    };
+
+    console.log("Creating new follow-up:", newFollowUp);
+    
+    if (onSubmit) {
+      onSubmit(newFollowUp);
+      toast({
+        title: "Follow-up Added",
+        description: "The follow-up has been successfully added.",
+      });
+    }
+    
     onCancel();
   };
 

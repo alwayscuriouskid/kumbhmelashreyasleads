@@ -1,5 +1,4 @@
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -11,7 +10,6 @@ interface LeadsFiltersProps {
   visibleColumns: Record<string, boolean>;
   toggleColumn: (column: string) => void;
   customStatuses: string[];
-  onAddCustomStatus: (status: string) => void;
 }
 
 const LeadsFilters = ({
@@ -22,28 +20,11 @@ const LeadsFilters = ({
   visibleColumns,
   toggleColumn,
   customStatuses,
-  onAddCustomStatus,
 }: LeadsFiltersProps) => {
   return (
     <div className="space-y-4 mb-6 p-4 rounded-lg border border-muted bg-background/50">
       <div className="flex flex-wrap gap-4">
         <div className="space-y-2 min-w-[200px]">
-          <div className="flex gap-2">
-            <Input
-              placeholder="Enter custom status..."
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  const input = e.currentTarget as HTMLInputElement;
-                  onAddCustomStatus(input.value);
-                  input.value = '';
-                }
-              }}
-              className="bg-background/50 border-muted"
-            />
-            <Button variant="secondary" onClick={() => onAddCustomStatus("")}>
-              Add Status
-            </Button>
-          </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[180px] bg-background/50">
               <SelectValue placeholder="Filter by status" />

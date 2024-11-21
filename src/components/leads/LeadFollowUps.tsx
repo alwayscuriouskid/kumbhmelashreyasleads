@@ -9,10 +9,17 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 interface LeadFollowUpsProps {
   leadId: string;
   followUps: FollowUp[];
+  onFollowUpSubmit?: (followUp: FollowUp) => void;
 }
 
-const LeadFollowUps = ({ leadId, followUps = [] }: LeadFollowUpsProps) => {
+const LeadFollowUps = ({ leadId, followUps = [], onFollowUpSubmit }: LeadFollowUpsProps) => {
   const [showNewForm, setShowNewForm] = useState(false);
+
+  const handleFollowUpSubmit = (followUp: FollowUp) => {
+    console.log("Submitting follow-up:", followUp);
+    onFollowUpSubmit?.(followUp);
+    setShowNewForm(false);
+  };
 
   return (
     <div className="space-y-4">
@@ -35,6 +42,7 @@ const LeadFollowUps = ({ leadId, followUps = [] }: LeadFollowUpsProps) => {
             <NewFollowUpForm
               leadId={leadId}
               onCancel={() => setShowNewForm(false)}
+              onSubmit={handleFollowUpSubmit}
             />
           </CardContent>
         </Card>

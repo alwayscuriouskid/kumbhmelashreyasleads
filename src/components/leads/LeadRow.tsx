@@ -2,11 +2,12 @@ import { useState } from "react";
 import { Lead } from "@/types/leads";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp, Edit2, Save, X } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import LeadFollowUps from "./LeadFollowUps";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import LeadRowActions from "./LeadRowActions";
 
 interface LeadRowProps {
   lead: Lead;
@@ -46,6 +47,15 @@ const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProp
     }));
   };
 
+  const handleFollowUpSubmit = (newFollowUp: any) => {
+    const updatedLead = {
+      ...editedLead,
+      followUps: [...(editedLead.followUps || []), newFollowUp],
+    };
+    onUpdate?.(updatedLead);
+    setEditedLead(updatedLead);
+  };
+
   const renderCell = (field: keyof Lead, content: React.ReactNode) => {
     if (!isEditing) return content;
     
@@ -73,9 +83,7 @@ const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProp
       );
     }
 
-    if (field === "requirement") {
-      return content;
-    }
+    if (field === "requirement") return content;
 
     return (
       <Input
@@ -166,21 +174,14 @@ const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProp
 
         <TableCell className="sticky right-0 z-20 bg-background">
           {!isEditing ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleEdit}
-              className="opacity-0 group-hover:opacity-100"
-            >
-              <Edit2 className="h-4 w-4" />
-            </Button>
+            <LeadRowActions onEdit={handleEdit} />
           ) : (
             <div className="flex gap-1">
               <Button variant="ghost" size="sm" onClick={handleSave}>
-                <Save className="h-4 w-4 text-green-500" />
+                Save
               </Button>
               <Button variant="ghost" size="sm" onClick={handleCancel}>
-                <X className="h-4 w-4 text-red-500" />
+                Cancel
               </Button>
             </div>
           )}
@@ -190,7 +191,11 @@ const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProp
         <TableRow>
           <TableCell colSpan={Object.values(visibleColumns).filter(Boolean).length + 2}>
             <div className="py-4 animate-fade-in">
-              <LeadFollowUps leadId={lead.id} followUps={lead.followUps} />
+              <LeadFollowUps 
+                leadId={lead.id} 
+                followUps={editedLead.followUps} 
+                onFollowUpSubmit={handleFollowUpSubmit}
+              />
             </div>
           </TableCell>
         </TableRow>
