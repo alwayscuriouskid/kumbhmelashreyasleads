@@ -126,44 +126,50 @@ const Leads = () => {
     );
 
   return (
-    <div className="w-full max-w-[1400px] mx-auto">
-      <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <LeadsHeader
-          onAddNew={() => setShowAddForm(true)}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-        />
+    <div className="space-y-4">
+      <div className="w-full">
+        <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <LeadsHeader
+            onAddNew={() => setShowAddForm(true)}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+          />
 
-        {showAddForm && (
-          <div className="mb-6">
-            <LeadForm
-              onSubmit={handleAddLead}
-              onCancel={() => setShowAddForm(false)}
+          {showAddForm && (
+            <div className="mb-6">
+              <LeadForm
+                onSubmit={handleAddLead}
+                onCancel={() => setShowAddForm(false)}
+                customStatuses={customStatuses}
+              />
+            </div>
+          )}
+
+          <LeadsFilters
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            visibleColumns={visibleColumns}
+            toggleColumn={toggleColumn}
+            customStatuses={customStatuses}
+            onAddCustomStatus={handleAddCustomStatus}
+          />
+        </Card>
+      </div>
+
+      <div className="w-full">
+        <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="overflow-hidden">
+            <LeadsTable
+              leads={filteredLeads}
+              visibleColumns={visibleColumns}
+              onUpdateLead={handleUpdateLead}
               customStatuses={customStatuses}
             />
           </div>
-        )}
-
-        <LeadsFilters
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          visibleColumns={visibleColumns}
-          toggleColumn={toggleColumn}
-          customStatuses={customStatuses}
-          onAddCustomStatus={handleAddCustomStatus}
-        />
-
-        <div className="overflow-hidden">
-          <LeadsTable
-            leads={filteredLeads}
-            visibleColumns={visibleColumns}
-            onUpdateLead={handleUpdateLead}
-            customStatuses={customStatuses}
-          />
-        </div>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 };
