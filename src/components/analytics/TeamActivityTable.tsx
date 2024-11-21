@@ -1,5 +1,8 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DatePicker } from "@/components/ui/date-picker";
+import { useState } from "react";
 
 interface Activity {
   id: string;
@@ -43,7 +46,10 @@ interface TeamActivityTableProps {
   selectedTeamMember?: string;
 }
 
-const TeamActivityTable = ({ selectedDate, selectedTeamMember }: TeamActivityTableProps) => {
+const TeamActivityTable = ({ selectedDate: propSelectedDate, selectedTeamMember: propSelectedTeamMember }: TeamActivityTableProps) => {
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(propSelectedDate);
+  const [selectedTeamMember, setSelectedTeamMember] = useState<string>(propSelectedTeamMember || 'all');
+
   console.log("Rendering TeamActivityTable with filters:", { selectedDate, selectedTeamMember });
 
   const filteredActivities = activities.filter((activity) => {
@@ -58,7 +64,29 @@ const TeamActivityTable = ({ selectedDate, selectedTeamMember }: TeamActivityTab
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Team Member Activities</h3>
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold">Team Member Activities</h3>
+        <div className="flex gap-4">
+          <Select value={selectedTeamMember} onValueChange={setSelectedTeamMember}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select team member" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Members</SelectItem>
+              <SelectItem value="john">John Doe</SelectItem>
+              <SelectItem value="jane">Jane Smith</SelectItem>
+              <SelectItem value="mike">Mike Johnson</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <DatePicker
+            selected={selectedDate}
+            onSelect={setSelectedDate}
+            placeholderText="Select date"
+          />
+        </div>
+      </div>
+
       <Table>
         <TableHeader>
           <TableRow>
