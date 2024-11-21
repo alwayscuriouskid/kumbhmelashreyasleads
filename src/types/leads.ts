@@ -21,10 +21,18 @@ export interface Activity {
   id: string;
   type: 'call' | 'meeting' | 'email' | 'note';
   date: string;
+  startTime?: string;
+  endTime?: string;
   duration?: number; // in minutes
   outcome: string;
   notes: string;
   nextAction?: string;
+  assignedTo: string;
+  contactPerson: string;
+  location?: string;
+  callType?: 'incoming' | 'outgoing';
+  meetingType?: 'in-person' | 'virtual';
+  emailType?: 'sent' | 'received';
 }
 
 export interface Lead {

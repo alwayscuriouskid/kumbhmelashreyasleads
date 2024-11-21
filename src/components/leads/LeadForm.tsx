@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Lead } from "@/types/leads";
 import LeadFormRequirements from "./LeadFormRequirements";
 import LeadFormStatus from "./LeadFormStatus";
+import ActivityTracker from "./ActivityTracker";
+import ActivityList from "./ActivityList";
 
 interface LeadFormProps {
   onSubmit: (lead: Partial<Lead>) => void;
@@ -37,6 +39,7 @@ const LeadForm = ({
       remarks: "",
       budget: "",
       followUps: [],
+      activities: [],
       leadRef: "",
       leadSource: "",
     }
@@ -47,7 +50,16 @@ const LeadForm = ({
     onSubmit({
       ...formData,
       date: formData.date || new Date().toISOString().split("T")[0],
+      createdAt: formData.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     });
+  };
+
+  const handleActivityAdd = (activity: Activity) => {
+    setFormData(prev => ({
+      ...prev,
+      activities: [...(prev.activities || []), activity]
+    }));
   };
 
   const handleInputChange = (field: keyof Lead, value: any) => {
@@ -163,6 +175,17 @@ const LeadForm = ({
           requirement={formData.requirement || {}}
           onRequirementChange={handleRequirementChange}
         />
+
+        {mode === "edit" && (
+          <div className="space-y-4">
+            <ActivityTracker
+              leadId={formData.id || ""}
+              onActivityAdd={handleActivityAdd}
+              contactPerson={formData.contactPerson || ""}
+            />
+            <ActivityList activities={formData.activities || []} />
+          </div>
+        )}
 
         <div className="space-y-2">
           <Label htmlFor="remarks">Remarks</Label>
