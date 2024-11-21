@@ -23,29 +23,33 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Navigate to="/leads" replace />} />
-            <Route path="/leads" element={<Leads />} />
-            <Route path="/leads/analytics" element={<LeadAnalytics />} />
-            <Route path="/notes" element={<Notes />} />
-            <Route path="/templates" element={<Templates />} />
-            <Route path="/todo" element={<Todo />} />
-            <Route path="/completed-tasks" element={<CompletedTasks />} />
-            <Route path="/files" element={<Files />} />
-            <Route path="/files/:folderId" element={<FolderView />} />
-          </Routes>
-        </Layout>
-      </BrowserRouter>
-    </TooltipProvider>
-    <ReactQueryDevtools initialIsOpen={false} />
-  </QueryClientProvider>
-);
+const App = () => {
+  console.log("Rendering App component"); // Added for debugging
+  
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Navigate to="/leads" replace />} />
+              <Route path="/leads" element={<Leads />} />
+              <Route path="/leads/analytics" element={<LeadAnalytics />} />
+              <Route path="/notes" element={<Notes />} />
+              <Route path="/templates" element={<Templates />} />
+              <Route path="/todo" element={<Todo />} />
+              <Route path="/completed-tasks" element={<CompletedTasks />} />
+              <Route path="/files" element={<Files />} />
+              <Route path="/files/:folderId" element={<FolderView />} />
+            </Routes>
+          </Layout>
+        </BrowserRouter>
+      </TooltipProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
+  );
+};
 
 export default App;

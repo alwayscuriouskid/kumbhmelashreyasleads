@@ -3,11 +3,14 @@ import LeadMetrics from "@/components/analytics/LeadMetrics";
 import LeadStatusChart from "@/components/analytics/LeadStatusChart";
 import LeadSourceChart from "@/components/analytics/LeadSourceChart";
 import ActivityTimeline from "@/components/analytics/ActivityTimeline";
-import LeadConversionChart from "@/components/analytics/LeadConversionChart";
 
 const LeadAnalytics = () => {
+  console.log("Rendering LeadAnalytics page"); // Added for debugging
+
   return (
     <div className="space-y-4 w-full max-w-[calc(100vw-280px)]">
+      <h1 className="text-3xl font-bold mb-6">Lead Analytics Dashboard</h1>
+      
       <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <LeadMetrics />
       </Card>
@@ -20,10 +23,6 @@ const LeadAnalytics = () => {
           <LeadSourceChart />
         </Card>
       </div>
-
-      <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <LeadConversionChart />
-      </Card>
 
       <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <ActivityTimeline />
