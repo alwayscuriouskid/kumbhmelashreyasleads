@@ -53,7 +53,8 @@ const mockLeads: Lead[] = [
     },
     status: "approved",
     remarks: "Contract signed",
-    budget: "₹750,000"
+    budget: "₹750,000",
+    followUps: [] // Added empty followUps array
   }
 ];
 

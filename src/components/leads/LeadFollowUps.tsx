@@ -10,7 +10,7 @@ interface LeadFollowUpsProps {
   followUps: FollowUp[];
 }
 
-const LeadFollowUps = ({ leadId, followUps }: LeadFollowUpsProps) => {
+const LeadFollowUps = ({ leadId, followUps = [] }: LeadFollowUpsProps) => {
   const [showNewForm, setShowNewForm] = useState(false);
 
   return (
