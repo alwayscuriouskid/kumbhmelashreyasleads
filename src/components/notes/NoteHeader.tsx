@@ -3,13 +3,6 @@ import { CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, X, Edit2 } from "lucide-react";
 import { Note } from "@/types/notes";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 interface NoteHeaderProps {
   isEditing: boolean;
@@ -83,24 +76,20 @@ export const NoteHeader = ({
         </div>
       </div>
       {isEditing && (
-        <Select
-          value={editedNote.category}
-          onValueChange={(value) =>
-            setEditedNote({ ...editedNote, category: value })
+        <Input
+          value={editedNote.category || ""}
+          onChange={(e) =>
+            setEditedNote({ ...editedNote, category: e.target.value })
           }
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select Category" />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((category) => (
-              <SelectItem key={category} value={category}>
-                {category}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          placeholder="Enter category"
+          list="categories"
+        />
       )}
+      <datalist id="categories">
+        {categories.map((category) => (
+          <option key={category} value={category} />
+        ))}
+      </datalist>
       {!isEditing && editedNote.category && (
         <span className="text-xs text-muted-foreground">
           {editedNote.category}

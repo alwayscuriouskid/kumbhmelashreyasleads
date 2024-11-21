@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Note } from "@/types/notes";
-import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import { ResizablePanel, ResizablePanelGroup, ResizableHandle } from "@/components/ui/resizable";
 import { useToast } from "@/components/ui/use-toast";
 import { NoteHeader } from "./NoteHeader";
 import { NoteTags } from "./NoteTags";
@@ -55,8 +55,8 @@ const NoteCard = ({ note, onUpdate, categories, tags }: NoteCardProps) => {
   };
 
   return (
-    <ResizablePanelGroup direction="horizontal">
-      <ResizablePanel defaultSize={100} minSize={30} maxSize={200}>
+    <ResizablePanelGroup direction="horizontal" className="min-h-[200px]">
+      <ResizablePanel defaultSize={50}>
         <Card className="group hover:border-primary/50 transition-colors h-full">
           <CardHeader className="space-y-1">
             <NoteHeader
@@ -97,6 +97,10 @@ const NoteCard = ({ note, onUpdate, categories, tags }: NoteCardProps) => {
             />
           </CardFooter>
         </Card>
+      </ResizablePanel>
+      <ResizableHandle withHandle />
+      <ResizablePanel defaultSize={50}>
+        <div className="h-full bg-muted/10 rounded-md" />
       </ResizablePanel>
     </ResizablePanelGroup>
   );

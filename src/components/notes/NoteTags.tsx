@@ -1,13 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { X, Plus } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Note } from "@/types/notes";
 
 interface NoteTagsProps {
@@ -27,27 +21,18 @@ export const NoteTags = ({
   setNewTag,
   handleAddTag,
   handleRemoveTag,
-  availableTags,
 }: NoteTagsProps) => {
   return (
     <>
       {isEditing ? (
         <div className="w-full space-y-2">
           <div className="flex gap-2">
-            <Select value={newTag} onValueChange={setNewTag}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Add Tag" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableTags
-                  .filter((tag) => !editedNote.tags?.includes(tag))
-                  .map((tag) => (
-                    <SelectItem key={tag} value={tag}>
-                      {tag}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
+            <Input
+              value={newTag}
+              onChange={(e) => setNewTag(e.target.value)}
+              placeholder="Add new tag"
+              className="flex-1"
+            />
             <Button
               variant="outline"
               size="icon"
