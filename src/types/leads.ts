@@ -5,7 +5,8 @@ export interface Requirement {
   watchTowers?: number;
   chargingPoints?: number;
   skyBalloons?: number;
-  [key: string]: number | undefined;
+  customRequirements?: string;
+  [key: string]: number | string | undefined;
 }
 
 export interface FollowUp {
