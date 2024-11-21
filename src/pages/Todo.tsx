@@ -22,13 +22,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { startOfToday, startOfTomorrow, endOfTomorrow, isWithinInterval } from "date-fns";
 
 const Todo = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedPriority, setSelectedPriority] = useState<Priority | "all">("all");
-  const [deadlineFilter, setDeadlineFilter] = useState<"all" | "overdue" | "upcoming" | "none">("all");
+  const [deadlineFilter, setDeadlineFilter] = useState<"all" | "overdue" | "upcoming" | "none" | "today" | "tomorrow">("all");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { todos, tags, addTodo, updateTodo, deleteTodo, toggleTodoComplete, addTag } = useTodos();
 
@@ -49,18 +50,24 @@ const Todo = () => {
 
       const deadline = new Date(todo.deadline);
       const now = new Date();
+      const today = startOfToday();
+      const tomorrow = startOfTomorrow();
+      const tomorrowEnd = endOfTomorrow();
       
-      if (deadlineFilter === "overdue") {
-        return deadline < now;
+      switch (deadlineFilter) {
+        case "overdue":
+          return deadline < now;
+        case "upcoming":
+          const weekFromNow = new Date();
+          weekFromNow.setDate(weekFromNow.getDate() + 7);
+          return deadline > now && deadline <= weekFromNow;
+        case "today":
+          return isWithinInterval(deadline, { start: today, end: tomorrow });
+        case "tomorrow":
+          return isWithinInterval(deadline, { start: tomorrow, end: tomorrowEnd });
+        default:
+          return true;
       }
-      
-      if (deadlineFilter === "upcoming") {
-        const weekFromNow = new Date();
-        weekFromNow.setDate(weekFromNow.getDate() + 7);
-        return deadline > now && deadline <= weekFromNow;
-      }
-      
-      return true;
     };
 
     return !todo.completed && matchesSearch && matchesTags && matchesPriority && matchesDeadline();
@@ -72,6 +79,11 @@ const Todo = () => {
         ? prev.filter(id => id !== tagId)
         : [...prev, tagId]
     );
+  };
+
+  const handleToggleComplete = (id: string) => {
+    toggleTodoComplete(id);
+    console.log("Task marked as complete:", id);
   };
 
   return (
@@ -132,13 +144,15 @@ const Todo = () => {
                 <h3 className="text-sm font-medium">Deadline</h3>
                 <Select 
                   value={deadlineFilter} 
-                  onValueChange={(value: "all" | "overdue" | "upcoming" | "none") => setDeadlineFilter(value)}
+                  onValueChange={(value: "all" | "overdue" | "upcoming" | "none" | "today" | "tomorrow") => setDeadlineFilter(value)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Filter by deadline" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="today">Today</SelectItem>
+                    <SelectItem value="tomorrow">Tomorrow</SelectItem>
                     <SelectItem value="overdue">Overdue</SelectItem>
                     <SelectItem value="upcoming">Next 7 days</SelectItem>
                     <SelectItem value="none">No deadline</SelectItem>
@@ -167,7 +181,7 @@ const Todo = () => {
 
       <TodoList
         todos={filteredTodos}
-        onToggleComplete={toggleTodoComplete}
+        onToggleComplete={handleToggleComplete}
         onUpdateTodo={updateTodo}
         onDeleteTodo={deleteTodo}
         availableTags={tags}

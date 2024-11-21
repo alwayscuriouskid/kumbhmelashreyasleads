@@ -55,16 +55,19 @@ export const useTodos = () => {
       createdAt: new Date().toISOString(),
     };
     setTodos((prev) => [...prev, newTodo]);
+    console.log("New todo created:", newTodo);
   };
 
   const updateTodo = (updatedTodo: Todo) => {
     setTodos((prev) =>
       prev.map((todo) => (todo.id === updatedTodo.id ? updatedTodo : todo))
     );
+    console.log("Todo updated:", updatedTodo);
   };
 
   const deleteTodo = (id: string) => {
     setTodos((prev) => prev.filter((todo) => todo.id !== id));
+    console.log("Todo deleted:", id);
   };
 
   const toggleTodoComplete = (id: string) => {
@@ -73,6 +76,7 @@ export const useTodos = () => {
         todo.id === id ? { ...todo, completed: !todo.completed } : todo
       )
     );
+    console.log("Todo completion toggled:", id);
   };
 
   const addTag = (name: string) => {
@@ -81,6 +85,7 @@ export const useTodos = () => {
       name: name.toLowerCase(),
     };
     setTags((prev) => [...prev, newTag]);
+    console.log("New tag created:", newTag);
     return newTag;
   };
 

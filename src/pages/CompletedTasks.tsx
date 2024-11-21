@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { Search, ArrowLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { TodoList } from "@/components/todo/TodoList";
 import { useTodos } from "@/hooks/useTodos";
+import { useNavigate } from "react-router-dom";
 
 const CompletedTasks = () => {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const { todos, updateTodo, deleteTodo, toggleTodoComplete, tags, addTag } = useTodos();
 
@@ -17,7 +20,12 @@ const CompletedTasks = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Completed Tasks</h1>
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/todo")}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <h1 className="text-2xl font-bold">Completed Tasks</h1>
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4">
