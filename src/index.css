@@ -74,20 +74,10 @@
 
 .table-container th:first-child,
 .table-container td:first-child {
-  min-width: 50px;
-  max-width: 50px;
+  min-width: 40px;
+  max-width: 40px;
   position: sticky;
   left: 0;
-  z-index: 20;
-  @apply bg-background;
-}
-
-.table-container th:last-child,
-.table-container td:last-child {
-  min-width: 100px;
-  max-width: 100px;
-  position: sticky;
-  right: 0;
   z-index: 20;
   @apply bg-background;
 }
