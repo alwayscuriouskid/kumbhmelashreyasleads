@@ -5,6 +5,7 @@ export interface Requirement {
   watchTowers?: number;
   chargingPoints?: number;
   skyBalloons?: number;
+  [key: string]: number | undefined;
 }
 
 export interface FollowUp {
@@ -24,7 +25,7 @@ export interface Lead {
   phone: string;
   email: string;
   requirement: Requirement;
-  status: "pending" | "approved" | "rejected" | "followup";
+  status: string;
   remarks: string;
   nextFollowUp?: string;
   budget?: string;

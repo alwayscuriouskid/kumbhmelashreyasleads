@@ -1,6 +1,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import CustomStatusInput from "./CustomStatusInput";
 
 interface LeadsTableFiltersProps {
   statusFilter: string;
@@ -9,6 +10,8 @@ interface LeadsTableFiltersProps {
   setSearchQuery: (value: string) => void;
   visibleColumns: Record<string, boolean>;
   toggleColumn: (column: string) => void;
+  customStatuses: string[];
+  onAddCustomStatus: (status: string) => void;
 }
 
 const LeadsTableFilters = ({
@@ -18,22 +21,32 @@ const LeadsTableFilters = ({
   setSearchQuery,
   visibleColumns,
   toggleColumn,
+  customStatuses,
+  onAddCustomStatus,
 }: LeadsTableFiltersProps) => {
   return (
     <div className="mb-6 p-4 border rounded-lg space-y-4">
       <div className="flex flex-wrap gap-4">
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="approved">Approved</SelectItem>
-            <SelectItem value="rejected">Rejected</SelectItem>
-            <SelectItem value="followup">Follow Up</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="space-y-2 w-full">
+          <CustomStatusInput onAddStatus={onAddCustomStatus} />
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+              <SelectItem value="followup">Follow Up</SelectItem>
+              {customStatuses.map((status) => (
+                <SelectItem key={status} value={status}>
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         <div className="flex-1">
           <Input

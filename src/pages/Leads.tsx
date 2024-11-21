@@ -64,6 +64,7 @@ const Leads = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [customStatuses, setCustomStatuses] = useState<string[]>([]);
   const { toast } = useToast();
   const [visibleColumns, setVisibleColumns] = useState({
     date: true,
@@ -78,6 +79,16 @@ const Leads = () => {
     nextFollowUp: true,
     budget: true
   });
+
+  const handleAddCustomStatus = (status: string) => {
+    if (!customStatuses.includes(status)) {
+      setCustomStatuses(prev => [...prev, status]);
+      toast({
+        title: "Status Added",
+        description: `New status "${status}" has been added successfully.`,
+      });
+    }
+  };
 
   const handleUpdateLead = (updatedLead: Lead) => {
     setLeads(prevLeads =>
@@ -138,6 +149,7 @@ const Leads = () => {
             <LeadForm
               onSubmit={handleAddLead}
               onCancel={() => setShowAddForm(false)}
+              customStatuses={customStatuses}
             />
           </div>
         )}
@@ -149,6 +161,8 @@ const Leads = () => {
           setSearchQuery={setSearchQuery}
           visibleColumns={visibleColumns}
           toggleColumn={toggleColumn}
+          customStatuses={customStatuses}
+          onAddCustomStatus={handleAddCustomStatus}
         />
 
         <ScrollArea className="rounded-md border">
@@ -177,6 +191,7 @@ const Leads = () => {
                   lead={lead} 
                   visibleColumns={visibleColumns}
                   onUpdate={handleUpdateLead}
+                  customStatuses={customStatuses}
                 />
               ))}
             </TableBody>
