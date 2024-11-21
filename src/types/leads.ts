@@ -17,6 +17,16 @@ export interface FollowUp {
   nextFollowUpDate?: string;
 }
 
+export interface Activity {
+  id: string;
+  type: 'call' | 'meeting' | 'email' | 'note';
+  date: string;
+  duration?: number; // in minutes
+  outcome: string;
+  notes: string;
+  nextAction?: string;
+}
+
 export interface Lead {
   id: string;
   date: string;
@@ -33,4 +43,8 @@ export interface Lead {
   followUps: FollowUp[];
   leadRef?: string;
   leadSource?: string;
+  activities: Activity[];
+  createdAt: string;
+  updatedAt: string;
+  score?: number;
 }

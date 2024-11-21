@@ -6,6 +6,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
 import Leads from "./pages/Leads";
+import LeadAnalytics from "./pages/LeadAnalytics";
 import Notes from "./pages/Notes";
 import Templates from "./pages/Templates";
 import Todo from "./pages/Todo";
@@ -32,6 +33,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Navigate to="/leads" replace />} />
             <Route path="/leads" element={<Leads />} />
+            <Route path="/leads/analytics" element={<LeadAnalytics />} />
             <Route path="/notes" element={<Notes />} />
             <Route path="/templates" element={<Templates />} />
             <Route path="/todo" element={<Todo />} />
