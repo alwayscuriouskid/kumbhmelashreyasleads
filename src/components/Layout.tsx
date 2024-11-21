@@ -12,7 +12,7 @@ const Layout = ({ children }: LayoutProps) => {
       <div className="flex-1 overflow-hidden">
         <ScrollArea className="h-screen">
           <div className="p-4 lg:p-8">
-            <main className="animate-fade-in max-w-full">
+            <main className="animate-fade-in">
               {children}
             </main>
           </div>

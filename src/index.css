@@ -50,6 +50,31 @@
   scrollbar-width: thin;
   scrollbar-color: var(--primary) transparent;
   position: relative;
+  border-radius: 8px;
+}
+
+.table-container table {
+  width: 100%;
+  table-layout: fixed;
+  min-width: max-content;
+}
+
+.table-container th,
+.table-container td {
+  min-width: 150px;
+  max-width: 200px;
+}
+
+.table-container th:first-child,
+.table-container td:first-child {
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.table-container th:last-child,
+.table-container td:last-child {
+  min-width: 100px;
+  max-width: 100px;
 }
 
 .table-container::-webkit-scrollbar {
