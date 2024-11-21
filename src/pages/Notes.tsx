@@ -6,16 +6,24 @@ import NoteCard from "@/components/notes/NoteCard";
 import CreateNoteDialog from "@/components/notes/CreateNoteDialog";
 import { useNotes } from "@/hooks/useNotes";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Note } from "@/types/notes";
 
 const Notes = () => {
   const [search, setSearch] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const { notes, categories, tags } = useNotes();
+  const { notes, setNotes, categories, tags } = useNotes();
 
-  const filteredNotes = notes.filter(note =>
-    note.title.toLowerCase().includes(search.toLowerCase()) ||
-    note.content.toLowerCase().includes(search.toLowerCase())
+  const filteredNotes = notes.filter(
+    (note) =>
+      note.title.toLowerCase().includes(search.toLowerCase()) ||
+      note.content.toLowerCase().includes(search.toLowerCase())
   );
+
+  const handleUpdateNote = (updatedNote: Note) => {
+    setNotes(
+      notes.map((note) => (note.id === updatedNote.id ? updatedNote : note))
+    );
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -46,8 +54,8 @@ const Notes = () => {
           {filteredNotes.length === 0 ? (
             <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">
               <p>No notes found</p>
-              <Button 
-                variant="link" 
+              <Button
+                variant="link"
                 onClick={() => setIsCreateOpen(true)}
                 className="mt-2"
               >
@@ -56,7 +64,13 @@ const Notes = () => {
             </div>
           ) : (
             filteredNotes.map((note) => (
-              <NoteCard key={note.id} note={note} />
+              <NoteCard
+                key={note.id}
+                note={note}
+                onUpdate={handleUpdateNote}
+                categories={categories}
+                tags={tags}
+              />
             ))
           )}
         </div>
