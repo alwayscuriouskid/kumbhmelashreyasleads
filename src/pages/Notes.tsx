@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Plus, Filter } from "lucide-react";
+import { Search, Plus, Filter, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import NoteCard from "@/components/notes/NoteCard";
@@ -18,7 +18,7 @@ const Notes = () => {
     tags: string[];
   }>({ categories: [], tags: [] });
   
-  const { notes, setNotes, categories, tags, addCategory } = useNotes();
+  const { notes, setNotes, categories, tags, addCategory, setCategories, setTags } = useNotes();
   const { toast } = useToast();
 
   const filteredNotes = notes.filter((note) => {
@@ -49,6 +49,30 @@ const Notes = () => {
         description: `Category "${category}" has been added`,
       });
     }
+  };
+
+  const handleDeleteCategory = (categoryToDelete: string) => {
+    setCategories(categories.filter(category => category !== categoryToDelete));
+    setNotes(notes.map(note => ({
+      ...note,
+      category: note.category === categoryToDelete ? undefined : note.category
+    })));
+    toast({
+      title: "Success",
+      description: `Category "${categoryToDelete}" has been deleted`,
+    });
+  };
+
+  const handleDeleteTag = (tagToDelete: string) => {
+    setTags(tags.filter(tag => tag !== tagToDelete));
+    setNotes(notes.map(note => ({
+      ...note,
+      tags: note.tags?.filter(tag => tag !== tagToDelete)
+    })));
+    toast({
+      title: "Success",
+      description: `Tag "${tagToDelete}" has been deleted`,
+    });
   };
 
   const toggleFilter = (type: 'categories' | 'tags', value: string) => {
@@ -89,15 +113,25 @@ const Notes = () => {
                   <h3 className="text-sm font-medium mb-2">Categories</h3>
                   <div className="space-y-2">
                     {categories.map((category) => (
-                      <label key={category} className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          checked={selectedFilters.categories.includes(category)}
-                          onChange={() => toggleFilter('categories', category)}
-                          className="rounded border-gray-300"
-                        />
-                        <span className="text-sm">{category}</span>
-                      </label>
+                      <div key={category} className="flex items-center justify-between">
+                        <label className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            checked={selectedFilters.categories.includes(category)}
+                            onChange={() => toggleFilter('categories', category)}
+                            className="rounded border-gray-300"
+                          />
+                          <span className="text-sm">{category}</span>
+                        </label>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => handleDeleteCategory(category)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -105,15 +139,25 @@ const Notes = () => {
                   <h3 className="text-sm font-medium mb-2">Tags</h3>
                   <div className="space-y-2">
                     {tags.map((tag) => (
-                      <label key={tag} className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          checked={selectedFilters.tags.includes(tag)}
-                          onChange={() => toggleFilter('tags', tag)}
-                          className="rounded border-gray-300"
-                        />
-                        <span className="text-sm">{tag}</span>
-                      </label>
+                      <div key={tag} className="flex items-center justify-between">
+                        <label className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            checked={selectedFilters.tags.includes(tag)}
+                            onChange={() => toggleFilter('tags', tag)}
+                            className="rounded border-gray-300"
+                          />
+                          <span className="text-sm">{tag}</span>
+                        </label>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => handleDeleteTag(tag)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
                     ))}
                   </div>
                 </div>

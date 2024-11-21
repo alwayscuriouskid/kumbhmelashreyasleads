@@ -50,7 +50,9 @@ export const useNotes = () => {
     notes,
     setNotes,
     categories,
+    setCategories,
     tags,
+    setTags,
     addCategory,
   };
 };
