@@ -1,4 +1,4 @@
-import { FileText, ListTodo, Users, Menu, X } from "lucide-react";
+import { FileText, ListTodo, Users, Menu, X, FolderOpen } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -21,7 +21,8 @@ const Sidebar = () => {
     { name: "Leads", icon: Users, path: "/leads" },
     { name: "Notes", icon: FileText, path: "/notes" },
     { name: "Templates", icon: FileText, path: "/templates" },
-    { name: "Todo", icon: ListTodo, path: "/todo" }
+    { name: "Todo", icon: ListTodo, path: "/todo" },
+    { name: "Files", icon: FolderOpen, path: "/files" }
   ];
 
   return (

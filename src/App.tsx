@@ -10,6 +10,7 @@ import Notes from "./pages/Notes";
 import Templates from "./pages/Templates";
 import Todo from "./pages/Todo";
 import CompletedTasks from "./pages/CompletedTasks";
+import Files from "./pages/Files";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/templates" element={<Templates />} />
             <Route path="/todo" element={<Todo />} />
             <Route path="/completed-tasks" element={<CompletedTasks />} />
+            <Route path="/files" element={<Files />} />
           </Routes>
         </Layout>
       </BrowserRouter>
