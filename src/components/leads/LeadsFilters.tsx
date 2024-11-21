@@ -10,7 +10,7 @@ interface LeadsFiltersProps {
   visibleColumns: Record<string, boolean>;
   toggleColumn: (column: string) => void;
   customStatuses: string[];
-  onAddCustomStatus: (status: string) => void;  // Added this prop to the interface
+  onAddCustomStatus: (status: string) => void;
 }
 
 const LeadsFilters = ({
@@ -21,14 +21,14 @@ const LeadsFilters = ({
   visibleColumns,
   toggleColumn,
   customStatuses,
-  onAddCustomStatus,  // Added this to the props destructuring
+  onAddCustomStatus,
 }: LeadsFiltersProps) => {
   return (
-    <div className="space-y-4 mb-6 p-4 rounded-lg border border-muted bg-background/50">
-      <div className="flex flex-wrap gap-4">
-        <div className="space-y-2 min-w-[200px]">
+    <div className="space-y-4 mb-6 p-3 sm:p-4 rounded-lg border border-muted bg-background/50">
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="space-y-2 w-full sm:w-auto">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[180px] bg-background/50">
+            <SelectTrigger className="w-full sm:w-[180px] bg-background/50">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
@@ -49,7 +49,7 @@ const LeadsFilters = ({
 
       <div>
         <h3 className="text-sm font-medium mb-2 text-muted-foreground">Visible Columns:</h3>
-        <div className="flex flex-wrap gap-4">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-4">
           {Object.entries(visibleColumns).map(([column, isVisible]) => (
             <div key={column} className="flex items-center space-x-2">
               <Checkbox

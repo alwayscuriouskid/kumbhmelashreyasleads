@@ -1,11 +1,21 @@
 import { FileText, ListTodo, Users, Menu, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 const Sidebar = () => {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   const navigation = [
     { name: "Leads", icon: Users, path: "/leads" },
@@ -15,8 +25,13 @@ const Sidebar = () => {
 
   return (
     <aside className={cn(
-      "h-screen bg-sidebar p-4 transition-all duration-300 z-50 flex-shrink-0",
-      isCollapsed ? "w-16" : "w-64"
+      "bg-sidebar p-4 transition-all duration-300 z-50 flex-shrink-0",
+      isMobile ? (
+        isCollapsed ? "w-16 h-screen fixed" : "w-64 h-screen fixed"
+      ) : (
+        isCollapsed ? "w-16 h-screen" : "w-64 h-screen"
+      ),
+      isMobile && !isCollapsed && "shadow-xl"
     )}>
       <div className="flex items-center justify-between mb-8">
         {!isCollapsed ? (
@@ -50,6 +65,7 @@ const Sidebar = () => {
                   ? "bg-primary text-white" 
                   : "text-gray-300 hover:bg-gray-700"
               )}
+              onClick={() => isMobile && setIsCollapsed(true)}
             >
               <Icon className="h-5 w-5 flex-shrink-0" />
               {!isCollapsed && <span className="truncate">{item.name}</span>}
