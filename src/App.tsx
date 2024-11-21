@@ -11,7 +11,6 @@ import TeamActivities from "./pages/TeamActivities";
 import Notes from "./pages/Notes";
 import Templates from "./pages/Templates";
 import Todo from "./pages/Todo";
-import CompletedTasks from "./pages/CompletedTasks";
 import Files from "./pages/Files";
 import FolderView from "./components/files/FolderView";
 
@@ -42,7 +41,6 @@ const App = () => {
               <Route path="/notes" element={<Notes />} />
               <Route path="/templates" element={<Templates />} />
               <Route path="/todo" element={<Todo />} />
-              <Route path="/completed-tasks" element={<CompletedTasks />} />
               <Route path="/files" element={<Files />} />
               <Route path="/files/:folderId" element={<FolderView />} />
             </Routes>

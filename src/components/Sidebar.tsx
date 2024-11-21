@@ -6,7 +6,6 @@ import {
   FileText,
   FolderKanban,
   ListTodo,
-  CheckSquare,
   Users,
   FileStack,
   Activity,
@@ -26,7 +25,6 @@ const Sidebar = () => {
     { path: "/notes", icon: FileText, label: "Notes" },
     { path: "/templates", icon: FolderKanban, label: "Templates" },
     { path: "/todo", icon: ListTodo, label: "Todo" },
-    { path: "/completed-tasks", icon: CheckSquare, label: "Completed" },
     { path: "/files", icon: FileStack, label: "Files" },
   ];
 
