@@ -62,8 +62,8 @@ const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProp
 
   return (
     <>
-      <TableRow className="group hover:bg-muted/50">
-        <TableCell className="w-[40px] sticky left-0 z-20 bg-background">
+      <TableRow className="group hover:bg-muted/50 relative">
+        <TableCell className="w-[40px] sticky left-0 z-30 bg-background">
           <div className="flex items-center gap-0.5">
             <Button
               variant="ghost"
