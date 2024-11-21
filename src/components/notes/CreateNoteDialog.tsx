@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Note } from "@/types/notes";
 
 interface CreateNoteDialogProps {
   open: boolean;
@@ -19,6 +20,7 @@ interface CreateNoteDialogProps {
   categories: string[];
   tags: string[];
   onAddCategory: (category: string) => void;
+  onCreateNote: (note: Omit<Note, "id" | "createdAt">) => void;
 }
 
 const CreateNoteDialog = ({
@@ -27,6 +29,7 @@ const CreateNoteDialog = ({
   categories,
   tags,
   onAddCategory,
+  onCreateNote,
 }: CreateNoteDialogProps) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -47,20 +50,29 @@ const CreateNoteDialog = ({
       return;
     }
 
-    // Add note creation logic here
-    console.log("Creating note:", { title, content, category, tags: selectedTags });
+    // Create new note
+    const newNote = {
+      title: title.trim(),
+      content: content.trim(),
+      category: category.trim(),
+      tags: selectedTags,
+      position: { x: Math.random() * 100, y: Math.random() * 100 },
+    };
+
+    onCreateNote(newNote);
     
     toast({
       title: "Success",
       description: "Note created successfully",
     });
     
-    onOpenChange(false);
+    // Reset form
     setTitle("");
     setContent("");
     setCategory("");
     setSelectedTags([]);
     setNewTag("");
+    onOpenChange(false);
   };
 
   const handleAddTag = () => {

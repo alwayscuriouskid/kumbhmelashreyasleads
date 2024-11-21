@@ -5,10 +5,9 @@ import { Button } from "@/components/ui/button";
 import NoteCard from "@/components/notes/NoteCard";
 import CreateNoteDialog from "@/components/notes/CreateNoteDialog";
 import { useNotes } from "@/hooks/useNotes";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Note } from "@/types/notes";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/use-toast";
+import { Note } from "@/types/notes";
 
 const Notes = () => {
   const [search, setSearch] = useState("");
@@ -37,17 +36,26 @@ const Notes = () => {
     return matchesSearch && matchesCategories && matchesTags;
   });
 
+  const handleCreateNote = (noteData: Omit<Note, "id" | "createdAt">) => {
+    const newNote: Note = {
+      ...noteData,
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+    };
+    
+    setNotes(prevNotes => [...prevNotes, newNote]);
+    console.log("New note created:", newNote);
+  };
+
   const handleUpdateNote = (updatedNote: Note) => {
     setNotes(notes.map((note) => (note.id === updatedNote.id ? updatedNote : note)));
+    console.log("Note updated:", updatedNote);
   };
 
   const handleAddCategory = (category: string) => {
     if (!categories.includes(category)) {
       addCategory(category);
-      toast({
-        title: "Success",
-        description: `Category "${category}" has been added`,
-      });
+      console.log("New category added:", category);
     }
   };
 
@@ -57,10 +65,7 @@ const Notes = () => {
       ...note,
       category: note.category === categoryToDelete ? undefined : note.category
     })));
-    toast({
-      title: "Success",
-      description: `Category "${categoryToDelete}" has been deleted`,
-    });
+    console.log("Category deleted:", categoryToDelete);
   };
 
   const handleDeleteTag = (tagToDelete: string) => {
@@ -69,10 +74,7 @@ const Notes = () => {
       ...note,
       tags: note.tags?.filter(tag => tag !== tagToDelete)
     })));
-    toast({
-      title: "Success",
-      description: `Tag "${tagToDelete}" has been deleted`,
-    });
+    console.log("Tag deleted:", tagToDelete);
   };
 
   const toggleFilter = (type: 'categories' | 'tags', value: string) => {
@@ -171,7 +173,7 @@ const Notes = () => {
         </div>
       </div>
 
-      <div className="relative min-h-[calc(100vh-12rem)]">
+      <div className="relative min-h-[calc(100vh-12rem)] notes-container">
         {filteredNotes.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
             <p>No notes found</p>
@@ -205,6 +207,7 @@ const Notes = () => {
         categories={categories}
         tags={tags}
         onAddCategory={handleAddCategory}
+        onCreateNote={handleCreateNote}
       />
     </div>
   );

@@ -7,6 +7,7 @@ import CreateNoteDialog from "@/components/notes/CreateNoteDialog";
 import { useNotes } from "@/hooks/useNotes";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { FiltersSection } from "@/components/notes/FiltersSection";
+import { Note } from "@/types/notes";
 
 const Templates = () => {
   const [search, setSearch] = useState("");
@@ -47,8 +48,15 @@ const Templates = () => {
     })));
   };
 
-  const toggleFilter = (type, value) => {
-    // Implement filter toggling logic
+  const handleCreateNote = (noteData: Omit<Note, "id" | "createdAt">) => {
+    const newNote: Note = {
+      ...noteData,
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+    };
+    
+    setNotes(prevNotes => [...prevNotes, newNote]);
+    console.log("New template created:", newNote);
   };
 
   return (
@@ -78,8 +86,8 @@ const Templates = () => {
               <FiltersSection
                 categories={categories}
                 tags={tags}
-                selectedFilters={{ categories: [], tags: [] }} // this should be correctly implemented
-                toggleFilter={toggleFilter}
+                selectedFilters={{ categories: [], tags: [] }}
+                toggleFilter={() => {}}
                 handleDeleteCategory={handleDeleteCategory}
                 handleDeleteTag={handleDeleteTag}
               />
@@ -92,7 +100,7 @@ const Templates = () => {
         </div>
       </div>
 
-      <div className="relative min-h-[calc(100vh-12rem)]">
+      <div className="relative min-h-[calc(100vh-12rem)] notes-container">
         {filteredNotes.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
             <p>No templates found</p>
@@ -105,7 +113,7 @@ const Templates = () => {
             </Button>
           </div>
         ) : (
-          <div className="relative w-full h-full notes-container">
+          <div className="relative w-full h-full">
             {filteredNotes.map((note) => (
               <NoteCard
                 key={note.id}
@@ -126,6 +134,7 @@ const Templates = () => {
         categories={categories}
         tags={tags}
         onAddCategory={handleAddCategory}
+        onCreateNote={handleCreateNote}
       />
     </div>
   );
