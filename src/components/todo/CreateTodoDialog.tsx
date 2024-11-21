@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
@@ -16,9 +19,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import { Todo, Tag, Priority } from "@/types/todo";
+import { cn } from "@/lib/utils";
 
 interface CreateTodoDialogProps {
   open: boolean;
@@ -40,6 +49,7 @@ export const CreateTodoDialog = ({
   const [priority, setPriority] = useState<Priority>("medium");
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [newTag, setNewTag] = useState("");
+  const [deadline, setDeadline] = useState<Date>();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +59,7 @@ export const CreateTodoDialog = ({
       completed: false,
       priority,
       tags: selectedTags,
+      deadline: deadline?.toISOString(),
     });
     resetForm();
     onOpenChange(false);
@@ -60,6 +71,7 @@ export const CreateTodoDialog = ({
     setPriority("medium");
     setSelectedTags([]);
     setNewTag("");
+    setDeadline(undefined);
   };
 
   const handleAddTag = () => {
@@ -105,6 +117,28 @@ export const CreateTodoDialog = ({
               <SelectItem value="high">High</SelectItem>
             </SelectContent>
           </Select>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !deadline && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {deadline ? format(deadline, "PPP") : <span>Set deadline</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={deadline}
+                onSelect={setDeadline}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
           <div className="space-y-2">
             <div className="flex gap-2">
               <Input

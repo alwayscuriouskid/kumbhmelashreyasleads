@@ -13,4 +13,5 @@ export interface Todo {
   priority: Priority;
   tags: Tag[];
   createdAt: string;
+  deadline?: string;
 }
