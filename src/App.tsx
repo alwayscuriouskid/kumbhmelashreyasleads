@@ -4,6 +4,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./components/auth/AuthProvider";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+import LoginPage from "./components/auth/LoginPage";
 import Layout from "./components/Layout";
 import Leads from "./pages/Leads";
 import LeadAnalytics from "./pages/LeadAnalytics";
@@ -32,19 +35,101 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Layout>
+          <AuthProvider>
             <Routes>
-              <Route path="/" element={<Navigate to="/leads" replace />} />
-              <Route path="/leads" element={<Leads />} />
-              <Route path="/leads/analytics" element={<LeadAnalytics />} />
-              <Route path="/team-activities" element={<TeamActivities />} />
-              <Route path="/notes" element={<Notes />} />
-              <Route path="/templates" element={<Templates />} />
-              <Route path="/todo" element={<Todo />} />
-              <Route path="/files" element={<Files />} />
-              <Route path="/files/:folderId" element={<FolderView />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Navigate to="/leads" replace />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/leads"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Leads />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/leads/analytics"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <LeadAnalytics />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/team-activities"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <TeamActivities />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/notes"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Notes />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/templates"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Templates />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/todo"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Todo />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/files"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Files />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/files/:folderId"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <FolderView />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
             </Routes>
-          </Layout>
+          </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
       <ReactQueryDevtools initialIsOpen={false} />
