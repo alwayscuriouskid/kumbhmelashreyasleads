@@ -24,6 +24,11 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
     console.log("Updating lead with follow-up data:", followUp);
     
     try {
+      // Validate UUID format
+      if (!leadId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+        throw new Error("Invalid UUID format for leadId");
+      }
+
       const { error } = await supabase
         .from('leads')
         .update({
@@ -31,7 +36,8 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
           follow_up_outcome: followUp.outcome,
           updated_at: new Date().toISOString()
         })
-        .eq('id', leadId);
+        .eq('id', leadId)
+        .single();
 
       if (error) {
         console.error("Error updating lead with follow-up data:", error);
@@ -46,6 +52,7 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
         description: "Failed to update lead information",
         variant: "destructive",
       });
+      throw error; // Re-throw to handle in the calling function
     }
   };
 
@@ -63,19 +70,24 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
 
     console.log("Creating new follow-up:", newFollowUp);
     
-    // First update the lead table
-    await updateLeadWithFollowUpData(newFollowUp);
-    
-    // Then notify parent component
-    if (onSubmit) {
-      onSubmit(newFollowUp);
-      toast({
-        title: "Follow-up Added",
-        description: "The follow-up has been successfully added.",
-      });
+    try {
+      // First update the lead table
+      await updateLeadWithFollowUpData(newFollowUp);
+      
+      // Then notify parent component
+      if (onSubmit) {
+        onSubmit(newFollowUp);
+        toast({
+          title: "Follow-up Added",
+          description: "The follow-up has been successfully added.",
+        });
+      }
+      
+      onCancel();
+    } catch (error) {
+      console.error("Failed to submit follow-up:", error);
+      // Error toast is already shown in updateLeadWithFollowUpData
     }
-    
-    onCancel();
   };
 
   return (

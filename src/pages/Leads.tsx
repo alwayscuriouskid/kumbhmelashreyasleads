@@ -10,7 +10,7 @@ import LeadForm from "@/components/leads/LeadForm";
 
 const mockLeads: Lead[] = [
   {
-    id: "1",
+    id: "123e4567-e89b-12d3-a456-426614174000",
     date: "2024-02-20",
     clientName: "ABC Corp",
     location: "Mumbai Central",
@@ -41,7 +41,7 @@ const mockLeads: Lead[] = [
     score: 75
   },
   {
-    id: "2",
+    id: "223e4567-e89b-12d3-a456-426614174001",
     date: "2024-02-21",
     clientName: "XYZ Ltd",
     location: "Andheri East",
