@@ -32,6 +32,7 @@ export interface InventoryItem {
   created_at: string;
   ltc?: number;
   dimensions?: string;
+  quantity: number;  // Added this field
   inventory_types?: { name: string };
   sectors?: { 
     name: string;
