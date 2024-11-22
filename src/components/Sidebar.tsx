@@ -9,6 +9,10 @@ import {
   Users,
   FileStack,
   Activity,
+  Package,
+  ShoppingCart,
+  Calendar,
+  LineChart,
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -26,6 +30,10 @@ const Sidebar = () => {
     { path: "/templates", icon: FolderKanban, label: "Templates" },
     { path: "/todo", icon: ListTodo, label: "Todo" },
     { path: "/files", icon: FileStack, label: "Files" },
+    { path: "/inventory", icon: Package, label: "Inventory" },
+    { path: "/inventory/orders", icon: ShoppingCart, label: "Orders" },
+    { path: "/inventory/bookings", icon: Calendar, label: "Bookings" },
+    { path: "/inventory/analytics", icon: LineChart, label: "Inventory Analytics" },
   ];
 
   return (

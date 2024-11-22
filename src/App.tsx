@@ -16,6 +16,10 @@ import Templates from "./pages/Templates";
 import Todo from "./pages/Todo";
 import Files from "./pages/Files";
 import FolderView from "./components/files/FolderView";
+import Inventory from "./pages/Inventory";
+import Orders from "./pages/Orders";
+import Bookings from "./pages/Bookings";
+import InventoryAnalytics from "./pages/InventoryAnalytics";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -124,6 +128,46 @@ const App = () => {
                   <ProtectedRoute>
                     <Layout>
                       <FolderView />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/inventory"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Inventory />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/inventory/orders"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Orders />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/inventory/bookings"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Bookings />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/inventory/analytics"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <InventoryAnalytics />
                     </Layout>
                   </ProtectedRoute>
                 }
