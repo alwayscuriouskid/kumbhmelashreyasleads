@@ -15,6 +15,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { TableColumnToggle } from "@/components/shared/TableColumnToggle";
 import { CreateBookingDialog } from "@/components/bookings/CreateBookingDialog";
 import { BookingTableRow } from "@/components/bookings/BookingTableRow";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Bookings = () => {
   const { data: bookings, isLoading, refetch } = useBookings();
@@ -30,6 +31,7 @@ const Bookings = () => {
     endDate: true,
     status: true,
     inventoryDetails: true,
+    paymentAmount: true,
   });
 
   const columns = [
@@ -40,6 +42,7 @@ const Bookings = () => {
     { key: "endDate", label: "End Date" },
     { key: "status", label: "Status" },
     { key: "inventoryDetails", label: "Inventory Details" },
+    { key: "paymentAmount", label: "Payment Amount" },
   ];
 
   // Get unique team members
@@ -55,17 +58,17 @@ const Bookings = () => {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 w-full max-w-[calc(100vw-280px)]">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Bookings</h1>
         <CreateBookingDialog onSuccess={refetch} />
       </div>
 
-      <Card>
-        <CardHeader>
+      <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <CardHeader className="px-0">
           <CardTitle>All Bookings</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           <div className="space-y-4">
             <div className="flex flex-wrap gap-4">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -112,44 +115,47 @@ const Bookings = () => {
               onToggleColumn={(key) => setVisibleColumns(prev => ({ ...prev, [key]: !prev[key] }))}
             />
 
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  {visibleColumns.itemType && <TableHead>Item Type</TableHead>}
-                  {visibleColumns.customer && <TableHead>Customer</TableHead>}
-                  {visibleColumns.teamMember && <TableHead>Team Member</TableHead>}
-                  {visibleColumns.startDate && <TableHead>Start Date</TableHead>}
-                  {visibleColumns.endDate && <TableHead>End Date</TableHead>}
-                  {visibleColumns.status && <TableHead>Status</TableHead>}
-                  {visibleColumns.inventoryDetails && <TableHead>Inventory Details</TableHead>}
-                  <TableHead className="sticky right-0 bg-background z-20">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
+            <ScrollArea className="rounded-md border">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center">
-                      Loading...
-                    </TableCell>
+                    {visibleColumns.itemType && <TableHead>Item Type</TableHead>}
+                    {visibleColumns.customer && <TableHead>Customer</TableHead>}
+                    {visibleColumns.teamMember && <TableHead>Team Member</TableHead>}
+                    {visibleColumns.startDate && <TableHead>Start Date</TableHead>}
+                    {visibleColumns.endDate && <TableHead>End Date</TableHead>}
+                    {visibleColumns.status && <TableHead>Status</TableHead>}
+                    {visibleColumns.inventoryDetails && <TableHead>Inventory Details</TableHead>}
+                    {visibleColumns.paymentAmount && <TableHead>Payment Amount</TableHead>}
+                    <TableHead className="sticky right-0 bg-background z-20">Actions</TableHead>
                   </TableRow>
-                ) : filteredBookings?.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center">
-                      No bookings found
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredBookings?.map((booking) => (
-                    <BookingTableRow
-                      key={booking.id}
-                      booking={booking}
-                      visibleColumns={visibleColumns}
-                      onBookingUpdate={refetch}
-                    />
-                  ))
-                )}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {isLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={9} className="text-center">
+                        Loading...
+                      </TableCell>
+                    </TableRow>
+                  ) : filteredBookings?.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={9} className="text-center">
+                        No bookings found
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredBookings?.map((booking) => (
+                      <BookingTableRow
+                        key={booking.id}
+                        booking={booking}
+                        visibleColumns={visibleColumns}
+                        onBookingUpdate={refetch}
+                      />
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </ScrollArea>
           </div>
         </CardContent>
       </Card>

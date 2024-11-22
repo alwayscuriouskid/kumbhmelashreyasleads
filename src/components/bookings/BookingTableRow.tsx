@@ -156,6 +156,15 @@ export const BookingTableRow = ({ booking, visibleColumns, onBookingUpdate }: Bo
           </div>
         </TableCell>
       )}
+      {visibleColumns.paymentAmount && (
+        <TableCell>
+          <EditableCell
+            value={editedValues.payment_amount?.toString() || ''}
+            isEditing={isEditing}
+            onChange={(value) => handleChange('payment_amount', parseFloat(value) || 0)}
+          />
+        </TableCell>
+      )}
       <TableCell className="sticky right-0 bg-background/80 backdrop-blur-sm">
         <ActionCell
           isEditing={isEditing}
