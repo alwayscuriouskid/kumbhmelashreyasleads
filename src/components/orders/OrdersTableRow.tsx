@@ -1,15 +1,14 @@
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
-import { Order } from "@/types/inventory";
 import { EditableCell } from "@/components/inventory/EditableCell";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Check, Edit2, Save, X } from "lucide-react";
-import { DatePicker } from "@/components/ui/date-picker";
+import { Order } from "@/types/inventory";
+import { PaymentConfirmationCell } from "./cells/PaymentConfirmationCell";
+import { NextPaymentDateCell } from "./cells/NextPaymentDateCell";
+import { ActionCell } from "./cells/ActionCell";
 
 interface OrdersTableRowProps {
   order: Order;
@@ -130,7 +129,7 @@ export const OrdersTableRow = ({
       {visibleColumns.orderId && <TableCell>{order.id}</TableCell>}
       {visibleColumns.date && (
         <TableCell>
-          {format(new Date(order.created_at), "PPP")}
+          {new Date(order.created_at).toLocaleDateString()}
         </TableCell>
       )}
       {visibleColumns.customer && (
@@ -160,24 +159,20 @@ export const OrdersTableRow = ({
       )}
       {visibleColumns.paymentConfirmation && (
         <TableCell>
-          <EditableCell
-            value={isEditing ? editedValues.payment_confirmation || '' : order.payment_confirmation || ''}
+          <PaymentConfirmationCell
             isEditing={isEditing}
+            value={editedValues.payment_confirmation || order.payment_confirmation || ''}
             onChange={(value) => handleChange('payment_confirmation', value)}
           />
         </TableCell>
       )}
       {visibleColumns.nextPaymentDate && (
         <TableCell>
-          {isEditing ? (
-            <DatePicker
-              selected={editedValues.next_payment_date ? new Date(editedValues.next_payment_date) : undefined}
-              onSelect={(date) => handleChange('next_payment_date', date?.toISOString())}
-              placeholderText="Select date"
-            />
-          ) : (
-            order.next_payment_date ? format(new Date(order.next_payment_date), "PPP") : "-"
-          )}
+          <NextPaymentDateCell
+            isEditing={isEditing}
+            value={editedValues.next_payment_date || order.next_payment_date}
+            onChange={(value) => handleChange('next_payment_date', value)}
+          />
         </TableCell>
       )}
       {visibleColumns.nextPaymentDetails && (
@@ -190,22 +185,12 @@ export const OrdersTableRow = ({
         </TableCell>
       )}
       <TableCell className="sticky right-0 bg-background/80 backdrop-blur-sm">
-        <div className="flex space-x-2">
-          {isEditing ? (
-            <>
-              <Button variant="ghost" size="icon" onClick={handleSave}>
-                <Save className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={handleCancel}>
-                <X className="h-4 w-4" />
-              </Button>
-            </>
-          ) : (
-            <Button variant="ghost" size="icon" onClick={handleEdit}>
-              <Edit2 className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
+        <ActionCell
+          isEditing={isEditing}
+          onEdit={handleEdit}
+          onSave={handleSave}
+          onCancel={handleCancel}
+        />
       </TableCell>
     </TableRow>
   );
