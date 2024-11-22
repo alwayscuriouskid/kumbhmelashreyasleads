@@ -115,10 +115,10 @@ export const dbToFrontend = (lead: LeadDB): Lead => ({
   remarks: lead.remarks || '',
   nextFollowUp: lead.next_follow_up || undefined,
   budget: lead.budget || undefined,
-  followUps: [], // These will be populated separately if needed
+  followUps: [],
   leadRef: lead.lead_ref || undefined,
   leadSource: lead.lead_source || undefined,
-  activities: [], // These will be populated separately if needed
+  activities: [],
   createdAt: lead.created_at,
   updatedAt: lead.updated_at,
   priceQuoted: lead.price_quoted || undefined,
@@ -127,20 +127,23 @@ export const dbToFrontend = (lead: LeadDB): Lead => ({
 });
 
 export const frontendToDB = (lead: Partial<Lead>): Partial<LeadDB> => ({
+  id: lead.id,
   client_name: lead.clientName,
   location: lead.location,
   contact_person: lead.contactPerson,
   phone: lead.phone,
   email: lead.email,
-  requirement: lead.requirement,
-  status: lead.status,
-  remarks: lead.remarks,
-  next_follow_up: lead.nextFollowUp,
-  budget: lead.budget,
-  lead_ref: lead.leadRef,
-  lead_source: lead.leadSource,
-  price_quoted: lead.priceQuoted,
-  next_action: lead.nextAction,
-  follow_up_outcome: lead.followUpOutcome,
-  date: lead.date
+  requirement: lead.requirement || {},
+  status: lead.status || 'pending',
+  remarks: lead.remarks || null,
+  next_follow_up: lead.nextFollowUp || null,
+  budget: lead.budget || null,
+  lead_ref: lead.leadRef || null,
+  lead_source: lead.leadSource || null,
+  price_quoted: lead.priceQuoted || null,
+  next_action: lead.nextAction || null,
+  follow_up_outcome: lead.followUpOutcome || null,
+  date: lead.date || new Date().toISOString().split('T')[0],
+  created_at: lead.createdAt,
+  updated_at: new Date().toISOString()
 });

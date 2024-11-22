@@ -89,7 +89,11 @@ export const useLeads = () => {
 
       const { data, error } = await supabase
         .from('leads')
-        .update(dbLead)
+        .update({
+          ...dbLead,
+          requirement: dbLead.requirement || {},
+          updated_at: new Date().toISOString()
+        })
         .eq('id', updatedLead.id)
         .select()
         .single();
