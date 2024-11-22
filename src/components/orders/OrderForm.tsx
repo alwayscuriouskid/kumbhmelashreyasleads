@@ -14,7 +14,6 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { InventorySelector } from "./InventorySelector";
 import { CustomerInfoSection } from "./CustomerInfoSection";
-import { AssignedToSelect } from "./AssignedToSelect"; // Changed from TeamMemberSelect
 
 interface OrderFormProps {
   onSubmit: (data: any) => void;
@@ -29,9 +28,9 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
     customerEmail: "",
     customerPhone: "",
     customerAddress: "",
-    assignedTo: "", // Changed from teamMemberId
+    assignedTo: "",
     paymentMethod: "",
-    paymentTerms: "", // Added payment terms
+    paymentTerms: "",
     notes: "",
   });
 
@@ -60,7 +59,7 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
     if (!formData.assignedTo) {
       toast({
         title: "Error",
-        description: "Please select an assignee",
+        description: "Please enter an assignee",
         variant: "destructive",
       });
       return;
@@ -117,10 +116,15 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
             </div>
           )}
 
-          <AssignedToSelect
-            value={formData.assignedTo}
-            onChange={(value) => handleFormChange("assignedTo", value)}
-          />
+          <div className="space-y-2">
+            <Label htmlFor="assignedTo">Assigned To</Label>
+            <Input
+              id="assignedTo"
+              value={formData.assignedTo}
+              onChange={(e) => handleFormChange("assignedTo", e.target.value)}
+              placeholder="Enter assignee name"
+            />
+          </div>
 
           <div className="space-y-2">
             <Label htmlFor="paymentMethod">Payment Method</Label>
@@ -142,21 +146,12 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="paymentTerms">Payment Terms</Label>
-            <Select
+            <Input
+              id="paymentTerms"
               value={formData.paymentTerms}
-              onValueChange={(value) => handleFormChange("paymentTerms", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select payment terms" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="immediate">Immediate Payment</SelectItem>
-                <SelectItem value="net15">Net 15 Days</SelectItem>
-                <SelectItem value="net30">Net 30 Days</SelectItem>
-                <SelectItem value="net45">Net 45 Days</SelectItem>
-                <SelectItem value="net60">Net 60 Days</SelectItem>
-              </SelectContent>
-            </Select>
+              onChange={(e) => handleFormChange("paymentTerms", e.target.value)}
+              placeholder="Enter payment terms"
+            />
           </div>
 
           <div className="space-y-2">
