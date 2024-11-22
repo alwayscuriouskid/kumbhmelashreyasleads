@@ -1,16 +1,10 @@
 import { useState } from "react";
-import { Search, Plus, Filter } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import NoteCard from "@/components/notes/NoteCard";
-import CreateNoteDialog from "@/components/notes/CreateNoteDialog";
 import { useNotes } from "@/hooks/useNotes";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { FiltersSection } from "@/components/notes/FiltersSection";
 import { Note } from "@/types/notes";
-import { calculateNextPosition, DEFAULT_NOTE_SIZE } from "@/utils/notePositioning";
+import { calculateGridPosition, DEFAULT_NOTE_SIZE } from "@/utils/notePositioning";
 import { NotesHeader } from "@/components/notes/NotesHeader";
 import { NotesContent } from "@/components/notes/NotesContent";
+import CreateNoteDialog from "@/components/notes/CreateNoteDialog";
 
 const Notes = () => {
   const [search, setSearch] = useState("");
@@ -26,7 +20,8 @@ const Notes = () => {
   });
 
   const handleCreateNote = (noteData: Omit<Note, "id" | "createdAt">) => {
-    const position = calculateNextPosition(notes);
+    // Calculate position for the new note at the top of the grid
+    const position = calculateGridPosition(0, window.innerWidth);
     
     const newNote: Note = {
       ...noteData,
