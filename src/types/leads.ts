@@ -23,6 +23,7 @@ export interface FollowUp {
   notes: string;
   outcome: string;
   nextFollowUpDate?: string;
+  assignedTo?: string;
 }
 
 export interface Activity {

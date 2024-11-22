@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { FollowUp } from "@/types/leads";
+import { TeamMemberSelect } from "@/components/orders/TeamMemberSelect";
 
 interface NewFollowUpFormProps {
   leadId: string;
@@ -16,6 +17,7 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
   const [notes, setNotes] = useState("");
   const [outcome, setOutcome] = useState("");
   const [nextFollowUpDate, setNextFollowUpDate] = useState("");
+  const [assignedTo, setAssignedTo] = useState("");
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -26,7 +28,8 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
       date: new Date().toISOString(),
       notes,
       outcome,
-      nextFollowUpDate: nextFollowUpDate || undefined
+      nextFollowUpDate: nextFollowUpDate || undefined,
+      assignedTo
     };
 
     console.log("Creating new follow-up:", newFollowUp);
@@ -75,6 +78,11 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
           onChange={(e) => setNextFollowUpDate(e.target.value)}
         />
       </div>
+
+      <TeamMemberSelect
+        value={assignedTo}
+        onChange={(value) => setAssignedTo(value)}
+      />
 
       <div className="flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={onCancel}>

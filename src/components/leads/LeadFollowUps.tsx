@@ -7,6 +7,7 @@ import NewFollowUpForm from "./NewFollowUpForm";
 import ActivityTracker from "./ActivityTracker";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from "@/integrations/supabase/client";
 
 interface LeadFollowUpsProps {
   leadId: string;
@@ -14,6 +15,7 @@ interface LeadFollowUpsProps {
   onFollowUpSubmit?: (followUp: FollowUp) => void;
   onActivityAdd?: (activity: Activity) => void;
   contactPerson?: string;
+  onLeadUpdate?: (updates: any) => void;
 }
 
 const LeadFollowUps = ({ 
@@ -21,19 +23,52 @@ const LeadFollowUps = ({
   followUps = [], 
   onFollowUpSubmit,
   onActivityAdd,
-  contactPerson = ""
+  contactPerson = "",
+  onLeadUpdate
 }: LeadFollowUpsProps) => {
   const [showNewForm, setShowNewForm] = useState(false);
 
-  const handleFollowUpSubmit = (followUp: FollowUp) => {
+  const updateLeadTable = async (updates: any) => {
+    try {
+      const { error } = await supabase
+        .from('leads')
+        .update(updates)
+        .eq('id', leadId);
+
+      if (error) throw error;
+
+      console.log("Lead table updated successfully:", updates);
+      onLeadUpdate?.(updates);
+    } catch (error) {
+      console.error("Error updating lead:", error);
+    }
+  };
+
+  const handleFollowUpSubmit = async (followUp: FollowUp) => {
     console.log("Submitting follow-up:", followUp);
     onFollowUpSubmit?.(followUp);
+
+    // Update lead table with latest follow-up information
+    const updates = {
+      next_follow_up: followUp.nextFollowUpDate,
+      follow_up_outcome: followUp.outcome
+    };
+
+    await updateLeadTable(updates);
     setShowNewForm(false);
   };
 
-  const handleActivityAdd = (activity: Activity) => {
+  const handleActivityAdd = async (activity: Activity) => {
     console.log("Adding new activity:", activity);
     onActivityAdd?.(activity);
+
+    // Update lead table with latest activity information
+    const updates = {
+      next_action: activity.nextAction,
+      follow_up_outcome: activity.outcome
+    };
+
+    await updateLeadTable(updates);
   };
 
   return (
@@ -102,6 +137,11 @@ const LeadFollowUps = ({
                   <p className="text-xs text-muted-foreground mt-2">
                     Outcome: {followUp.outcome}
                   </p>
+                  {followUp.assignedTo && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Assigned to: {followUp.assignedTo}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
             ))
