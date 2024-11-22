@@ -84,4 +84,10 @@ export interface Booking {
   notes?: string;
   payment_status?: string;
   payment_amount?: number;
+  inventory_items?: {
+    id: string;
+    inventory_types?: {
+      name: string;
+    };
+  };
 }
