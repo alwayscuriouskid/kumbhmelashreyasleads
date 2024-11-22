@@ -93,6 +93,119 @@ export type Database = {
           },
         ]
       }
+      file_tag_relations: {
+        Row: {
+          file_id: string
+          tag_id: string
+        }
+        Insert: {
+          file_id: string
+          tag_id: string
+        }
+        Update: {
+          file_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "file_tag_relations_file_id_fkey"
+            columns: ["file_id"]
+            isOneToOne: false
+            referencedRelation: "files"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "file_tag_relations_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "file_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      file_tags: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      files: {
+        Row: {
+          created_at: string | null
+          folder_id: string
+          id: string
+          name: string
+          path: string
+          size: number | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          folder_id: string
+          id?: string
+          name: string
+          path: string
+          size?: number | null
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          folder_id?: string
+          id?: string
+          name?: string
+          path?: string
+          size?: number | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "files_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      folders: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       inventory_items: {
         Row: {
           created_at: string | null
