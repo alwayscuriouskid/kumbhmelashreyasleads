@@ -3,10 +3,13 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Order } from "@/types/inventory";
 import { EditableCell } from "@/components/inventory/EditableCell";
-import { TableActions } from "@/components/inventory/TableActions";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Check, Edit2, Save, X } from "lucide-react";
+import { DatePicker } from "@/components/ui/date-picker";
 
 interface OrdersTableRowProps {
   order: Order;
@@ -59,11 +62,67 @@ export const OrdersTableRow = ({
     setEditedValues({});
   };
 
-  const handleCellChange = (field: keyof Order, value: string) => {
+  const handleChange = (field: keyof Order, value: any) => {
     setEditedValues(prev => ({
       ...prev,
       [field]: value
     }));
+  };
+
+  const renderStatusCell = () => {
+    if (isEditing) {
+      return (
+        <Select 
+          value={editedValues.status || order.status} 
+          onValueChange={(value) => handleChange('status', value)}
+        >
+          <SelectTrigger className="w-[140px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="ending">Ending</SelectItem>
+            <SelectItem value="approved">Approved</SelectItem>
+          </SelectContent>
+        </Select>
+      );
+    }
+    return (
+      <Badge variant={order.status === "approved" ? "default" : "secondary"}>
+        {order.status}
+      </Badge>
+    );
+  };
+
+  const renderPaymentStatusCell = () => {
+    if (isEditing) {
+      return (
+        <Select 
+          value={editedValues.payment_status || order.payment_status} 
+          onValueChange={(value) => handleChange('payment_status', value)}
+        >
+          <SelectTrigger className="w-[140px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="partially_pending">Partially Pending</SelectItem>
+            <SelectItem value="finished">Finished</SelectItem>
+          </SelectContent>
+        </Select>
+      );
+    }
+    return (
+      <Badge variant={
+        order.payment_status === "finished" 
+          ? "default" 
+          : order.payment_status === "partially_pending" 
+          ? "secondary" 
+          : "destructive"
+      }>
+        {order.payment_status}
+      </Badge>
+    );
   };
 
   return (
@@ -80,12 +139,7 @@ export const OrdersTableRow = ({
             <EditableCell
               value={isEditing ? editedValues.customer_name || '' : order.customer_name || ''}
               isEditing={isEditing}
-              onChange={(value) => handleCellChange('customer_name', value)}
-            />
-            <EditableCell
-              value={isEditing ? editedValues.customer_email || '' : order.customer_email || ''}
-              isEditing={isEditing}
-              onChange={(value) => handleCellChange('customer_email', value)}
+              onChange={(value) => handleChange('customer_name', value)}
             />
           </div>
         </TableCell>
@@ -96,64 +150,62 @@ export const OrdersTableRow = ({
         </TableCell>
       )}
       {visibleColumns.totalAmount && (
+        <TableCell>₹{order.total_amount}</TableCell>
+      )}
+      {visibleColumns.paymentStatus && (
+        <TableCell>{renderPaymentStatusCell()}</TableCell>
+      )}
+      {visibleColumns.orderStatus && (
+        <TableCell>{renderStatusCell()}</TableCell>
+      )}
+      {visibleColumns.paymentConfirmation && (
         <TableCell>
           <EditableCell
-            value={isEditing ? editedValues.total_amount?.toString() || '' : order.total_amount?.toString() || ''}
+            value={isEditing ? editedValues.payment_confirmation || '' : order.payment_confirmation || ''}
             isEditing={isEditing}
-            onChange={(value) => handleCellChange('total_amount', value)}
-            type="number"
+            onChange={(value) => handleChange('payment_confirmation', value)}
           />
         </TableCell>
       )}
-      {visibleColumns.paymentStatus && (
+      {visibleColumns.nextPaymentDate && (
         <TableCell>
-          <Badge
-            variant={
-              order.payment_status === "paid"
-                ? "default"
-                : order.payment_status === "pending"
-                ? "secondary"
-                : "destructive"
-            }
-          >
-            {order.payment_status}
-          </Badge>
+          {isEditing ? (
+            <DatePicker
+              selected={editedValues.next_payment_date ? new Date(editedValues.next_payment_date) : undefined}
+              onSelect={(date) => handleChange('next_payment_date', date?.toISOString())}
+              placeholderText="Select date"
+            />
+          ) : (
+            order.next_payment_date ? format(new Date(order.next_payment_date), "PPP") : "-"
+          )}
         </TableCell>
       )}
-      {visibleColumns.orderStatus && (
+      {visibleColumns.nextPaymentDetails && (
         <TableCell>
-          <Badge
-            variant={
-              order.status === "approved"
-                ? "default"
-                : order.status === "pending"
-                ? "secondary"
-                : "destructive"
-            }
-          >
-            {order.status}
-          </Badge>
-        </TableCell>
-      )}
-      {visibleColumns.inventoryItems && (
-        <TableCell>
-          <div className="space-y-1">
-            {order.order_items?.map((item) => (
-              <div key={item.id} className="text-sm">
-                {item.inventory_items?.inventory_types?.name} - ₹{item.price}
-              </div>
-            ))}
-          </div>
+          <EditableCell
+            value={isEditing ? editedValues.next_payment_details || '' : order.next_payment_details || ''}
+            isEditing={isEditing}
+            onChange={(value) => handleChange('next_payment_details', value)}
+          />
         </TableCell>
       )}
       <TableCell className="sticky right-0 bg-background/80 backdrop-blur-sm">
-        <TableActions
-          isEditing={isEditing}
-          onEdit={handleEdit}
-          onSave={handleSave}
-          onCancel={handleCancel}
-          onDelete={() => {}}
-        />
+        <div className="flex space-x-2">
+          {isEditing ? (
+            <>
+              <Button variant="ghost" size="icon" onClick={handleSave}>
+                <Save className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={handleCancel}>
+                <X className="h-4 w-4" />
+              </Button>
+            </>
+          ) : (
+            <Button variant="ghost" size="icon" onClick={handleEdit}>
+              <Edit2 className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       </TableCell>
     </TableRow>
   );
