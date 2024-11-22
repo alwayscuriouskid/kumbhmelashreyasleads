@@ -42,6 +42,7 @@ export const InventoryFilters = ({
     { key: "dimensions", label: "Dimensions" },
     { key: "quantity", label: "Quantity" },
     { key: "status", label: "Status" },
+    { key: "sku", label: "SKU" },
   ];
 
   return (

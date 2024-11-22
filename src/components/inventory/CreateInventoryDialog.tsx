@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,15 +10,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
-import { useInventoryTypes, useSectors } from "@/hooks/useInventory";
+import { useInventoryTypes, useSectors, useZones } from "@/hooks/useInventory";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) => {
   const { data: types } = useInventoryTypes();
+  const { data: zones } = useZones();
   const { data: sectors } = useSectors();
   const [open, setOpen] = useState(false);
+  const [selectedZone, setSelectedZone] = useState("");
+  const [filteredSectors, setFilteredSectors] = useState(sectors || []);
+  
   const [formData, setFormData] = useState({
     type_id: "",
     sector_id: "",
@@ -27,8 +31,16 @@ export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) 
     ltc: "",
     dimensions: "",
     quantity: "1",
-    status: "available"
+    status: "available",
+    sku: "",
   });
+
+  useEffect(() => {
+    if (selectedZone && sectors) {
+      setFilteredSectors(sectors.filter(sector => sector.zone_id === selectedZone));
+      setFormData(prev => ({ ...prev, sector_id: "" }));
+    }
+  }, [selectedZone, sectors]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,22 +107,53 @@ export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) 
           </div>
           
           <div className="space-y-2">
+            <Label htmlFor="zone">Zone</Label>
+            <Select 
+              value={selectedZone} 
+              onValueChange={setSelectedZone}
+            >
+              <SelectTrigger className="w-full bg-background">
+                <SelectValue placeholder="Select Zone" />
+              </SelectTrigger>
+              <SelectContent>
+                {zones?.map((zone) => (
+                  <SelectItem key={zone.id} value={zone.id}>
+                    {zone.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="sector">Sector</Label>
             <Select 
               value={formData.sector_id} 
               onValueChange={(value) => setFormData({ ...formData, sector_id: value })}
+              disabled={!selectedZone}
             >
               <SelectTrigger className="w-full bg-background">
                 <SelectValue placeholder="Select Sector" />
               </SelectTrigger>
               <SelectContent>
-                {sectors?.map((sector) => (
+                {filteredSectors.map((sector) => (
                   <SelectItem key={sector.id} value={sector.id}>
-                    {sector.zones?.name} / {sector.name}
+                    {sector.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="sku">SKU</Label>
+            <Input
+              id="sku"
+              value={formData.sku}
+              onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+              required
+              className="bg-background"
+            />
           </div>
 
           <div className="space-y-2">

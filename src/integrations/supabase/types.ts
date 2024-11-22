@@ -57,6 +57,7 @@ export type Database = {
           min_price: number
           quantity: number
           sector_id: string
+          sku: string | null
           status: string
           type_id: string
           updated_at: string | null
@@ -70,6 +71,7 @@ export type Database = {
           min_price: number
           quantity?: number
           sector_id: string
+          sku?: string | null
           status: string
           type_id: string
           updated_at?: string | null
@@ -83,6 +85,7 @@ export type Database = {
           min_price?: number
           quantity?: number
           sector_id?: string
+          sku?: string | null
           status?: string
           type_id?: string
           updated_at?: string | null
