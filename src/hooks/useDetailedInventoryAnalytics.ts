@@ -39,7 +39,7 @@ export const useDetailedInventoryAnalytics = () => {
           confirmed_bookings:bookings!inner (count),
           order_items (
             count,
-            total_price:price(sum)
+            total_price:sum(price)
           )
         `)
         .eq('bookings.status', 'confirmed');
@@ -66,7 +66,7 @@ export const useDetailedInventoryAnalytics = () => {
         total_bookings: (item.bookings?.[0]?.count as number) || 0,
         confirmed_bookings: (item.confirmed_bookings?.[0]?.count as number) || 0,
         times_ordered: (item.order_items?.[0]?.count as number) || 0,
-        total_revenue: (item.order_items?.[0]?.total_price as number) || 0
+        total_revenue: Number(item.order_items?.[0]?.total_price) || 0
       }));
     },
   });
