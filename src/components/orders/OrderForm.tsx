@@ -11,9 +11,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { toast } from "@/components/ui/use-toast";
 import { InventorySelector } from "./InventorySelector";
+import { TeamMemberSelect } from "./TeamMemberSelect";
+import { CustomerInfoSection } from "./CustomerInfoSection";
 
 interface OrderFormProps {
   onSubmit: (data: any) => void;
@@ -22,12 +23,12 @@ interface OrderFormProps {
 
 export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
   const { data: inventoryItems } = useInventoryItems();
-  const { data: teamMembers } = useTeamMembers();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     customerName: "",
     customerEmail: "",
     customerPhone: "",
+    customerAddress: "",
     teamMemberId: "",
     paymentMethod: "",
     notes: "",
@@ -66,45 +67,21 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
     onSubmit({ ...formData, selectedItems });
   };
 
+  const handleFormChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Customer Information</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="customerName">Customer Name</Label>
-            <Input
-              id="customerName"
-              value={formData.customerName}
-              onChange={(e) =>
-                setFormData({ ...formData, customerName: e.target.value })
-              }
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="customerEmail">Customer Email</Label>
-            <Input
-              id="customerEmail"
-              type="email"
-              value={formData.customerEmail}
-              onChange={(e) =>
-                setFormData({ ...formData, customerEmail: e.target.value })
-              }
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="customerPhone">Customer Phone</Label>
-            <Input
-              id="customerPhone"
-              value={formData.customerPhone}
-              onChange={(e) =>
-                setFormData({ ...formData, customerPhone: e.target.value })
-              }
-            />
-          </div>
+        <CardContent>
+          <CustomerInfoSection
+            formData={formData}
+            onChange={handleFormChange}
+          />
         </CardContent>
       </Card>
 
@@ -131,7 +108,7 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
                     <span>₹{item.current_price}</span>
                   </div>
                 ))}
-                <div className="flex justify-between p-2 font-bold">
+                <div className="flex justify-between p-2 font-bold bg-primary/5 rounded">
                   <span>Total Bill:</span>
                   <span>₹{totalBill}</span>
                 </div>
@@ -139,34 +116,16 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
             </div>
           )}
 
-          <div className="space-y-2">
-            <Label htmlFor="teamMember">Assign Team Member</Label>
-            <Select
-              value={formData.teamMemberId}
-              onValueChange={(value) =>
-                setFormData({ ...formData, teamMemberId: value })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select team member" />
-              </SelectTrigger>
-              <SelectContent>
-                {teamMembers?.map((member) => (
-                  <SelectItem key={member.id} value={member.id}>
-                    {member.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <TeamMemberSelect
+            value={formData.teamMemberId}
+            onChange={(value) => handleFormChange("teamMemberId", value)}
+          />
 
           <div className="space-y-2">
             <Label htmlFor="paymentMethod">Payment Method</Label>
             <Select
               value={formData.paymentMethod}
-              onValueChange={(value) =>
-                setFormData({ ...formData, paymentMethod: value })
-              }
+              onValueChange={(value) => handleFormChange("paymentMethod", value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select payment method" />
@@ -185,7 +144,7 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
             <Input
               id="notes"
               value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              onChange={(e) => handleFormChange("notes", e.target.value)}
             />
           </div>
         </CardContent>

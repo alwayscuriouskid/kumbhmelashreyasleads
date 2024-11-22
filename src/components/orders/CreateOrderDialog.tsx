@@ -11,7 +11,6 @@ import { OrderForm } from "./OrderForm";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
-import type { InventoryItem } from "@/types/inventory";
 
 interface CreateOrderDialogProps {
   onSuccess: () => void;
@@ -41,6 +40,7 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
             customer_name: formData.customerName,
             customer_email: formData.customerEmail,
             customer_phone: formData.customerPhone,
+            customer_address: formData.customerAddress,
             team_member_id: formData.teamMemberId,
             payment_method: formData.paymentMethod,
             notes: formData.notes,
