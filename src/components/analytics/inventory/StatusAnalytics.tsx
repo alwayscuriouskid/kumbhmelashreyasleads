@@ -22,10 +22,13 @@ export const StatusAnalytics = ({ zoneFilter, typeFilter }: { zoneFilter: string
     queryKey: ['inventory-status-metrics', zoneFilter, typeFilter],
     queryFn: async () => {
       console.log('Fetching inventory status metrics');
+      
+      // Build the base query
       let query = supabase
         .from('inventory_items')
-        .select('status', { count: 'exact' });
+        .select('status, count', { count: 'exact', head: false });
       
+      // Apply filters if provided
       if (zoneFilter !== 'all') {
         query = query.eq('sectors.zone_id', zoneFilter);
       }
@@ -33,33 +36,23 @@ export const StatusAnalytics = ({ zoneFilter, typeFilter }: { zoneFilter: string
         query = query.eq('type_id', typeFilter);
       }
 
-      const { count, error } = await query;
-      
+      const { data: statusData, error } = await query;
+
       if (error) {
-        console.error('Error fetching inventory status metrics:', error);
+        console.error('Error fetching status distribution:', error);
         throw error;
       }
 
-      // Get status distribution
-      const { data: statusData, error: statusError } = await supabase
-        .from('inventory_items')
-        .select('status, count(*)')
-        .groupBy('status');
-
-      if (statusError) {
-        console.error('Error fetching status distribution:', statusError);
-        throw statusError;
-      }
-      
+      // Transform the data into the required format
       return statusData.map(row => ({
         status: row.status,
-        count: Number(row.count || 0)
+        count: parseInt(row.count as unknown as string, 10)
       }));
     },
   });
 
   const statusData = statusMetrics?.map(metric => ({
-    status: metric.status,
+    name: metric.status,
     value: metric.count
   })) || [];
 
