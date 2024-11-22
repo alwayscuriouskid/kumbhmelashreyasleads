@@ -20,32 +20,26 @@ export const useTeamActivities = (
       });
 
       const query = supabase
-        .from('lead_activities')
+        .from('leads')
         .select(`
-          *,
-          leads (
-            client_name
-          ),
-          team_members (
-            name
-          )
+          id,
+          client_name,
+          contact_person,
+          next_follow_up,
+          next_action,
+          follow_up_outcome,
+          status,
+          created_at,
+          updated_at
         `);
 
-      if (selectedTeamMember !== "all") {
-        query.eq('team_member_id', selectedTeamMember);
-      }
-
-      if (activityType !== 'all') {
-        query.eq('type', activityType);
-      }
-
       if (leadSearch) {
-        query.textSearch('leads.client_name', leadSearch);
+        query.ilike('client_name', `%${leadSearch}%`);
       }
 
       if (selectedDate) {
-        query.gte('date', format(selectedDate, 'yyyy-MM-dd'))
-          .lt('date', format(new Date(selectedDate.getTime() + 86400000), 'yyyy-MM-dd'));
+        query.gte('created_at', format(selectedDate, 'yyyy-MM-dd'))
+          .lt('created_at', format(new Date(selectedDate.getTime() + 86400000), 'yyyy-MM-dd'));
       }
 
       const { data, error } = await query;
@@ -55,25 +49,25 @@ export const useTeamActivities = (
         throw error;
       }
 
-      console.log("Fetched activities:", data);
+      console.log("Fetched lead activities:", data);
 
-      // Map the data to match our Activity type
-      return (data || []).map((item: any): Activity => ({
+      // Map the lead data to match our Activity type
+      return (data || []).map((item): Activity => ({
         id: item.id,
-        type: item.type,
-        date: item.date,
-        time: format(new Date(item.date), 'HH:mm'),
-        outcome: item.outcome || '',
-        notes: item.notes || '',
-        nextAction: item.next_action,
-        assignedTo: item.team_member_id,
-        contactPerson: '',
-        description: item.notes,
-        teamMember: item.team_members?.name || 'Unknown',
-        leadName: item.leads?.client_name || 'Unknown',
-        nextFollowUp: item.next_follow_up_date,
-        followUpOutcome: item.outcome,
-        activityOutcome: item.outcome
+        type: item.status === item.status ? 'status_change' : 'note',
+        date: item.created_at,
+        time: format(new Date(item.created_at), 'HH:mm'),
+        outcome: item.follow_up_outcome || '',
+        notes: '',
+        nextAction: item.next_action || '',
+        assignedTo: '',
+        contactPerson: item.contact_person,
+        description: `Lead activity for ${item.client_name}`,
+        teamMember: 'System',
+        leadName: item.client_name,
+        nextFollowUp: item.next_follow_up,
+        followUpOutcome: item.follow_up_outcome,
+        activityOutcome: item.follow_up_outcome
       }));
     }
   });
