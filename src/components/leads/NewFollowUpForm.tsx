@@ -29,30 +29,48 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
         throw new Error("Invalid UUID format for leadId");
       }
 
-      const { error } = await supabase
+      // First check if the lead exists
+      const { data: leadExists, error: checkError } = await supabase
+        .from('leads')
+        .select('id')
+        .eq('id', leadId);
+
+      if (checkError) {
+        throw checkError;
+      }
+
+      if (!leadExists || leadExists.length === 0) {
+        throw new Error("Lead not found");
+      }
+
+      // If lead exists, proceed with update
+      const { error: updateError } = await supabase
         .from('leads')
         .update({
           next_follow_up: followUp.nextFollowUpDate || null,
           follow_up_outcome: followUp.outcome,
           updated_at: new Date().toISOString()
         })
-        .eq('id', leadId)
-        .single();
+        .eq('id', leadId);
 
-      if (error) {
-        console.error("Error updating lead with follow-up data:", error);
-        throw error;
+      if (updateError) {
+        console.error("Error updating lead with follow-up data:", updateError);
+        throw updateError;
       }
 
       console.log("Successfully updated lead with follow-up data");
     } catch (error) {
       console.error("Failed to update lead with follow-up data:", error);
+      let errorMessage = "Failed to update lead information";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
       toast({
         title: "Error",
-        description: "Failed to update lead information",
+        description: errorMessage,
         variant: "destructive",
       });
-      throw error; // Re-throw to handle in the calling function
+      throw error;
     }
   };
 
