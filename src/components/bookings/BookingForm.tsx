@@ -9,6 +9,7 @@ import { InventorySelector } from "../orders/InventorySelector";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { DatePicker } from "@/components/ui/date-picker";
 import { useToast } from "@/components/ui/use-toast";
+import { useInventoryItems } from "@/hooks/useInventory";
 import {
   Select,
   SelectContent,
@@ -24,6 +25,7 @@ interface BookingFormProps {
 
 export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
   const { data: teamMembers } = useTeamMembers();
+  const { data: inventoryItems } = useInventoryItems();
   const { toast } = useToast();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [startDate, setStartDate] = useState<Date>();
@@ -35,16 +37,22 @@ export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
     customerAddress: "",
     teamMemberId: "",
     paymentMethod: "",
-    paymentAmount: "",
     notes: "",
   });
+
+  const calculateTotalAmount = () => {
+    return selectedItems.reduce((total, itemId) => {
+      const item = inventoryItems?.find(item => item.id === itemId);
+      return total + (item?.current_price || 0);
+    }, 0);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedItems.length) {
       toast({
         title: "Error",
-        description: "Please select an inventory item",
+        description: "Please select at least one inventory item",
         variant: "destructive",
       });
       return;
@@ -76,6 +84,7 @@ export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
       teamMemberName: teamMember?.name,
+      payment_amount: calculateTotalAmount(),
     });
   };
 
@@ -103,11 +112,10 @@ export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-4">
-            <Label>Select Item</Label>
+            <Label>Select Items</Label>
             <InventorySelector
               selectedItems={selectedItems}
               onItemSelect={setSelectedItems}
-              maxItems={1}
             />
           </div>
 
@@ -154,13 +162,8 @@ export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="paymentAmount">Payment Amount</Label>
-            <Input
-              id="paymentAmount"
-              value={formData.paymentAmount}
-              onChange={(e) => handleFormChange("paymentAmount", e.target.value)}
-              type="number"
-            />
+            <Label>Total Amount</Label>
+            <div className="text-lg font-semibold">₹{calculateTotalAmount()}</div>
           </div>
 
           <div className="space-y-2">

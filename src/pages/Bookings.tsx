@@ -3,19 +3,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/ui/date-picker";
 import { TableColumnToggle } from "@/components/shared/TableColumnToggle";
 import { CreateBookingDialog } from "@/components/bookings/CreateBookingDialog";
+import { BookingTableRow } from "@/components/bookings/BookingTableRow";
 
 const Bookings = () => {
   const { data: bookings, isLoading, refetch } = useBookings();
@@ -29,7 +27,6 @@ const Bookings = () => {
     teamMember: true,
     startDate: true,
     endDate: true,
-    paymentStatus: true,
     status: true,
     inventoryDetails: true,
   });
@@ -40,7 +37,6 @@ const Bookings = () => {
     { key: "teamMember", label: "Team Member" },
     { key: "startDate", label: "Start Date" },
     { key: "endDate", label: "End Date" },
-    { key: "paymentStatus", label: "Payment Status" },
     { key: "status", label: "Status" },
     { key: "inventoryDetails", label: "Inventory Details" },
   ];
@@ -123,9 +119,9 @@ const Bookings = () => {
                   {visibleColumns.teamMember && <TableHead>Team Member</TableHead>}
                   {visibleColumns.startDate && <TableHead>Start Date</TableHead>}
                   {visibleColumns.endDate && <TableHead>End Date</TableHead>}
-                  {visibleColumns.paymentStatus && <TableHead>Payment Status</TableHead>}
                   {visibleColumns.status && <TableHead>Status</TableHead>}
                   {visibleColumns.inventoryDetails && <TableHead>Inventory Details</TableHead>}
+                  <TableHead className="sticky right-0 bg-background z-20">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -135,76 +131,20 @@ const Bookings = () => {
                       Loading...
                     </TableCell>
                   </TableRow>
+                ) : filteredBookings?.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center">
+                      No bookings found
+                    </TableCell>
+                  </TableRow>
                 ) : (
                   filteredBookings?.map((booking) => (
-                    <TableRow key={booking.id}>
-                      {visibleColumns.itemType && (
-                        <TableCell>
-                          {booking.inventory_items?.inventory_types?.name}
-                        </TableCell>
-                      )}
-                      {visibleColumns.customer && (
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{booking.customer_name}</div>
-                            <div className="text-sm text-muted-foreground">{booking.customer_email}</div>
-                          </div>
-                        </TableCell>
-                      )}
-                      {visibleColumns.teamMember && <TableCell>{booking.team_member_name}</TableCell>}
-                      {visibleColumns.startDate && (
-                        <TableCell>
-                          {format(new Date(booking.start_date), "PPP")}
-                        </TableCell>
-                      )}
-                      {visibleColumns.endDate && (
-                        <TableCell>
-                          {format(new Date(booking.end_date), "PPP")}
-                        </TableCell>
-                      )}
-                      {visibleColumns.paymentStatus && (
-                        <TableCell>
-                          <Badge
-                            variant={
-                              booking.payment_status === "paid"
-                                ? "default"
-                                : "secondary"
-                            }
-                          >
-                            {booking.payment_status}
-                          </Badge>
-                        </TableCell>
-                      )}
-                      {visibleColumns.status && (
-                        <TableCell>
-                          <Badge
-                            variant={
-                              booking.status === "confirmed"
-                                ? "default"
-                                : booking.status === "tentative"
-                                ? "secondary"
-                                : "destructive"
-                            }
-                          >
-                            {booking.status}
-                          </Badge>
-                        </TableCell>
-                      )}
-                      {visibleColumns.inventoryDetails && (
-                        <TableCell>
-                          <div className="space-y-1">
-                            <div className="text-sm">
-                              Type: {booking.inventory_items?.inventory_types?.name}
-                            </div>
-                            {booking.payment_amount && (
-                              <div className="text-sm text-muted-foreground">
-                                Amount: ₹{booking.payment_amount}
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                      )}
-                    </TableRow>
+                    <BookingTableRow
+                      key={booking.id}
+                      booking={booking}
+                      visibleColumns={visibleColumns}
+                      onBookingUpdate={refetch}
+                    />
                   ))
                 )}
               </TableBody>
