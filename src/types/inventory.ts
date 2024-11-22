@@ -9,6 +9,7 @@ export interface Sector {
   zone_id: string;
   name: string;
   description?: string;
+  zones?: Zone;
 }
 
 export interface InventoryType {
@@ -17,6 +18,8 @@ export interface InventoryType {
   description?: string;
   total_quantity: number;
   unit_type: string;
+  base_ltc?: number;
+  base_dimensions?: string;
 }
 
 export interface InventoryItem {
@@ -27,6 +30,13 @@ export interface InventoryItem {
   min_price: number;
   status: 'available' | 'booked' | 'sold';
   created_at: string;
+  ltc?: number;
+  dimensions?: string;
+  inventory_types?: { name: string };
+  sectors?: { 
+    name: string;
+    zones?: { name: string };
+  };
 }
 
 export interface Order {

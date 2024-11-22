@@ -1,42 +1,17 @@
-import { useState } from "react";
-import { useInventoryItems } from "@/hooks/useInventory";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Package, Search } from "lucide-react";
+import { Package } from "lucide-react";
+import { useInventoryItems } from "@/hooks/useInventory";
+import { InventoryTable } from "@/components/inventory/InventoryTable";
+import { CreateInventoryDialog } from "@/components/inventory/CreateInventoryDialog";
 
 const Inventory = () => {
-  const [search, setSearch] = useState("");
-  const { data: items, isLoading } = useInventoryItems();
-
-  const filteredItems = items?.filter((item) =>
-    item.inventory_types?.name.toLowerCase().includes(search.toLowerCase()) ||
-    item.sectors?.name.toLowerCase().includes(search.toLowerCase()) ||
-    item.sectors?.zones?.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const { data: items, refetch } = useInventoryItems();
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Inventory Management</h1>
-      </div>
-
-      <div className="flex items-center space-x-2">
-        <Search className="w-4 h-4 text-muted-foreground" />
-        <Input
-          placeholder="Search inventory..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="max-w-sm"
-        />
+        <CreateInventoryDialog onSuccess={refetch} />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -56,48 +31,7 @@ const Inventory = () => {
           <CardTitle>Inventory Items</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Type</TableHead>
-                <TableHead>Zone</TableHead>
-                <TableHead>Sector</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center">
-                    Loading...
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredItems?.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell>{item.inventory_types?.name}</TableCell>
-                    <TableCell>{item.sectors?.zones?.name}</TableCell>
-                    <TableCell>{item.sectors?.name}</TableCell>
-                    <TableCell>₹{item.current_price}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          item.status === "available"
-                            ? "default"
-                            : item.status === "booked"
-                            ? "secondary"
-                            : "destructive"
-                        }
-                      >
-                        {item.status}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+          <InventoryTable />
         </CardContent>
       </Card>
     </div>

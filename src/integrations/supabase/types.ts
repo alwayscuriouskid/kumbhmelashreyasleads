@@ -51,7 +51,9 @@ export type Database = {
         Row: {
           created_at: string | null
           current_price: number
+          dimensions: string | null
           id: string
+          ltc: number | null
           min_price: number
           sector_id: string
           status: string
@@ -61,7 +63,9 @@ export type Database = {
         Insert: {
           created_at?: string | null
           current_price: number
+          dimensions?: string | null
           id?: string
+          ltc?: number | null
           min_price: number
           sector_id: string
           status: string
@@ -71,7 +75,9 @@ export type Database = {
         Update: {
           created_at?: string | null
           current_price?: number
+          dimensions?: string | null
           id?: string
+          ltc?: number | null
           min_price?: number
           sector_id?: string
           status?: string
@@ -97,6 +103,8 @@ export type Database = {
       }
       inventory_types: {
         Row: {
+          base_dimensions: string | null
+          base_ltc: number | null
           created_at: string | null
           description: string | null
           id: string
@@ -106,6 +114,8 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          base_dimensions?: string | null
+          base_ltc?: number | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -115,6 +125,8 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          base_dimensions?: string | null
+          base_ltc?: number | null
           created_at?: string | null
           description?: string | null
           id?: string
