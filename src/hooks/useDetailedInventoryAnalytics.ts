@@ -30,14 +30,10 @@ export const useDetailedInventoryAnalytics = () => {
         .from('inventory_items')
         .select(`
           id,
-          inventory_types (
-            name
-          ),
+          inventory_types (name),
           sectors (
             name,
-            zones (
-              name
-            )
+            zones (name)
           ),
           sku,
           current_price,
@@ -48,10 +44,10 @@ export const useDetailedInventoryAnalytics = () => {
           status,
           created_at,
           updated_at,
-          bookings:bookings!left (count),
-          confirmed_bookings:bookings!left (count).filter(status.eq.confirmed),
-          order_items:order_items!left (count),
-          order_revenue:order_items!left (sum(price))
+          bookings (count),
+          confirmed_bookings:bookings (count).filter(status.eq.confirmed),
+          order_count:order_items (count),
+          total_revenue:order_items (sum.price)
         `);
 
       if (error) {
@@ -75,8 +71,8 @@ export const useDetailedInventoryAnalytics = () => {
         updated_at: item.updated_at,
         total_bookings: (item.bookings?.[0]?.count as number) || 0,
         confirmed_bookings: (item.confirmed_bookings?.[0]?.count as number) || 0,
-        times_ordered: (item.order_items?.[0]?.count as number) || 0,
-        total_revenue: (item.order_revenue?.[0]?.sum as number) || 0
+        times_ordered: (item.order_count?.[0]?.count as number) || 0,
+        total_revenue: (item.total_revenue?.[0]?.sum as number) || 0
       }));
     },
   });
