@@ -22,23 +22,36 @@ export interface DetailedInventoryAnalytics {
 }
 
 export const useDetailedInventoryAnalytics = () => {
-  return useQuery({
+  return useQuery<DetailedInventoryAnalytics[]>({
     queryKey: ["detailed-inventory-analytics"],
     queryFn: async () => {
       console.log("Fetching detailed inventory analytics");
       const { data, error } = await supabase
         .from('inventory_items')
         .select(`
-          *,
-          inventory_types (name),
+          id,
+          current_price,
+          min_price,
+          status,
+          ltc,
+          dimensions,
+          quantity,
+          sku,
+          created_at,
+          updated_at,
+          inventory_types (
+            name
+          ),
           sectors (
             name,
-            zones (name)
+            zones (
+              name
+            )
           ),
-          bookings:bookings_count,
-          confirmed_bookings:bookings_count!inner(status.eq.confirmed),
-          order_items:order_items_count,
-          order_revenue:order_items_sum_price
+          bookings (count),
+          confirmed_bookings:bookings!inner (count).eq(status, 'confirmed'),
+          order_items (count),
+          order_revenue:order_items (sum(price))
         `);
 
       if (error) {
@@ -46,7 +59,7 @@ export const useDetailedInventoryAnalytics = () => {
         throw error;
       }
 
-      const formattedData: DetailedInventoryAnalytics[] = data.map(item => ({
+      return data.map(item => ({
         item_id: item.id,
         type_name: item.inventory_types?.name || 'Unknown',
         zone_name: item.sectors?.zones?.name || 'Unknown',
@@ -60,13 +73,11 @@ export const useDetailedInventoryAnalytics = () => {
         status: item.status,
         created_at: item.created_at,
         updated_at: item.updated_at,
-        total_bookings: item.bookings || 0,
-        confirmed_bookings: item.confirmed_bookings || 0,
-        times_ordered: item.order_items || 0,
-        total_revenue: item.order_revenue || 0
+        total_bookings: (item.bookings?.[0]?.count as number) || 0,
+        confirmed_bookings: (item.confirmed_bookings?.[0]?.count as number) || 0,
+        times_ordered: (item.order_items?.[0]?.count as number) || 0,
+        total_revenue: (item.order_revenue?.[0]?.sum as number) || 0
       }));
-
-      return formattedData;
     },
   });
 };
