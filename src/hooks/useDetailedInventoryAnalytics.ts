@@ -29,26 +29,18 @@ export const useDetailedInventoryAnalytics = () => {
       const { data, error } = await supabase
         .from('inventory_items')
         .select(`
-          id,
-          inventory_types (name),
-          sectors (
+          *,
+          inventory_types!inner (name),
+          sectors!inner (
             name,
-            zones (name)
+            zones!inner (name)
           ),
-          sku,
-          current_price,
-          min_price,
-          ltc,
-          dimensions,
-          quantity,
-          status,
-          created_at,
-          updated_at,
-          bookings (count),
-          confirmed_bookings:bookings (count).filter(status.eq.confirmed),
+          bookings:bookings (count),
+          confirmed_bookings:bookings!inner (count),
           order_count:order_items (count),
-          total_revenue:order_items (sum.price)
-        `);
+          total_revenue:order_items (sum)
+        `)
+        .eq('bookings.status', 'confirmed');
 
       if (error) {
         console.error("Error fetching detailed inventory analytics:", error);
