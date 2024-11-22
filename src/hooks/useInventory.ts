@@ -88,6 +88,7 @@ export const useOrders = () => {
         `);
       
       if (error) throw error;
+      console.log("Fetched orders:", data);
       return data as Order[];
     },
   });
@@ -108,11 +109,8 @@ export const useBookings = () => {
         `);
       
       if (error) throw error;
-      return data as (Booking & {
-        inventory_items: {
-          inventory_types: { name: string }
-        }
-      })[];
+      console.log("Fetched bookings:", data);
+      return data as Booking[];
     },
   });
 };

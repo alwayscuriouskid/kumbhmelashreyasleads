@@ -12,29 +12,50 @@ export type Database = {
       bookings: {
         Row: {
           created_at: string | null
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
           end_date: string
           id: string
           inventory_item_id: string
+          notes: string | null
+          payment_amount: number | null
+          payment_status: string | null
           start_date: string
           status: string
+          team_member_name: string
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
           end_date: string
           id?: string
           inventory_item_id: string
+          notes?: string | null
+          payment_amount?: number | null
+          payment_status?: string | null
           start_date: string
           status: string
+          team_member_name?: string
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
           end_date?: string
           id?: string
           inventory_item_id?: string
+          notes?: string | null
+          payment_amount?: number | null
+          payment_status?: string | null
           start_date?: string
           status?: string
+          team_member_name?: string
           updated_at?: string | null
         }
         Relationships: [
@@ -185,22 +206,37 @@ export type Database = {
       orders: {
         Row: {
           created_at: string | null
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
           id: string
+          notes: string | null
           status: string
+          team_member_name: string
           total_amount: number
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
           id?: string
+          notes?: string | null
           status: string
+          team_member_name?: string
           total_amount: number
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
           id?: string
+          notes?: string | null
           status?: string
+          team_member_name?: string
           total_amount?: number
           updated_at?: string | null
         }
@@ -282,7 +318,19 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      sales_metrics: {
+        Row: {
+          cancelled_bookings: number | null
+          confirmed_bookings: number | null
+          month: string | null
+          team_member_name: string | null
+          total_booking_revenue: number | null
+          total_bookings: number | null
+          total_orders: number | null
+          total_revenue: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

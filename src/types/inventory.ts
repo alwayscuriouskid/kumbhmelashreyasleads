@@ -54,6 +54,11 @@ export interface Order {
   total_amount: number;
   created_at: string;
   updated_at: string;
+  team_member_name: string;
+  customer_name?: string;
+  customer_email?: string;
+  customer_phone?: string;
+  notes?: string;
 }
 
 export interface OrderItem {
@@ -72,4 +77,11 @@ export interface Booking {
   status: 'tentative' | 'confirmed' | 'cancelled';
   created_at: string;
   updated_at: string;
+  team_member_name: string;
+  customer_name?: string;
+  customer_email?: string;
+  customer_phone?: string;
+  notes?: string;
+  payment_status?: string;
+  payment_amount?: number;
 }
