@@ -1,32 +1,59 @@
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
-
-const teamData = [
-  { 
-    name: "John Doe",
-    activities: 45,
-    completionRate: 85,
-    avgResponseTime: "2.5 hours",
-    activeLeads: 12
-  },
-  { 
-    name: "Jane Smith",
-    activities: 38,
-    completionRate: 92,
-    avgResponseTime: "1.8 hours",
-    activeLeads: 15
-  },
-  { 
-    name: "Mike Johnson",
-    activities: 42,
-    completionRate: 78,
-    avgResponseTime: "3.2 hours",
-    activeLeads: 10
-  },
-];
+import { supabase } from "@/integrations/supabase/client";
 
 const TeamPerformance = () => {
+  const { data: teamData, isLoading } = useQuery({
+    queryKey: ['team-performance'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('booking_detailed_metrics')
+        .select('*')
+        .order('date', { ascending: false })
+        .limit(10);
+
+      if (error) {
+        console.error('Error fetching team performance:', error);
+        throw error;
+      }
+
+      // Group and aggregate by team member
+      const teamStats = data.reduce((acc: any, curr) => {
+        if (!curr.team_member_name) return acc;
+        
+        if (!acc[curr.team_member_name]) {
+          acc[curr.team_member_name] = {
+            name: curr.team_member_name,
+            activities: 0,
+            completionRate: 0,
+            avgResponseTime: 0,
+            totalBookings: 0,
+            confirmedBookings: 0
+          };
+        }
+
+        acc[curr.team_member_name].activities += curr.total_bookings || 0;
+        acc[curr.team_member_name].totalBookings += curr.total_bookings || 0;
+        acc[curr.team_member_name].confirmedBookings += curr.confirmed_bookings || 0;
+
+        return acc;
+      }, {});
+
+      // Calculate completion rates
+      return Object.values(teamStats).map((member: any) => ({
+        ...member,
+        completionRate: Math.round((member.confirmedBookings / member.totalBookings) * 100) || 0,
+        avgResponseTime: "2.5 hours" // This could be calculated from actual data if available
+      }));
+    }
+  });
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -35,7 +62,7 @@ const TeamPerformance = () => {
       <CardContent>
         <ScrollArea className="h-[300px]">
           <div className="space-y-6">
-            {teamData.map((member) => (
+            {teamData?.map((member: any) => (
               <div key={member.name} className="space-y-2">
                 <div className="flex justify-between items-center">
                   <h4 className="font-medium">{member.name}</h4>
@@ -56,8 +83,8 @@ const TeamPerformance = () => {
                     <span className="ml-1">{member.avgResponseTime}</span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Active Leads:</span>
-                    <span className="ml-1">{member.activeLeads}</span>
+                    <span className="text-muted-foreground">Total Bookings:</span>
+                    <span className="ml-1">{member.totalBookings}</span>
                   </div>
                 </div>
               </div>

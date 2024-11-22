@@ -1,19 +1,38 @@
+import { useQuery } from "@tanstack/react-query";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-const data = [
-  { hour: '9AM', calls: 4, meetings: 1, emails: 3 },
-  { hour: '10AM', calls: 2, meetings: 2, emails: 5 },
-  { hour: '11AM', calls: 3, meetings: 1, emails: 2 },
-  { hour: '12PM', calls: 1, meetings: 3, emails: 4 },
-  { hour: '1PM', calls: 2, meetings: 0, emails: 1 },
-  { hour: '2PM', calls: 5, meetings: 2, emails: 3 },
-  { hour: '3PM', calls: 3, meetings: 1, emails: 2 },
-  { hour: '4PM', calls: 4, meetings: 2, emails: 4 },
-  { hour: '5PM', calls: 2, meetings: 1, emails: 3 },
-];
+import { supabase } from "@/integrations/supabase/client";
 
 const DailyActivityChart = () => {
+  const { data: activityData, isLoading } = useQuery({
+    queryKey: ['daily-activity-metrics'],
+    queryFn: async () => {
+      // Fetch data from our inventory_detailed_metrics view
+      const { data, error } = await supabase
+        .from('inventory_detailed_metrics')
+        .select('*')
+        .order('date', { ascending: true })
+        .limit(7); // Last 7 days
+
+      if (error) {
+        console.error('Error fetching daily activity metrics:', error);
+        throw error;
+      }
+
+      // Transform the data for the chart
+      return data.map(item => ({
+        date: new Date(item.date).toLocaleDateString('en-US', { weekday: 'short' }),
+        sales: item.items_sold || 0,
+        revenue: item.revenue || 0,
+        orders: item.total_orders || 0
+      }));
+    }
+  });
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -22,15 +41,15 @@ const DailyActivityChart = () => {
       <CardContent>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data}>
+            <BarChart data={activityData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="hour" />
+              <XAxis dataKey="date" />
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="calls" fill="#3b82f6" name="Calls" />
-              <Bar dataKey="meetings" fill="#22c55e" name="Meetings" />
-              <Bar dataKey="emails" fill="#f59e0b" name="Emails" />
+              <Bar dataKey="sales" fill="#3b82f6" name="Items Sold" />
+              <Bar dataKey="orders" fill="#22c55e" name="Orders" />
+              <Bar dataKey="revenue" fill="#f59e0b" name="Revenue" />
             </BarChart>
           </ResponsiveContainer>
         </div>

@@ -405,6 +405,46 @@ export type Database = {
       }
     }
     Views: {
+      booking_detailed_metrics: {
+        Row: {
+          avg_booking_duration: number | null
+          avg_booking_value: number | null
+          booking_revenue: number | null
+          cancelled_bookings: number | null
+          confirmed_bookings: number | null
+          date: string | null
+          item_type: string | null
+          team_member_id: string | null
+          team_member_name: string | null
+          total_bookings: number | null
+          type_id: string | null
+          zone_id: string | null
+          zone_name: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_items_type_id_fkey"
+            columns: ["type_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sectors_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       detailed_sales_metrics: {
         Row: {
           avg_commission_rate: number | null
@@ -421,6 +461,48 @@ export type Database = {
           total_revenue: number | null
         }
         Relationships: []
+      }
+      inventory_detailed_metrics: {
+        Row: {
+          avg_price: number | null
+          completed_orders: number | null
+          cumulative_sales: number | null
+          date: string | null
+          item_type: string | null
+          items_sold: number | null
+          revenue: number | null
+          revenue_growth_percent: number | null
+          team_member_id: string | null
+          team_member_name: string | null
+          total_orders: number | null
+          type_id: string | null
+          weekly_avg_revenue: number | null
+          zone_id: string | null
+          zone_name: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_items_type_id_fkey"
+            columns: ["type_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sectors_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sales_metrics: {
         Row: {
