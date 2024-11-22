@@ -1,6 +1,7 @@
 import { ScrollArea } from "./ui/scroll-area";
 import Sidebar from "./Sidebar";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface LayoutProps {
   children: React.ReactNode;
