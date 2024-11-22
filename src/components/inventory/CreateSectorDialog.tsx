@@ -53,12 +53,12 @@ export const CreateSectorDialog = ({ onSuccess }: { onSuccess: () => void }) => 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" className="bg-background text-foreground">
           <Plus className="mr-2 h-4 w-4" />
           Add Sector
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="bg-background">
         <DialogHeader>
           <DialogTitle>Add New Sector</DialogTitle>
         </DialogHeader>
@@ -89,6 +89,7 @@ export const CreateSectorDialog = ({ onSuccess }: { onSuccess: () => void }) => 
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
+              className="bg-background"
             />
           </div>
           
@@ -98,6 +99,7 @@ export const CreateSectorDialog = ({ onSuccess }: { onSuccess: () => void }) => 
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="bg-background"
             />
           </div>
 

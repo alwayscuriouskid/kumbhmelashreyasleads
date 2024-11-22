@@ -65,7 +65,7 @@ export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button className="bg-primary text-primary-foreground">
           <Plus className="mr-2 h-4 w-4" />
           Add Inventory Item
         </Button>
@@ -122,6 +122,7 @@ export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) 
               value={formData.quantity}
               onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
               required
+              className="bg-background"
             />
           </div>
 
@@ -133,6 +134,7 @@ export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) 
               value={formData.current_price}
               onChange={(e) => setFormData({ ...formData, current_price: e.target.value })}
               required
+              className="bg-background"
             />
           </div>
 
@@ -144,6 +146,7 @@ export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) 
               value={formData.min_price}
               onChange={(e) => setFormData({ ...formData, min_price: e.target.value })}
               required
+              className="bg-background"
             />
           </div>
 
@@ -154,6 +157,7 @@ export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) 
               type="number"
               value={formData.ltc}
               onChange={(e) => setFormData({ ...formData, ltc: e.target.value })}
+              className="bg-background"
             />
           </div>
 
@@ -163,6 +167,7 @@ export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) 
               id="dimensions"
               value={formData.dimensions}
               onChange={(e) => setFormData({ ...formData, dimensions: e.target.value })}
+              className="bg-background"
             />
           </div>
 

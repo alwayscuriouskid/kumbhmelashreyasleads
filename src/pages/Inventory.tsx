@@ -3,6 +3,9 @@ import { Package } from "lucide-react";
 import { useInventoryItems } from "@/hooks/useInventory";
 import { InventoryTable } from "@/components/inventory/InventoryTable";
 import { CreateInventoryDialog } from "@/components/inventory/CreateInventoryDialog";
+import { CreateTypeDialog } from "@/components/inventory/CreateTypeDialog";
+import { CreateZoneDialog } from "@/components/inventory/CreateZoneDialog";
+import { CreateSectorDialog } from "@/components/inventory/CreateSectorDialog";
 
 const Inventory = () => {
   const { data: items, refetch } = useInventoryItems();
@@ -11,7 +14,12 @@ const Inventory = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Inventory Management</h1>
-        <CreateInventoryDialog onSuccess={refetch} />
+        <div className="flex gap-2">
+          <CreateTypeDialog onSuccess={refetch} />
+          <CreateZoneDialog onSuccess={refetch} />
+          <CreateSectorDialog onSuccess={refetch} />
+          <CreateInventoryDialog onSuccess={refetch} />
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

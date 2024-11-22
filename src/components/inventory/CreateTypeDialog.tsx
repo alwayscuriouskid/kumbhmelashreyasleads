@@ -55,12 +55,12 @@ export const CreateTypeDialog = ({ onSuccess }: { onSuccess: () => void }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" className="bg-background text-foreground">
           <Plus className="mr-2 h-4 w-4" />
           Add Type
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="bg-background">
         <DialogHeader>
           <DialogTitle>Add New Inventory Type</DialogTitle>
         </DialogHeader>
@@ -72,6 +72,7 @@ export const CreateTypeDialog = ({ onSuccess }: { onSuccess: () => void }) => {
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
+              className="bg-background"
             />
           </div>
           
@@ -81,6 +82,7 @@ export const CreateTypeDialog = ({ onSuccess }: { onSuccess: () => void }) => {
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="bg-background"
             />
           </div>
 
@@ -91,6 +93,7 @@ export const CreateTypeDialog = ({ onSuccess }: { onSuccess: () => void }) => {
               value={formData.unit_type}
               onChange={(e) => setFormData({ ...formData, unit_type: e.target.value })}
               required
+              className="bg-background"
             />
           </div>
 
@@ -100,6 +103,7 @@ export const CreateTypeDialog = ({ onSuccess }: { onSuccess: () => void }) => {
               id="base_dimensions"
               value={formData.base_dimensions}
               onChange={(e) => setFormData({ ...formData, base_dimensions: e.target.value })}
+              className="bg-background"
             />
           </div>
 
@@ -110,6 +114,7 @@ export const CreateTypeDialog = ({ onSuccess }: { onSuccess: () => void }) => {
               type="number"
               value={formData.base_ltc}
               onChange={(e) => setFormData({ ...formData, base_ltc: e.target.value })}
+              className="bg-background"
             />
           </div>
 
