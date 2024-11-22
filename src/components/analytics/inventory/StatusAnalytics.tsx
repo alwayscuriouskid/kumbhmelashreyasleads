@@ -24,15 +24,7 @@ export const StatusAnalytics = ({ zoneFilter, typeFilter }: { zoneFilter: string
       console.log('Fetching inventory status metrics');
       let query = supabase
         .from('inventory_items')
-        .select(`
-          status,
-          sectors!inner (
-            zone_id
-          ),
-          count
-        `, { count: 'exact', head: false })
-        .select('status')
-        .count('status', { groupBy: ['status'] });
+        .select('status', { count: 'exact', head: false });
       
       if (zoneFilter !== 'all') {
         query = query.eq('sectors.zone_id', zoneFilter);
@@ -41,7 +33,10 @@ export const StatusAnalytics = ({ zoneFilter, typeFilter }: { zoneFilter: string
         query = query.eq('type_id', typeFilter);
       }
 
-      const { data, error } = await query;
+      const { data, error } = await query
+        .select('status')
+        .select('status', { count: 'exact' })
+        .groupBy('status');
       
       if (error) {
         console.error('Error fetching inventory status metrics:', error);
@@ -50,7 +45,7 @@ export const StatusAnalytics = ({ zoneFilter, typeFilter }: { zoneFilter: string
       
       return data.map(row => ({
         status: row.status,
-        count: Number(row.count)
+        count: Number(row.count || 0)
       }));
     },
   });
