@@ -9,13 +9,15 @@ import {
 } from "recharts";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import type { InventoryStatusMetric } from "@/types/inventory";
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
 export const StatusAnalytics = ({ zoneFilter, typeFilter }: { zoneFilter: string; typeFilter: string }) => {
-  const { data: statusMetrics } = useQuery({
+  const { data: statusMetrics } = useQuery<InventoryStatusMetric[]>({
     queryKey: ['inventory-status-metrics', zoneFilter, typeFilter],
     queryFn: async () => {
+      console.log('Fetching inventory status metrics');
       let query = supabase
         .from('inventory_status_metrics')
         .select('*');
@@ -28,12 +30,17 @@ export const StatusAnalytics = ({ zoneFilter, typeFilter }: { zoneFilter: string
       }
 
       const { data, error } = await query;
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Error fetching inventory status metrics:', error);
+        throw error;
+      }
+      
       return data;
     },
   });
 
-  const statusData = statusMetrics?.reduce((acc: any[], metric) => {
+  const statusData = statusMetrics?.reduce((acc: { status: string; value: number }[], metric) => {
     const existingStatus = acc.find(item => item.status === metric.status);
     if (existingStatus) {
       existingStatus.value += metric.item_count;

@@ -97,3 +97,17 @@ export interface Booking {
     inventory_types?: InventoryType;
   };
 }
+
+export interface InventoryStatusMetric {
+  type_id: string;
+  type_name: string;
+  sector_id: string;
+  sector_name: string;
+  zone_id: string;
+  zone_name: string;
+  status: string;
+  item_count: number;
+  total_value: number;
+  percentage_of_type: number;
+  percentage_of_zone: number;
+}
