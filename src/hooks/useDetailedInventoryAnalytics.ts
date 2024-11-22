@@ -29,17 +29,26 @@ export const useDetailedInventoryAnalytics = () => {
       const { data, error } = await supabase
         .from('inventory_items')
         .select(`
-          *,
+          id,
           inventory_types!inner (name),
           sectors!inner (
             name,
             zones!inner (name)
           ),
-          bookings (count),
+          sku,
+          current_price,
+          min_price,
+          ltc,
+          dimensions,
+          quantity,
+          status,
+          created_at,
+          updated_at,
+          bookings:bookings (count),
           confirmed_bookings:bookings!inner (count),
           order_items (
             count,
-            total_price:sum(price)
+            price_sum:price(sum)
           )
         `)
         .eq('bookings.status', 'confirmed');
@@ -66,7 +75,7 @@ export const useDetailedInventoryAnalytics = () => {
         total_bookings: (item.bookings?.[0]?.count as number) || 0,
         confirmed_bookings: (item.confirmed_bookings?.[0]?.count as number) || 0,
         times_ordered: (item.order_items?.[0]?.count as number) || 0,
-        total_revenue: Number(item.order_items?.[0]?.total_price) || 0
+        total_revenue: Number(item.order_items?.[0]?.price_sum) || 0
       }));
     },
   });

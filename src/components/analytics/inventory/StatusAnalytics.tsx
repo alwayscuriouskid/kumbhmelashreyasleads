@@ -24,7 +24,15 @@ export const StatusAnalytics = ({ zoneFilter, typeFilter }: { zoneFilter: string
       console.log('Fetching inventory status metrics');
       let query = supabase
         .from('inventory_items')
-        .select('status, count', { count: 'exact', head: false });
+        .select(`
+          status,
+          sectors!inner (
+            zone_id
+          ),
+          count
+        `, { count: 'exact', head: false })
+        .select('status')
+        .count('status', { groupBy: ['status'] });
       
       if (zoneFilter !== 'all') {
         query = query.eq('sectors.zone_id', zoneFilter);
