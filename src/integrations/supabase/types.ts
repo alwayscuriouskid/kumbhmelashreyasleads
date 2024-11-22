@@ -11,6 +11,8 @@ export type Database = {
     Tables: {
       bookings: {
         Row: {
+          booking_reference: string | null
+          cancellation_reason: string | null
           created_at: string | null
           customer_email: string | null
           customer_name: string | null
@@ -20,13 +22,18 @@ export type Database = {
           inventory_item_id: string
           notes: string | null
           payment_amount: number | null
+          payment_date: string | null
+          payment_method: string | null
           payment_status: string | null
           start_date: string
           status: string
+          team_member_id: string | null
           team_member_name: string
           updated_at: string | null
         }
         Insert: {
+          booking_reference?: string | null
+          cancellation_reason?: string | null
           created_at?: string | null
           customer_email?: string | null
           customer_name?: string | null
@@ -36,13 +43,18 @@ export type Database = {
           inventory_item_id: string
           notes?: string | null
           payment_amount?: number | null
+          payment_date?: string | null
+          payment_method?: string | null
           payment_status?: string | null
           start_date: string
           status: string
+          team_member_id?: string | null
           team_member_name?: string
           updated_at?: string | null
         }
         Update: {
+          booking_reference?: string | null
+          cancellation_reason?: string | null
           created_at?: string | null
           customer_email?: string | null
           customer_name?: string | null
@@ -52,9 +64,12 @@ export type Database = {
           inventory_item_id?: string
           notes?: string | null
           payment_amount?: number | null
+          payment_date?: string | null
+          payment_method?: string | null
           payment_status?: string | null
           start_date?: string
           status?: string
+          team_member_id?: string | null
           team_member_name?: string
           updated_at?: string | null
         }
@@ -64,6 +79,13 @@ export type Database = {
             columns: ["inventory_item_id"]
             isOneToOne: false
             referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
             referencedColumns: ["id"]
           },
         ]
@@ -205,42 +227,68 @@ export type Database = {
       }
       orders: {
         Row: {
+          commission_amount: number | null
+          commission_percentage: number | null
           created_at: string | null
           customer_email: string | null
           customer_name: string | null
           customer_phone: string | null
           id: string
           notes: string | null
+          payment_date: string | null
+          payment_method: string | null
+          payment_status: string | null
           status: string
+          team_member_id: string | null
           team_member_name: string
           total_amount: number
           updated_at: string | null
         }
         Insert: {
+          commission_amount?: number | null
+          commission_percentage?: number | null
           created_at?: string | null
           customer_email?: string | null
           customer_name?: string | null
           customer_phone?: string | null
           id?: string
           notes?: string | null
+          payment_date?: string | null
+          payment_method?: string | null
+          payment_status?: string | null
           status: string
+          team_member_id?: string | null
           team_member_name?: string
           total_amount: number
           updated_at?: string | null
         }
         Update: {
+          commission_amount?: number | null
+          commission_percentage?: number | null
           created_at?: string | null
           customer_email?: string | null
           customer_name?: string | null
           customer_phone?: string | null
           id?: string
           notes?: string | null
+          payment_date?: string | null
+          payment_method?: string | null
+          payment_status?: string | null
           status?: string
+          team_member_id?: string | null
           team_member_name?: string
           total_amount?: number
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -292,6 +340,39 @@ export type Database = {
           },
         ]
       }
+      team_members: {
+        Row: {
+          commission_rate: number | null
+          created_at: string | null
+          email: string | null
+          id: string
+          name: string
+          role: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          commission_rate?: number | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name: string
+          role?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          commission_rate?: number | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+          role?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       zones: {
         Row: {
           created_at: string | null
@@ -318,6 +399,23 @@ export type Database = {
       }
     }
     Views: {
+      detailed_sales_metrics: {
+        Row: {
+          avg_commission_rate: number | null
+          cancelled_bookings: number | null
+          confirmed_bookings: number | null
+          month: string | null
+          paid_orders: number | null
+          pending_orders: number | null
+          team_member_name: string | null
+          total_booking_revenue: number | null
+          total_bookings: number | null
+          total_commission: number | null
+          total_orders: number | null
+          total_revenue: number | null
+        }
+        Relationships: []
+      }
       sales_metrics: {
         Row: {
           cancelled_bookings: number | null

@@ -9,28 +9,28 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { CreateOrderDialog } from "@/components/orders/CreateOrderDialog";
 import { format } from "date-fns";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/ui/date-picker";
+import { useTeamMembers } from "@/hooks/useTeamMembers";
 
 const Orders = () => {
-  const { data: orders, isLoading } = useOrders();
+  const { data: orders, isLoading, refetch } = useOrders();
+  const { data: teamMembers } = useTeamMembers();
   const [statusFilter, setStatusFilter] = useState("all");
   const [teamMemberFilter, setTeamMemberFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [dateRange, setDateRange] = useState<Date>();
-
-  // Get unique team members
-  const teamMembers = Array.from(new Set(orders?.map(order => order.team_member_name) || []));
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
 
   // Filter orders
   const filteredOrders = orders?.filter(order => {
     if (statusFilter !== "all" && order.status !== statusFilter) return false;
-    if (teamMemberFilter !== "all" && order.team_member_name !== teamMemberFilter) return false;
+    if (teamMemberFilter !== "all" && order.team_member_id !== teamMemberFilter) return false;
+    if (paymentStatusFilter !== "all" && order.payment_status !== paymentStatusFilter) return false;
     if (searchQuery && !order.customer_name?.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     if (dateRange && new Date(order.created_at).toDateString() !== dateRange.toDateString()) return false;
     return true;
@@ -40,9 +40,7 @@ const Orders = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Orders</h1>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" /> Create Order
-        </Button>
+        <CreateOrderDialog onSuccess={refetch} />
       </div>
 
       <Card>
@@ -63,14 +61,26 @@ const Orders = () => {
               </SelectContent>
             </Select>
 
+            <Select value={paymentStatusFilter} onValueChange={setPaymentStatusFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by payment" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Payment Status</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="paid">Paid</SelectItem>
+                <SelectItem value="failed">Failed</SelectItem>
+              </SelectContent>
+            </Select>
+
             <Select value={teamMemberFilter} onValueChange={setTeamMemberFilter}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Filter by team member" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Team Members</SelectItem>
-                {teamMembers.map(member => (
-                  <SelectItem key={member} value={member}>{member}</SelectItem>
+                {teamMembers?.map(member => (
+                  <SelectItem key={member.id} value={member.id}>{member.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -97,13 +107,14 @@ const Orders = () => {
                 <TableHead>Customer</TableHead>
                 <TableHead>Team Member</TableHead>
                 <TableHead>Total Amount</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>Payment Status</TableHead>
+                <TableHead>Order Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center">
+                  <TableCell colSpan={7} className="text-center">
                     Loading...
                   </TableCell>
                 </TableRow>
@@ -120,8 +131,23 @@ const Orders = () => {
                         <div className="text-sm text-muted-foreground">{order.customer_email}</div>
                       </div>
                     </TableCell>
-                    <TableCell>{order.team_member_name}</TableCell>
+                    <TableCell>
+                      {teamMembers?.find(member => member.id === order.team_member_id)?.name}
+                    </TableCell>
                     <TableCell>₹{order.total_amount}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          order.payment_status === "paid"
+                            ? "default"
+                            : order.payment_status === "pending"
+                            ? "secondary"
+                            : "destructive"
+                        }
+                      >
+                        {order.payment_status}
+                      </Badge>
+                    </TableCell>
                     <TableCell>
                       <Badge
                         variant={
