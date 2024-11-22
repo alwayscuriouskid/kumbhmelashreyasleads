@@ -31,6 +31,7 @@ export const useLeads = () => {
       console.log("Adding new lead:", newLead);
       try {
         const dbLead = frontendToDB(newLead);
+        console.log("Converted lead for DB:", dbLead);
         
         const { data, error } = await supabase
           .from('leads')
@@ -45,6 +46,7 @@ export const useLeads = () => {
 
         return dbToFrontend(data as LeadDB);
       } catch (error) {
+        console.error("Error in addLead mutation:", error);
         if (error instanceof Error) {
           throw new Error(`Failed to add lead: ${error.message}`);
         }
@@ -73,6 +75,7 @@ export const useLeads = () => {
       console.log("Updating lead:", updatedLead);
       try {
         const dbLead = frontendToDB(updatedLead);
+        console.log("Converted lead for DB update:", dbLead);
 
         const { data, error } = await supabase
           .from('leads')
@@ -88,6 +91,7 @@ export const useLeads = () => {
 
         return dbToFrontend(data as LeadDB);
       } catch (error) {
+        console.error("Error in updateLead mutation:", error);
         if (error instanceof Error) {
           throw new Error(`Failed to update lead: ${error.message}`);
         }

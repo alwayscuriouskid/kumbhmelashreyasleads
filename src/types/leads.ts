@@ -126,13 +126,14 @@ export const dbToFrontend = (lead: LeadDB): Lead => ({
   followUpOutcome: lead.follow_up_outcome || undefined
 });
 
-export const frontendToDB = (lead: Partial<Lead>): Partial<LeadDB> => {
+export const frontendToDB = (lead: Partial<Lead>): LeadDB => {
+  // Validate required fields
   if (!lead.clientName || !lead.location || !lead.contactPerson || !lead.phone || !lead.email) {
-    throw new Error('Missing required fields');
+    throw new Error('Missing required fields: clientName, location, contactPerson, phone, and email are required');
   }
 
   return {
-    id: lead.id,
+    id: lead.id!,
     client_name: lead.clientName,
     location: lead.location,
     contact_person: lead.contactPerson,
