@@ -30,28 +30,28 @@ export const useDetailedInventoryAnalytics = () => {
         .from('inventory_items')
         .select(`
           id,
-          current_price,
-          min_price,
-          status,
-          ltc,
-          dimensions,
-          quantity,
-          sku,
-          created_at,
-          updated_at,
-          inventory_types (
+          inventory_types!inner (
             name
           ),
-          sectors (
+          sectors!inner (
             name,
-            zones (
+            zones!inner (
               name
             )
           ),
-          bookings (count),
-          confirmed_bookings:bookings!inner (count).eq(status, 'confirmed'),
+          sku,
+          current_price,
+          min_price,
+          ltc,
+          dimensions,
+          quantity,
+          status,
+          created_at,
+          updated_at,
+          bookings:bookings (count),
+          confirmed_bookings:bookings!inner (count).filter(status.eq.confirmed),
           order_items (count),
-          order_revenue:order_items (sum(price))
+          order_revenue:order_items (sum.price)
         `);
 
       if (error) {
