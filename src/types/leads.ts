@@ -5,6 +5,14 @@ export interface Requirement {
   watchTowers?: number;
   chargingPoints?: number;
   skyBalloons?: number;
+  ledHoardingSpots?: number;
+  foodStalls?: number;
+  changingRooms?: number;
+  activationZoneStalls?: number;
+  trafficBarricades?: number;
+  droneShow?: number;
+  webSeries?: number;
+  specialSong?: number;
   customRequirements?: string;
   [key: string]: number | string | undefined;
 }

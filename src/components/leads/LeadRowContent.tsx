@@ -20,6 +20,27 @@ const LeadRowContent = ({
   handleInputChange,
   customStatuses 
 }: LeadRowContentProps) => {
+  const defaultStatuses = ["suspect", "prospect", "analysis", "negotiation", "conclusion", "ongoing_order"];
+
+  const formatStatusLabel = (status: string) => {
+    return status
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  const getStatusColor = (status: string) => {
+    const colors: Record<string, string> = {
+      suspect: "bg-gray-500/20 text-gray-500",
+      prospect: "bg-blue-500/20 text-blue-500",
+      analysis: "bg-yellow-500/20 text-yellow-500",
+      negotiation: "bg-purple-500/20 text-purple-500",
+      conclusion: "bg-green-500/20 text-green-500",
+      ongoing_order: "bg-indigo-500/20 text-indigo-500"
+    };
+    return colors[status] || "bg-blue-500/20 text-blue-500";
+  };
+
   const renderCell = (field: keyof Lead, content: React.ReactNode) => {
     if (!isEditing) return content;
     
@@ -33,13 +54,14 @@ const LeadRowContent = ({
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="approved">Approved</SelectItem>
-            <SelectItem value="rejected">Rejected</SelectItem>
-            <SelectItem value="followup">Follow Up</SelectItem>
+            {defaultStatuses.map((status) => (
+              <SelectItem key={status} value={status}>
+                {formatStatusLabel(status)}
+              </SelectItem>
+            ))}
             {customStatuses.map((status) => (
               <SelectItem key={status} value={status}>
-                {status.charAt(0).toUpperCase() + status.slice(1)}
+                {formatStatusLabel(status)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -94,18 +116,8 @@ const LeadRowContent = ({
       {visibleColumns.status && (
         <TableCell>
           {renderCell("status", 
-            <span
-              className={`px-2 py-1 rounded-full text-xs ${
-                lead.status === "approved"
-                  ? "bg-green-500/20 text-green-500"
-                  : lead.status === "rejected"
-                  ? "bg-red-500/20 text-red-500"
-                  : lead.status === "followup"
-                  ? "bg-yellow-500/20 text-yellow-500"
-                  : "bg-blue-500/20 text-blue-500"
-              }`}
-            >
-              {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
+            <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(lead.status)}`}>
+              {formatStatusLabel(lead.status)}
             </span>
           )}
         </TableCell>

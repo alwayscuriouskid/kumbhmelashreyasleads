@@ -16,12 +16,13 @@ const LeadFormStatus = ({ status, onStatusChange, customStatuses, onAddCustomSta
   const [newStatus, setNewStatus] = useState("");
   const { toast } = useToast();
 
+  const defaultStatuses = ["suspect", "prospect", "analysis", "negotiation", "conclusion", "ongoing_order"];
+
   const handleAddStatus = () => {
     if (newStatus.trim()) {
       const formattedStatus = newStatus.trim().toLowerCase();
       
-      // Check if status already exists
-      if ([...customStatuses, "pending", "approved", "rejected", "followup"].includes(formattedStatus)) {
+      if ([...customStatuses, ...defaultStatuses].includes(formattedStatus)) {
         toast({
           title: "Status already exists",
           description: "Please enter a different status name.",
@@ -48,6 +49,13 @@ const LeadFormStatus = ({ status, onStatusChange, customStatuses, onAddCustomSta
     }
   };
 
+  const formatStatusLabel = (status: string) => {
+    return status
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -57,13 +65,14 @@ const LeadFormStatus = ({ status, onStatusChange, customStatuses, onAddCustomSta
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="approved">Approved</SelectItem>
-            <SelectItem value="rejected">Rejected</SelectItem>
-            <SelectItem value="followup">Follow Up</SelectItem>
+            {defaultStatuses.map((status) => (
+              <SelectItem key={status} value={status}>
+                {formatStatusLabel(status)}
+              </SelectItem>
+            ))}
             {customStatuses.map((customStatus) => (
               <SelectItem key={customStatus} value={customStatus}>
-                {customStatus.charAt(0).toUpperCase() + customStatus.slice(1)}
+                {formatStatusLabel(customStatus)}
               </SelectItem>
             ))}
           </SelectContent>
