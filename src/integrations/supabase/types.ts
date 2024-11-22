@@ -51,7 +51,7 @@ export type Database = {
           start_date: string
           status: string
           team_member_id?: string | null
-          team_member_name: string
+          team_member_name?: string
           updated_at?: string | null
         }
         Update: {
@@ -342,7 +342,7 @@ export type Database = {
           price_quoted?: number | null
           remarks?: string | null
           requirement?: Json
-          status: string
+          status?: string
           updated_at?: string | null
         }
         Update: {
@@ -442,7 +442,7 @@ export type Database = {
           payment_status?: string | null
           status: string
           team_member_id?: string | null
-          team_member_name: string
+          team_member_name?: string
           total_amount: number
           updated_at?: string | null
         }
@@ -540,7 +540,7 @@ export type Database = {
           commission_rate?: number | null
           created_at?: string | null
           email?: string | null
-          id: string
+          id?: string
           name: string
           role?: string | null
           status?: string | null
@@ -655,6 +655,7 @@ export type Database = {
           team_member_name: string | null
           total_orders: number | null
           type_id: string | null
+          weekly_avg_revenue: number | null
           zone_id: string | null
           zone_name: string | null
         }
@@ -695,39 +696,6 @@ export type Database = {
         }
         Relationships: []
       }
-      inventory_status_metrics: {
-        Row: {
-          type_id: string | null
-          type_name: string | null
-          sector_id: string | null
-          sector_name: string | null
-          zone_id: string | null
-          zone_name: string | null
-          status: string
-          item_count: number
-          total_value: number
-          percentage_of_type: number
-          percentage_of_zone: number
-        }
-        Insert: never
-        Update: never
-        Relationships: [
-          {
-            foreignKeyName: "inventory_items_type_id_fkey"
-            columns: ["type_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_types"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sectors_zone_id_fkey"
-            columns: ["zone_id"]
-            isOneToOne: false
-            referencedRelation: "zones"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
     }
     Functions: {
       [_ in never]: never
@@ -750,7 +718,7 @@ export type Tables<
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
         Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never,
+    : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
@@ -804,10 +772,10 @@ export type TablesUpdate<
     : never
   : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
     ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-      Update: infer U
-    }
-    ? U
-    : never
+        Update: infer U
+      }
+      ? U
+      : never
     : never
 
 export type Enums<
