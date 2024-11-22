@@ -59,7 +59,7 @@ const Orders = () => {
     if (paymentStatusFilter !== "all" && order.payment_status !== paymentStatusFilter) return false;
     if (searchQuery && !order.customer_name?.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     if (orderDate && new Date(order.created_at).toDateString() !== orderDate.toDateString()) return false;
-    if (nextPaymentDate && order.next_payment_date && 
+    if (nextPaymentDate && order.next_payment_date &&
         new Date(order.next_payment_date).toDateString() !== nextPaymentDate.toDateString()) return false;
     return true;
   });
@@ -93,16 +93,14 @@ const Orders = () => {
               onDateFilterChange={handleDateFilterChange}
             />
             
-            <div className="rounded-md border">
-              <ScrollArea className="h-[calc(100vh-20rem)]">
-                <OrdersTable
-                  orders={filteredOrders || []}
-                  isLoading={isLoading}
-                  visibleColumns={visibleColumns}
-                  teamMembers={teamMembers || []}
-                  onOrderUpdate={refetch}
-                />
-              </ScrollArea>
+            <div className="table-container">
+              <OrdersTable
+                orders={filteredOrders || []}
+                isLoading={isLoading}
+                visibleColumns={visibleColumns}
+                teamMembers={teamMembers || []}
+                onOrderUpdate={refetch}
+              />
             </div>
           </div>
         </CardContent>
