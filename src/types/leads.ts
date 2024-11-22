@@ -55,7 +55,6 @@ export interface Activity {
   activityOutcome?: string;
 }
 
-// Database model that matches Supabase schema
 export interface LeadDB {
   id: string;
   date: string;
@@ -78,7 +77,6 @@ export interface LeadDB {
   updated_at: string;
 }
 
-// Frontend model with camelCase properties
 export interface Lead {
   id: string;
   date: string;
@@ -104,7 +102,6 @@ export interface Lead {
   followUpOutcome?: string;
 }
 
-// Utility functions to convert between DB and frontend models
 export const dbToFrontend = (lead: LeadDB): Lead => ({
   id: lead.id,
   date: lead.date,

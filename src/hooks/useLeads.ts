@@ -42,6 +42,7 @@ export const useLeads = () => {
           ...dbLead,
           requirement: dbLead.requirement || {},
           date: dbLead.date || new Date().toISOString().split('T')[0],
+          status: dbLead.status || 'pending'
         }])
         .select()
         .single();
