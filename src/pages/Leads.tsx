@@ -85,7 +85,10 @@ const Leads = () => {
     nextFollowUp: false,
     budget: false,
     leadRef: true,
-    leadSource: true
+    leadSource: true,
+    priceQuoted: true,
+    nextAction: true,
+    followUpOutcome: true
   });
 
   const handleAddCustomStatus = (status: string) => {

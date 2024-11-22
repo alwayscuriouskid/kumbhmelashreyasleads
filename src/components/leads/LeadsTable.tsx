@@ -28,6 +28,9 @@ const LeadsTable = ({ leads, visibleColumns, onUpdateLead, customStatuses }: Lea
             {visibleColumns.budget && <TableHead>Budget</TableHead>}
             {visibleColumns.leadRef && <TableHead>Lead Reference</TableHead>}
             {visibleColumns.leadSource && <TableHead>Lead Source</TableHead>}
+            {visibleColumns.priceQuoted && <TableHead>Price Quoted</TableHead>}
+            {visibleColumns.nextAction && <TableHead>Next Action</TableHead>}
+            {visibleColumns.followUpOutcome && <TableHead>Follow Up Outcome</TableHead>}
             <TableHead className="w-[60px] sticky right-0 bg-background z-20">Actions</TableHead>
           </TableRow>
         </TableHeader>

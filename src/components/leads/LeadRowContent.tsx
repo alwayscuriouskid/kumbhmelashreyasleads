@@ -21,6 +21,7 @@ const LeadRowContent = ({
   customStatuses 
 }: LeadRowContentProps) => {
   const defaultStatuses = ["suspect", "prospect", "analysis", "negotiation", "conclusion", "ongoing_order"];
+  const allStatuses = [...defaultStatuses, ...customStatuses];
 
   const formatStatusLabel = (status: string) => {
     return status
@@ -54,12 +55,7 @@ const LeadRowContent = ({
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
           <SelectContent>
-            {defaultStatuses.map((status) => (
-              <SelectItem key={status} value={status}>
-                {formatStatusLabel(status)}
-              </SelectItem>
-            ))}
-            {customStatuses.map((status) => (
+            {allStatuses.map((status) => (
               <SelectItem key={status} value={status}>
                 {formatStatusLabel(status)}
               </SelectItem>
@@ -136,6 +132,15 @@ const LeadRowContent = ({
       )}
       {visibleColumns.leadSource && (
         <TableCell>{renderCell("leadSource", lead.leadSource || "-")}</TableCell>
+      )}
+      {visibleColumns.priceQuoted && (
+        <TableCell>{renderCell("priceQuoted", lead.priceQuoted?.toString() || "-")}</TableCell>
+      )}
+      {visibleColumns.nextAction && (
+        <TableCell>{renderCell("nextAction", lead.nextAction || "-")}</TableCell>
+      )}
+      {visibleColumns.followUpOutcome && (
+        <TableCell>{renderCell("followUpOutcome", lead.followUpOutcome || "-")}</TableCell>
       )}
     </>
   );
