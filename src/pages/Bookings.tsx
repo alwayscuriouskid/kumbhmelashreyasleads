@@ -45,7 +45,7 @@ const Bookings = () => {
                 bookings?.map((booking) => (
                   <TableRow key={booking.id}>
                     <TableCell>
-                      {booking.inventory_items.inventory_types.name}
+                      {booking.inventory_items?.inventory_types?.name}
                     </TableCell>
                     <TableCell>
                       {format(new Date(booking.start_date), "PPP")}

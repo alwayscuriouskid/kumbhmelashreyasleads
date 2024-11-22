@@ -18,9 +18,9 @@ const Inventory = () => {
   const { data: items, isLoading } = useInventoryItems();
 
   const filteredItems = items?.filter((item) =>
-    item.inventory_types.name.toLowerCase().includes(search.toLowerCase()) ||
-    item.sectors.name.toLowerCase().includes(search.toLowerCase()) ||
-    item.sectors.zones.name.toLowerCase().includes(search.toLowerCase())
+    item.inventory_types?.name.toLowerCase().includes(search.toLowerCase()) ||
+    item.sectors?.name.toLowerCase().includes(search.toLowerCase()) ||
+    item.sectors?.zones?.name.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -76,9 +76,9 @@ const Inventory = () => {
               ) : (
                 filteredItems?.map((item) => (
                   <TableRow key={item.id}>
-                    <TableCell>{item.inventory_types.name}</TableCell>
-                    <TableCell>{item.sectors.zones.name}</TableCell>
-                    <TableCell>{item.sectors.name}</TableCell>
+                    <TableCell>{item.inventory_types?.name}</TableCell>
+                    <TableCell>{item.sectors?.zones?.name}</TableCell>
+                    <TableCell>{item.sectors?.name}</TableCell>
                     <TableCell>₹{item.current_price}</TableCell>
                     <TableCell>
                       <Badge

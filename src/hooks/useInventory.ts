@@ -127,7 +127,7 @@ export const useCreateOrder = () => {
     mutationFn: async (orderData: Omit<Order, "id" | "created_at" | "updated_at">) => {
       const { data, error } = await supabase
         .from("orders")
-        .insert(orderData)
+        .insert([orderData])
         .select()
         .single();
       
@@ -151,7 +151,7 @@ export const useCreateBooking = () => {
     mutationFn: async (bookingData: Omit<Booking, "id" | "created_at" | "updated_at">) => {
       const { data, error } = await supabase
         .from("bookings")
-        .insert(bookingData)
+        .insert([bookingData])
         .select()
         .single();
       
