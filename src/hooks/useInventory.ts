@@ -87,13 +87,12 @@ export const useOrders = () => {
             *,
             inventory_items (
               *,
-              inventory_types (id, name, total_quantity, unit_type)
+              inventory_types (*)
             )
           )
         `);
       
       if (error) throw error;
-      console.log("Fetched orders:", data);
       return data as unknown as Order[];
     },
   });
@@ -109,12 +108,11 @@ export const useBookings = () => {
           *,
           inventory_items (
             *,
-            inventory_types (id, name, total_quantity, unit_type)
+            inventory_types (*)
           )
         `);
       
       if (error) throw error;
-      console.log("Fetched bookings:", data);
       return data as unknown as Booking[];
     },
   });

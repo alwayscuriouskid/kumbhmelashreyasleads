@@ -16,6 +16,7 @@ import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/ui/date-picker";
+import { TableColumnToggle } from "@/components/shared/TableColumnToggle";
 
 const Bookings = () => {
   const { data: bookings, isLoading } = useBookings();
@@ -23,6 +24,27 @@ const Bookings = () => {
   const [teamMemberFilter, setTeamMemberFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [dateRange, setDateRange] = useState<Date>();
+  const [visibleColumns, setVisibleColumns] = useState({
+    itemType: true,
+    customer: true,
+    teamMember: true,
+    startDate: true,
+    endDate: true,
+    paymentStatus: true,
+    status: true,
+    inventoryDetails: true,
+  });
+
+  const columns = [
+    { key: "itemType", label: "Item Type" },
+    { key: "customer", label: "Customer" },
+    { key: "teamMember", label: "Team Member" },
+    { key: "startDate", label: "Start Date" },
+    { key: "endDate", label: "End Date" },
+    { key: "paymentStatus", label: "Payment Status" },
+    { key: "status", label: "Status" },
+    { key: "inventoryDetails", label: "Inventory Details" },
+  ];
 
   // Get unique team members
   const teamMembers = Array.from(new Set(bookings?.map(booking => booking.team_member_name) || []));
@@ -50,112 +72,147 @@ const Bookings = () => {
           <CardTitle>All Bookings</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-4 mb-6">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="tentative">Tentative</SelectItem>
-                <SelectItem value="confirmed">Confirmed</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-4">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="tentative">Tentative</SelectItem>
+                  <SelectItem value="confirmed">Confirmed</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
 
-            <Select value={teamMemberFilter} onValueChange={setTeamMemberFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by team member" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Team Members</SelectItem>
-                {teamMembers.map(member => (
-                  <SelectItem key={member} value={member}>{member}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              <Select value={teamMemberFilter} onValueChange={setTeamMemberFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filter by team member" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Team Members</SelectItem>
+                  {teamMembers.map(member => (
+                    <SelectItem key={member} value={member}>{member}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-            <Input
-              placeholder="Search by customer name..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-[250px]"
+              <Input
+                placeholder="Search by customer name..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-[250px]"
+              />
+
+              <DatePicker
+                selected={dateRange}
+                onSelect={setDateRange}
+                placeholderText="Filter by date"
+              />
+            </div>
+
+            <TableColumnToggle
+              columns={columns}
+              visibleColumns={visibleColumns}
+              onToggleColumn={(key) => setVisibleColumns(prev => ({ ...prev, [key]: !prev[key] }))}
             />
 
-            <DatePicker
-              selected={dateRange}
-              onSelect={setDateRange}
-              placeholderText="Filter by date"
-            />
-          </div>
-
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Item Type</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Team Member</TableHead>
-                <TableHead>Start Date</TableHead>
-                <TableHead>End Date</TableHead>
-                <TableHead>Payment Status</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center">
-                    Loading...
-                  </TableCell>
+                  {visibleColumns.itemType && <TableHead>Item Type</TableHead>}
+                  {visibleColumns.customer && <TableHead>Customer</TableHead>}
+                  {visibleColumns.teamMember && <TableHead>Team Member</TableHead>}
+                  {visibleColumns.startDate && <TableHead>Start Date</TableHead>}
+                  {visibleColumns.endDate && <TableHead>End Date</TableHead>}
+                  {visibleColumns.paymentStatus && <TableHead>Payment Status</TableHead>}
+                  {visibleColumns.status && <TableHead>Status</TableHead>}
+                  {visibleColumns.inventoryDetails && <TableHead>Inventory Details</TableHead>}
                 </TableRow>
-              ) : (
-                filteredBookings?.map((booking) => (
-                  <TableRow key={booking.id}>
-                    <TableCell>
-                      {booking.inventory_items?.inventory_types?.name}
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{booking.customer_name}</div>
-                        <div className="text-sm text-muted-foreground">{booking.customer_email}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>{booking.team_member_name}</TableCell>
-                    <TableCell>
-                      {format(new Date(booking.start_date), "PPP")}
-                    </TableCell>
-                    <TableCell>
-                      {format(new Date(booking.end_date), "PPP")}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          booking.payment_status === "paid"
-                            ? "default"
-                            : "secondary"
-                        }
-                      >
-                        {booking.payment_status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          booking.status === "confirmed"
-                            ? "default"
-                            : booking.status === "tentative"
-                            ? "secondary"
-                            : "destructive"
-                        }
-                      >
-                        {booking.status}
-                      </Badge>
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center">
+                      Loading...
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : (
+                  filteredBookings?.map((booking) => (
+                    <TableRow key={booking.id}>
+                      {visibleColumns.itemType && (
+                        <TableCell>
+                          {booking.inventory_items?.inventory_types?.name}
+                        </TableCell>
+                      )}
+                      {visibleColumns.customer && (
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{booking.customer_name}</div>
+                            <div className="text-sm text-muted-foreground">{booking.customer_email}</div>
+                          </div>
+                        </TableCell>
+                      )}
+                      {visibleColumns.teamMember && <TableCell>{booking.team_member_name}</TableCell>}
+                      {visibleColumns.startDate && (
+                        <TableCell>
+                          {format(new Date(booking.start_date), "PPP")}
+                        </TableCell>
+                      )}
+                      {visibleColumns.endDate && (
+                        <TableCell>
+                          {format(new Date(booking.end_date), "PPP")}
+                        </TableCell>
+                      )}
+                      {visibleColumns.paymentStatus && (
+                        <TableCell>
+                          <Badge
+                            variant={
+                              booking.payment_status === "paid"
+                                ? "default"
+                                : "secondary"
+                            }
+                          >
+                            {booking.payment_status}
+                          </Badge>
+                        </TableCell>
+                      )}
+                      {visibleColumns.status && (
+                        <TableCell>
+                          <Badge
+                            variant={
+                              booking.status === "confirmed"
+                                ? "default"
+                                : booking.status === "tentative"
+                                ? "secondary"
+                                : "destructive"
+                            }
+                          >
+                            {booking.status}
+                          </Badge>
+                        </TableCell>
+                      )}
+                      {visibleColumns.inventoryDetails && (
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="text-sm">
+                              Type: {booking.inventory_items?.inventory_types?.name}
+                            </div>
+                            {booking.payment_amount && (
+                              <div className="text-sm text-muted-foreground">
+                                Amount: ₹{booking.payment_amount}
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

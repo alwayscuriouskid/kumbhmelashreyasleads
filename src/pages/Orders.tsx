@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/ui/date-picker";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { TableColumnToggle } from "@/components/shared/TableColumnToggle";
 import type { Order } from "@/types/inventory";
 
 const Orders = () => {
@@ -26,6 +27,27 @@ const Orders = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [dateRange, setDateRange] = useState<Date>();
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
+  const [visibleColumns, setVisibleColumns] = useState({
+    orderId: true,
+    date: true,
+    customer: true,
+    teamMember: true,
+    totalAmount: true,
+    paymentStatus: true,
+    orderStatus: true,
+    inventoryItems: true,
+  });
+
+  const columns = [
+    { key: "orderId", label: "Order ID" },
+    { key: "date", label: "Date" },
+    { key: "customer", label: "Customer" },
+    { key: "teamMember", label: "Team Member" },
+    { key: "totalAmount", label: "Total Amount" },
+    { key: "paymentStatus", label: "Payment Status" },
+    { key: "orderStatus", label: "Order Status" },
+    { key: "inventoryItems", label: "Inventory Items" },
+  ];
 
   // Filter orders
   const filteredOrders = orders?.filter((order: Order) => {
@@ -49,124 +71,154 @@ const Orders = () => {
           <CardTitle>All Orders</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-4 mb-6">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-4">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                </SelectContent>
+              </Select>
 
-            <Select value={paymentStatusFilter} onValueChange={setPaymentStatusFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by payment" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Payment Status</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="paid">Paid</SelectItem>
-                <SelectItem value="failed">Failed</SelectItem>
-              </SelectContent>
-            </Select>
+              <Select value={paymentStatusFilter} onValueChange={setPaymentStatusFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filter by payment" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Payment Status</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="paid">Paid</SelectItem>
+                  <SelectItem value="failed">Failed</SelectItem>
+                </SelectContent>
+              </Select>
 
-            <Select value={teamMemberFilter} onValueChange={setTeamMemberFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by team member" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Team Members</SelectItem>
-                {teamMembers?.map(member => (
-                  <SelectItem key={member.id} value={member.id}>{member.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              <Select value={teamMemberFilter} onValueChange={setTeamMemberFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filter by team member" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Team Members</SelectItem>
+                  {teamMembers?.map(member => (
+                    <SelectItem key={member.id} value={member.id}>{member.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-            <Input
-              placeholder="Search by customer name..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-[250px]"
+              <Input
+                placeholder="Search by customer name..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-[250px]"
+              />
+
+              <DatePicker
+                selected={dateRange}
+                onSelect={setDateRange}
+                placeholderText="Filter by date"
+              />
+            </div>
+
+            <TableColumnToggle
+              columns={columns}
+              visibleColumns={visibleColumns}
+              onToggleColumn={(key) => setVisibleColumns(prev => ({ ...prev, [key]: !prev[key] }))}
             />
 
-            <DatePicker
-              selected={dateRange}
-              onSelect={setDateRange}
-              placeholderText="Filter by date"
-            />
-          </div>
-
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Order ID</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Team Member</TableHead>
-                <TableHead>Total Amount</TableHead>
-                <TableHead>Payment Status</TableHead>
-                <TableHead>Order Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center">
-                    Loading...
-                  </TableCell>
+                  {visibleColumns.orderId && <TableHead>Order ID</TableHead>}
+                  {visibleColumns.date && <TableHead>Date</TableHead>}
+                  {visibleColumns.customer && <TableHead>Customer</TableHead>}
+                  {visibleColumns.teamMember && <TableHead>Team Member</TableHead>}
+                  {visibleColumns.totalAmount && <TableHead>Total Amount</TableHead>}
+                  {visibleColumns.paymentStatus && <TableHead>Payment Status</TableHead>}
+                  {visibleColumns.orderStatus && <TableHead>Order Status</TableHead>}
+                  {visibleColumns.inventoryItems && <TableHead>Inventory Items</TableHead>}
                 </TableRow>
-              ) : (
-                filteredOrders?.map((order) => (
-                  <TableRow key={order.id}>
-                    <TableCell>{order.id}</TableCell>
-                    <TableCell>
-                      {format(new Date(order.created_at), "PPP")}
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{order.customer_name}</div>
-                        <div className="text-sm text-muted-foreground">{order.customer_email}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {teamMembers?.find(member => member.id === order.team_member_id)?.name}
-                    </TableCell>
-                    <TableCell>₹{order.total_amount}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          order.payment_status === "paid"
-                            ? "default"
-                            : order.payment_status === "pending"
-                            ? "secondary"
-                            : "destructive"
-                        }
-                      >
-                        {order.payment_status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          order.status === "approved"
-                            ? "default"
-                            : order.status === "pending"
-                            ? "secondary"
-                            : "destructive"
-                        }
-                      >
-                        {order.status}
-                      </Badge>
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center">
+                      Loading...
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : (
+                  filteredOrders?.map((order) => (
+                    <TableRow key={order.id}>
+                      {visibleColumns.orderId && <TableCell>{order.id}</TableCell>}
+                      {visibleColumns.date && (
+                        <TableCell>
+                          {format(new Date(order.created_at), "PPP")}
+                        </TableCell>
+                      )}
+                      {visibleColumns.customer && (
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{order.customer_name}</div>
+                            <div className="text-sm text-muted-foreground">{order.customer_email}</div>
+                          </div>
+                        </TableCell>
+                      )}
+                      {visibleColumns.teamMember && (
+                        <TableCell>
+                          {teamMembers?.find(member => member.id === order.team_member_id)?.name}
+                        </TableCell>
+                      )}
+                      {visibleColumns.totalAmount && <TableCell>₹{order.total_amount}</TableCell>}
+                      {visibleColumns.paymentStatus && (
+                        <TableCell>
+                          <Badge
+                            variant={
+                              order.payment_status === "paid"
+                                ? "default"
+                                : order.payment_status === "pending"
+                                ? "secondary"
+                                : "destructive"
+                            }
+                          >
+                            {order.payment_status}
+                          </Badge>
+                        </TableCell>
+                      )}
+                      {visibleColumns.orderStatus && (
+                        <TableCell>
+                          <Badge
+                            variant={
+                              order.status === "approved"
+                                ? "default"
+                                : order.status === "pending"
+                                ? "secondary"
+                                : "destructive"
+                            }
+                          >
+                            {order.status}
+                          </Badge>
+                        </TableCell>
+                      )}
+                      {visibleColumns.inventoryItems && (
+                        <TableCell>
+                          <div className="space-y-1">
+                            {order.order_items?.map((item) => (
+                              <div key={item.id} className="text-sm">
+                                {item.inventory_items?.inventory_types?.name} - ₹{item.price}
+                              </div>
+                            ))}
+                          </div>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>
