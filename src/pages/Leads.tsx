@@ -15,6 +15,7 @@ const Leads = () => {
   const [dateFilter, setDateFilter] = useState<Date>();
   const [locationFilter, setLocationFilter] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
+  const [customStatuses, setCustomStatuses] = useState<string[]>([]);
   const [visibleColumns, setVisibleColumns] = useState({
     date: true,
     clientName: true,
@@ -45,6 +46,10 @@ const Leads = () => {
 
   const handleUpdateLead = async (updatedLead: Lead) => {
     await updateLead.mutateAsync(updatedLead);
+  };
+
+  const handleAddCustomStatus = (status: string) => {
+    setCustomStatuses(prev => [...prev, status]);
   };
 
   const toggleColumn = (column: keyof typeof visibleColumns) => {
@@ -84,6 +89,8 @@ const Leads = () => {
           <LeadForm
             onSubmit={handleAddLead}
             onCancel={() => setShowAddForm(false)}
+            customStatuses={customStatuses}
+            onAddCustomStatus={handleAddCustomStatus}
           />
         </DialogContent>
       </Dialog>
@@ -108,6 +115,7 @@ const Leads = () => {
           leads={filteredLeads}
           visibleColumns={visibleColumns}
           onUpdateLead={handleUpdateLead}
+          customStatuses={customStatuses}
         />
       </Card>
     </div>
