@@ -8,51 +8,23 @@ const DetailedLeadMetrics = () => {
     queryFn: async () => {
       console.log("Fetching detailed lead metrics");
       
-      const { data: leads, error } = await supabase
-        .from('leads')
-        .select('*');
-
-      if (error) {
-        console.error("Error fetching leads:", error);
-        throw error;
-      }
-
-      const totalLeads = leads?.length || 0;
-      const activeLeads = leads?.filter(lead => 
-        !['closed', 'lost'].includes(lead.status)
-      ).length || 0;
-      
-      const avgResponseTime = leads?.reduce((sum, lead) => {
-        const created = new Date(lead.created_at);
-        const updated = new Date(lead.updated_at);
-        return sum + (updated.getTime() - created.getTime());
-      }, 0) / (leads?.length || 1);
-
-      const conversionRate = leads?.filter(lead => 
-        lead.status === 'conclusion'
-      ).length / totalLeads * 100 || 0;
-
-      const avgBudget = leads?.reduce((sum, lead) => {
-        const budget = parseFloat(lead.budget?.replace(/[^0-9.-]+/g, "") || "0");
-        return sum + budget;
-      }, 0) / totalLeads || 0;
-
-      const requirementTypes = leads?.reduce((acc, lead) => {
-        Object.keys(lead.requirement).forEach(type => {
-          if (lead.requirement[type]) {
-            acc[type] = (acc[type] || 0) + 1;
-          }
-        });
-        return acc;
-      }, {} as Record<string, number>);
-
+      // For preview, return dummy data
       return {
-        totalLeads,
-        activeLeads,
-        avgResponseTime,
-        conversionRate,
-        avgBudget,
-        requirementTypes
+        totalLeads: 120,
+        activeLeads: 85,
+        avgResponseTime: 3600000, // 1 hour in milliseconds
+        conversionRate: 24,
+        avgBudget: 650000,
+        requirementTypes: {
+          hoardings: 45,
+          entryGates: 32,
+          ledHoardingSpots: 28,
+          foodStalls: 25,
+          skyBalloons: 20,
+          webSeries: 15,
+          changingRooms: 12,
+          activationZoneStalls: 10
+        }
       };
     }
   });

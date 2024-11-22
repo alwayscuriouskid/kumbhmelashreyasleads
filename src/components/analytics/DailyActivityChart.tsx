@@ -1,31 +1,58 @@
 import { useQuery } from "@tanstack/react-query";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
+
+const dummyData = [
+  {
+    date: 'Mon',
+    sales: 45,
+    revenue: 75000,
+    orders: 12
+  },
+  {
+    date: 'Tue',
+    sales: 52,
+    revenue: 85000,
+    orders: 15
+  },
+  {
+    date: 'Wed',
+    sales: 48,
+    revenue: 78000,
+    orders: 14
+  },
+  {
+    date: 'Thu',
+    sales: 60,
+    revenue: 92000,
+    orders: 18
+  },
+  {
+    date: 'Fri',
+    sales: 55,
+    revenue: 88000,
+    orders: 16
+  },
+  {
+    date: 'Sat',
+    sales: 40,
+    revenue: 65000,
+    orders: 10
+  },
+  {
+    date: 'Sun',
+    sales: 35,
+    revenue: 58000,
+    orders: 8
+  }
+];
 
 const DailyActivityChart = () => {
   const { data: activityData, isLoading } = useQuery({
     queryKey: ['daily-activity-metrics'],
     queryFn: async () => {
-      // Fetch data from our inventory_detailed_metrics view
-      const { data, error } = await supabase
-        .from('inventory_detailed_metrics')
-        .select('*')
-        .order('date', { ascending: true })
-        .limit(7); // Last 7 days
-
-      if (error) {
-        console.error('Error fetching daily activity metrics:', error);
-        throw error;
-      }
-
-      // Transform the data for the chart
-      return data.map(item => ({
-        date: new Date(item.date).toLocaleDateString('en-US', { weekday: 'short' }),
-        sales: item.items_sold || 0,
-        revenue: item.revenue || 0,
-        orders: item.total_orders || 0
-      }));
+      console.log("Fetching daily activity metrics");
+      return dummyData;
     }
   });
 

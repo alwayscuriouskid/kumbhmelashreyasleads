@@ -3,7 +3,48 @@ import { useState } from "react";
 import TeamActivityFilters from "./TeamActivityFilters";
 import TeamActivityTableHeader from "./TeamActivityTableHeader";
 import TeamActivityRow from "./TeamActivityRow";
-import { useTeamActivities } from "@/hooks/useTeamActivities";
+
+const dummyActivities = [
+  {
+    id: "1",
+    time: "09:30",
+    type: "call",
+    description: "Initial contact call",
+    teamMember: "John Smith",
+    leadName: "ABC Corp",
+    statusChange: { from: "prospect", to: "negotiation" },
+    nextFollowUp: "2024-03-20",
+    followUpOutcome: "Positive response",
+    nextAction: "Send proposal",
+    activityOutcome: "Client interested in LED hoardings"
+  },
+  {
+    id: "2",
+    time: "11:00",
+    type: "meeting",
+    description: "Proposal presentation",
+    teamMember: "Sarah Johnson",
+    leadName: "XYZ Ltd",
+    statusChange: { from: "negotiation", to: "analysis" },
+    nextFollowUp: "2024-03-22",
+    followUpOutcome: "Budget discussion pending",
+    nextAction: "Prepare revised quotation",
+    activityOutcome: "Client requested detailed pricing"
+  },
+  {
+    id: "3",
+    time: "14:15",
+    type: "email",
+    description: "Quotation sent",
+    teamMember: "Mike Wilson",
+    leadName: "Tech Solutions",
+    statusChange: { from: "analysis", to: "conclusion" },
+    nextFollowUp: "2024-03-21",
+    followUpOutcome: "Awaiting response",
+    nextAction: "Follow up call",
+    activityOutcome: "Sent detailed pricing structure"
+  }
+];
 
 const TeamActivityTable = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
@@ -22,13 +63,6 @@ const TeamActivityTable = () => {
     nextAction: true,
     activityOutcome: true
   });
-
-  const { data: activities = [], isLoading } = useTeamActivities(
-    selectedTeamMember,
-    activityType,
-    leadSearch,
-    selectedDate
-  );
 
   console.log("Rendering TeamActivityTable with filters:", { 
     selectedDate, 
@@ -58,23 +92,13 @@ const TeamActivityTable = () => {
       <Table>
         <TeamActivityTableHeader visibleColumns={visibleColumns} />
         <TableBody>
-          {activities.map((activity) => (
+          {dummyActivities.map((activity) => (
             <TeamActivityRow 
               key={activity.id}
               activity={activity}
               visibleColumns={visibleColumns}
             />
           ))}
-          {activities.length === 0 && (
-            <tr>
-              <td 
-                colSpan={Object.values(visibleColumns).filter(Boolean).length} 
-                className="text-center py-4"
-              >
-                {isLoading ? "Loading activities..." : "No activities found for the selected filters"}
-              </td>
-            </tr>
-          )}
         </TableBody>
       </Table>
     </div>
