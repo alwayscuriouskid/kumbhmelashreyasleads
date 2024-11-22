@@ -30,10 +30,10 @@ export const useSectors = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("sectors")
-        .select("*");
+        .select("*, zones(*)");
       
       if (error) throw error;
-      return data as Sector[];
+      return data as (Sector & { zones: Zone })[];
     },
   });
 };
@@ -111,7 +111,11 @@ export const useBookings = () => {
         `);
       
       if (error) throw error;
-      return data as Booking[];
+      return data as (Booking & {
+        inventory_items: {
+          inventory_types: { name: string }
+        }
+      })[];
     },
   });
 };

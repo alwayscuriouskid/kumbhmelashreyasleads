@@ -57,9 +57,9 @@ const Bookings = () => {
                       <Badge
                         variant={
                           booking.status === "confirmed"
-                            ? "success"
+                            ? "default"
                             : booking.status === "tentative"
-                            ? "warning"
+                            ? "secondary"
                             : "destructive"
                         }
                       >

@@ -53,9 +53,9 @@ const Orders = () => {
                       <Badge
                         variant={
                           order.status === "approved"
-                            ? "success"
+                            ? "default"
                             : order.status === "pending"
-                            ? "warning"
+                            ? "secondary"
                             : "destructive"
                         }
                       >

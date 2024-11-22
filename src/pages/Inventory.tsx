@@ -49,7 +49,6 @@ const Inventory = () => {
             <div className="text-2xl font-bold">{items?.length ?? 0}</div>
           </CardContent>
         </Card>
-        {/* Add more summary cards here */}
       </div>
 
       <Card>
@@ -85,9 +84,9 @@ const Inventory = () => {
                       <Badge
                         variant={
                           item.status === "available"
-                            ? "success"
+                            ? "default"
                             : item.status === "booked"
-                            ? "warning"
+                            ? "secondary"
                             : "destructive"
                         }
                       >
