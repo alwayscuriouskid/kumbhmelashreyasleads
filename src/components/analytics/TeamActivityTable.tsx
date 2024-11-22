@@ -3,10 +3,12 @@ import { useState } from "react";
 import TeamActivityFilters from "./TeamActivityFilters";
 import TeamActivityTableHeader from "./TeamActivityTableHeader";
 import TeamActivityRow from "./TeamActivityRow";
+import { Activity } from "@/types/leads";
 
-const dummyActivities = [
+const dummyActivities: Activity[] = [
   {
     id: "1",
+    date: new Date().toISOString(),
     time: "09:30",
     type: "call",
     description: "Initial contact call",
@@ -16,10 +18,15 @@ const dummyActivities = [
     nextFollowUp: "2024-03-20",
     followUpOutcome: "Positive response",
     nextAction: "Send proposal",
-    activityOutcome: "Client interested in LED hoardings"
+    activityOutcome: "Client interested in LED hoardings",
+    outcome: "Successful initial contact",
+    notes: "Client showed strong interest in our LED hoarding solutions",
+    assignedTo: "John Smith",
+    contactPerson: "Raj Kumar"
   },
   {
     id: "2",
+    date: new Date().toISOString(),
     time: "11:00",
     type: "meeting",
     description: "Proposal presentation",
@@ -29,10 +36,15 @@ const dummyActivities = [
     nextFollowUp: "2024-03-22",
     followUpOutcome: "Budget discussion pending",
     nextAction: "Prepare revised quotation",
-    activityOutcome: "Client requested detailed pricing"
+    activityOutcome: "Client requested detailed pricing",
+    outcome: "Proposal presented successfully",
+    notes: "Client requested detailed breakdown of costs",
+    assignedTo: "Sarah Johnson",
+    contactPerson: "Priya Singh"
   },
   {
     id: "3",
+    date: new Date().toISOString(),
     time: "14:15",
     type: "email",
     description: "Quotation sent",
@@ -42,7 +54,11 @@ const dummyActivities = [
     nextFollowUp: "2024-03-21",
     followUpOutcome: "Awaiting response",
     nextAction: "Follow up call",
-    activityOutcome: "Sent detailed pricing structure"
+    activityOutcome: "Sent detailed pricing structure",
+    outcome: "Quotation sent successfully",
+    notes: "Detailed pricing structure sent as requested",
+    assignedTo: "Mike Wilson",
+    contactPerson: "Alex Thompson"
   }
 ];
 
