@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/ui/date-picker";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
+import type { Order } from "@/types/inventory";
 
 const Orders = () => {
   const { data: orders, isLoading, refetch } = useOrders();
@@ -27,7 +28,7 @@ const Orders = () => {
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
 
   // Filter orders
-  const filteredOrders = orders?.filter(order => {
+  const filteredOrders = orders?.filter((order: Order) => {
     if (statusFilter !== "all" && order.status !== statusFilter) return false;
     if (teamMemberFilter !== "all" && order.team_member_id !== teamMemberFilter) return false;
     if (paymentStatusFilter !== "all" && order.payment_status !== paymentStatusFilter) return false;

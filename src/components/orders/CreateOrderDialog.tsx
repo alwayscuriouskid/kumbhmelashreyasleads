@@ -11,6 +11,7 @@ import { OrderForm } from "./OrderForm";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import type { InventoryItem } from "@/types/inventory";
 
 interface CreateOrderDialogProps {
   onSuccess: () => void;
@@ -24,7 +25,7 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
       // Calculate total amount from selected items
       const { data: items } = await supabase
         .from("inventory_items")
-        .select("current_price")
+        .select("id, current_price")
         .in("id", formData.selectedItems);
 
       const totalAmount = items?.reduce(

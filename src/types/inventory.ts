@@ -54,11 +54,18 @@ export interface Order {
   total_amount: number;
   created_at: string;
   updated_at: string;
+  team_member_id?: string;
   team_member_name: string;
   customer_name?: string;
   customer_email?: string;
   customer_phone?: string;
   notes?: string;
+  payment_status?: string;
+  payment_method?: string;
+  payment_date?: string;
+  commission_amount?: number;
+  commission_percentage?: number;
+  order_items?: OrderItem[];
 }
 
 export interface OrderItem {
@@ -67,6 +74,7 @@ export interface OrderItem {
   inventory_item_id: string;
   price: number;
   created_at: string;
+  inventory_items?: InventoryItem;
 }
 
 export interface Booking {
