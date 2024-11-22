@@ -30,12 +30,12 @@ export const useDetailedInventoryAnalytics = () => {
         .from('inventory_items')
         .select(`
           id,
-          inventory_types!inner (
+          inventory_types (
             name
           ),
-          sectors!inner (
+          sectors (
             name,
-            zones!inner (
+            zones (
               name
             )
           ),
@@ -48,10 +48,10 @@ export const useDetailedInventoryAnalytics = () => {
           status,
           created_at,
           updated_at,
-          bookings:bookings (count),
-          confirmed_bookings:bookings!inner (count).filter(status.eq.confirmed),
-          order_items (count),
-          order_revenue:order_items (sum.price)
+          bookings:bookings!left (count),
+          confirmed_bookings:bookings!left (count).eq(status, 'confirmed'),
+          order_items!left (count),
+          order_revenue:order_items!left (price)
         `);
 
       if (error) {
@@ -76,7 +76,7 @@ export const useDetailedInventoryAnalytics = () => {
         total_bookings: (item.bookings?.[0]?.count as number) || 0,
         confirmed_bookings: (item.confirmed_bookings?.[0]?.count as number) || 0,
         times_ordered: (item.order_items?.[0]?.count as number) || 0,
-        total_revenue: (item.order_revenue?.[0]?.sum as number) || 0
+        total_revenue: (item.order_revenue?.[0]?.price as number) || 0
       }));
     },
   });
