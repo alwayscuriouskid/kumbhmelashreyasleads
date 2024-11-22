@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Lead } from "@/types/leads";
+import { Lead, LeadDB, dbToFrontend, frontendToDB } from "@/types/leads";
 import { useToast } from "@/hooks/use-toast";
 
 export const useLeads = () => {
@@ -22,16 +22,17 @@ export const useLeads = () => {
       }
 
       console.log("Fetched leads:", data);
-      return data || [];
+      return (data || []).map(dbToFrontend);
     }
   });
 
   const addLead = useMutation({
-    mutationFn: async (newLead: Omit<Lead, 'id' | 'created_at' | 'updated_at'>) => {
+    mutationFn: async (newLead: Partial<Lead>) => {
       console.log("Adding new lead:", newLead);
+      const dbLead = frontendToDB(newLead);
       const { data, error } = await supabase
         .from('leads')
-        .insert([newLead])
+        .insert([dbLead])
         .select()
         .single();
 
@@ -40,7 +41,7 @@ export const useLeads = () => {
         throw error;
       }
 
-      return data;
+      return dbToFrontend(data as LeadDB);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
@@ -60,11 +61,12 @@ export const useLeads = () => {
   });
 
   const updateLead = useMutation({
-    mutationFn: async (updatedLead: Partial<Lead> & { id: string }) => {
+    mutationFn: async (updatedLead: Lead) => {
       console.log("Updating lead:", updatedLead);
+      const dbLead = frontendToDB(updatedLead);
       const { data, error } = await supabase
         .from('leads')
-        .update(updatedLead)
+        .update(dbLead)
         .eq('id', updatedLead.id)
         .select()
         .single();
@@ -74,7 +76,7 @@ export const useLeads = () => {
         throw error;
       }
 
-      return data;
+      return dbToFrontend(data as LeadDB);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });

@@ -46,7 +46,6 @@ export interface Activity {
     from: string;
     to: string;
   };
-  // Add new fields for team activity display
   time?: string;
   description?: string;
   teamMember?: string;
@@ -56,6 +55,30 @@ export interface Activity {
   activityOutcome?: string;
 }
 
+// Database model that matches Supabase schema
+export interface LeadDB {
+  id: string;
+  date: string;
+  client_name: string;
+  location: string;
+  contact_person: string;
+  phone: string;
+  email: string;
+  requirement: Requirement;
+  status: string;
+  remarks: string | null;
+  next_follow_up: string | null;
+  budget: string | null;
+  lead_ref: string | null;
+  lead_source: string | null;
+  price_quoted: number | null;
+  next_action: string | null;
+  follow_up_outcome: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Frontend model with camelCase properties
 export interface Lead {
   id: string;
   date: string;
@@ -80,3 +103,47 @@ export interface Lead {
   nextAction?: string;
   followUpOutcome?: string;
 }
+
+// Utility functions to convert between DB and frontend models
+export const dbToFrontend = (lead: LeadDB): Lead => ({
+  id: lead.id,
+  date: lead.date,
+  clientName: lead.client_name,
+  location: lead.location,
+  contactPerson: lead.contact_person,
+  phone: lead.phone,
+  email: lead.email,
+  requirement: lead.requirement,
+  status: lead.status,
+  remarks: lead.remarks || '',
+  nextFollowUp: lead.next_follow_up || undefined,
+  budget: lead.budget || undefined,
+  followUps: [], // These will be populated separately if needed
+  leadRef: lead.lead_ref || undefined,
+  leadSource: lead.lead_source || undefined,
+  activities: [], // These will be populated separately if needed
+  createdAt: lead.created_at,
+  updatedAt: lead.updated_at,
+  priceQuoted: lead.price_quoted || undefined,
+  nextAction: lead.next_action || undefined,
+  followUpOutcome: lead.follow_up_outcome || undefined
+});
+
+export const frontendToDB = (lead: Partial<Lead>): Partial<LeadDB> => ({
+  client_name: lead.clientName,
+  location: lead.location,
+  contact_person: lead.contactPerson,
+  phone: lead.phone,
+  email: lead.email,
+  requirement: lead.requirement,
+  status: lead.status,
+  remarks: lead.remarks,
+  next_follow_up: lead.nextFollowUp,
+  budget: lead.budget,
+  lead_ref: lead.leadRef,
+  lead_source: lead.leadSource,
+  price_quoted: lead.priceQuoted,
+  next_action: lead.nextAction,
+  follow_up_outcome: lead.followUpOutcome,
+  date: lead.date
+});

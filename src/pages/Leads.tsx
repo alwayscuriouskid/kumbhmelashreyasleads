@@ -35,7 +35,7 @@ const Leads = () => {
 
   const handleAddLead = async (newLead: Partial<Lead>) => {
     await addLead.mutateAsync({
-      ...newLead as any,
+      ...newLead,
       requirement: newLead.requirement || {},
       date: newLead.date || new Date().toISOString().split('T')[0],
     });
