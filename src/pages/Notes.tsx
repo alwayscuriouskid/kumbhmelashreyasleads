@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNotes } from "@/hooks/useNotes";
 import { Note } from "@/types/notes";
-import { calculateGridPosition, DEFAULT_NOTE_SIZE } from "@/utils/notePositioning";
+import { DEFAULT_NOTE_SIZE } from "@/utils/notePositioning";
 import { NotesHeader } from "@/components/notes/NotesHeader";
 import { NotesContent } from "@/components/notes/NotesContent";
 import CreateNoteDialog from "@/components/notes/CreateNoteDialog";
@@ -20,18 +20,14 @@ const Notes = () => {
   });
 
   const handleCreateNote = (noteData: Omit<Note, "id" | "createdAt">) => {
-    // Calculate position for the new note at the top of the grid
-    const position = calculateGridPosition(0, window.innerWidth);
-    
     const newNote: Note = {
       ...noteData,
       id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
-      position,
       ...DEFAULT_NOTE_SIZE,
     };
     
-    setNotes(prevNotes => [...prevNotes, newNote]);
+    setNotes(prevNotes => [newNote, ...prevNotes]);
     console.log("New note created:", newNote);
   };
 
