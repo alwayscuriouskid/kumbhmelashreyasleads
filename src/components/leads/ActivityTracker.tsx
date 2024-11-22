@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ActivityTrackerProps {
   leadId: string;
@@ -31,7 +32,36 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson }: ActivityTrack
   const [location, setLocation] = useState("");
   const [callType, setCallType] = useState<"incoming" | "outgoing">("outgoing");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const updateLeadWithActivityData = async (activity: Activity) => {
+    console.log("Updating lead with activity data:", activity);
+    
+    try {
+      const { error } = await supabase
+        .from('leads')
+        .update({
+          next_action: activity.nextAction,
+          follow_up_outcome: activity.outcome,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', leadId);
+
+      if (error) {
+        console.error("Error updating lead with activity data:", error);
+        throw error;
+      }
+
+      console.log("Successfully updated lead with activity data");
+    } catch (error) {
+      console.error("Failed to update lead with activity data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update lead information",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Submitting new activity");
 
@@ -54,6 +84,11 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson }: ActivityTrack
     };
 
     console.log("New activity created:", activity);
+    
+    // First update the lead table
+    await updateLeadWithActivityData(activity);
+    
+    // Then notify parent component
     onActivityAdd(activity);
     
     toast({

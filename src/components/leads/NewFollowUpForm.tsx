@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { FollowUp } from "@/types/leads";
+import { supabase } from "@/integrations/supabase/client";
 
 interface NewFollowUpFormProps {
   leadId: string;
@@ -19,7 +20,36 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
   const [assignedTo, setAssignedTo] = useState("");
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const updateLeadWithFollowUpData = async (followUp: FollowUp) => {
+    console.log("Updating lead with follow-up data:", followUp);
+    
+    try {
+      const { error } = await supabase
+        .from('leads')
+        .update({
+          next_follow_up: followUp.nextFollowUpDate || null,
+          follow_up_outcome: followUp.outcome,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', leadId);
+
+      if (error) {
+        console.error("Error updating lead with follow-up data:", error);
+        throw error;
+      }
+
+      console.log("Successfully updated lead with follow-up data");
+    } catch (error) {
+      console.error("Failed to update lead with follow-up data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update lead information",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const newFollowUp: FollowUp = {
@@ -33,6 +63,10 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
 
     console.log("Creating new follow-up:", newFollowUp);
     
+    // First update the lead table
+    await updateLeadWithFollowUpData(newFollowUp);
+    
+    // Then notify parent component
     if (onSubmit) {
       onSubmit(newFollowUp);
       toast({
