@@ -4,9 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CustomerInfoSection } from "../orders/CustomerInfoSection";
-import { TeamMemberSelect } from "../orders/TeamMemberSelect";
 import { InventorySelector } from "../orders/InventorySelector";
-import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { DatePicker } from "@/components/ui/date-picker";
 import { useToast } from "@/components/ui/use-toast";
 import { useInventoryItems } from "@/hooks/useInventory";
@@ -24,7 +22,6 @@ interface BookingFormProps {
 }
 
 export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
-  const { data: teamMembers } = useTeamMembers();
   const { data: inventoryItems } = useInventoryItems();
   const { toast } = useToast();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
@@ -35,7 +32,7 @@ export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
     customerEmail: "",
     customerPhone: "",
     customerAddress: "",
-    teamMemberId: "",
+    assignedTo: "",
     paymentMethod: "",
     notes: "",
   });
@@ -65,25 +62,21 @@ export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
       });
       return;
     }
-    if (!formData.teamMemberId) {
+    if (!formData.assignedTo) {
       toast({
         title: "Error",
-        description: "Please select a team member",
+        description: "Please enter the person assigned to this booking",
         variant: "destructive",
       });
       return;
     }
-
-    const teamMember = teamMembers?.find(
-      (member) => member.id === formData.teamMemberId
-    );
 
     onSubmit({
       ...formData,
       selectedItems,
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
-      teamMemberName: teamMember?.name,
+      teamMemberName: formData.assignedTo,
       payment_amount: calculateTotalAmount(),
     });
   };
@@ -138,10 +131,15 @@ export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
             </div>
           </div>
 
-          <TeamMemberSelect
-            value={formData.teamMemberId}
-            onChange={(value) => handleFormChange("teamMemberId", value)}
-          />
+          <div className="space-y-2">
+            <Label htmlFor="assignedTo">Assigned To</Label>
+            <Input
+              id="assignedTo"
+              value={formData.assignedTo}
+              onChange={(e) => handleFormChange("assignedTo", e.target.value)}
+              placeholder="Enter assignee name"
+            />
+          </div>
 
           <div className="space-y-2">
             <Label htmlFor="paymentMethod">Payment Method</Label>
