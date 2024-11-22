@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useInventoryItems } from "@/hooks/useInventory";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,9 +11,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DatePicker } from "@/components/ui/date-picker";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { toast } from "@/components/ui/use-toast";
+import { InventorySelector } from "./InventorySelector";
 
 interface OrderFormProps {
   onSubmit: (data: any) => void;
@@ -32,6 +32,18 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
     paymentMethod: "",
     notes: "",
   });
+
+  // Calculate total bill based on selected items
+  const totalBill = useMemo(() => {
+    return inventoryItems
+      ?.filter(item => selectedItems.includes(item.id))
+      .reduce((sum, item) => sum + Number(item.current_price), 0) || 0;
+  }, [selectedItems, inventoryItems]);
+
+  // Get selected items details for display
+  const selectedItemsDetails = useMemo(() => {
+    return inventoryItems?.filter(item => selectedItems.includes(item.id)) || [];
+  }, [selectedItems, inventoryItems]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,35 +113,31 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
           <CardTitle>Order Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
+          <div className="space-y-4">
             <Label>Select Items</Label>
-            <div className="grid gap-4 md:grid-cols-2">
-              {inventoryItems?.map((item) => (
-                <div
-                  key={item.id}
-                  className={`p-4 border rounded-lg cursor-pointer ${
-                    selectedItems.includes(item.id)
-                      ? "border-primary bg-primary/5"
-                      : ""
-                  }`}
-                  onClick={() =>
-                    setSelectedItems((prev) =>
-                      prev.includes(item.id)
-                        ? prev.filter((id) => id !== item.id)
-                        : [...prev, item.id]
-                    )
-                  }
-                >
-                  <div className="font-medium">
-                    {item.inventory_types?.name} - {item.sku}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Price: ₹{item.current_price}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <InventorySelector
+              selectedItems={selectedItems}
+              onItemSelect={setSelectedItems}
+            />
           </div>
+
+          {selectedItemsDetails.length > 0 && (
+            <div className="space-y-2">
+              <Label>Selected Items</Label>
+              <div className="space-y-2">
+                {selectedItemsDetails.map(item => (
+                  <div key={item.id} className="flex justify-between p-2 bg-muted rounded">
+                    <span>{item.inventory_types?.name} - {item.sku}</span>
+                    <span>₹{item.current_price}</span>
+                  </div>
+                ))}
+                <div className="flex justify-between p-2 font-bold">
+                  <span>Total Bill:</span>
+                  <span>₹{totalBill}</span>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="teamMember">Assign Team Member</Label>
