@@ -59,7 +59,7 @@ export const TeamMemberSelect = ({ value, onChange }: TeamMemberSelectProps) => 
   };
 
   return (
-    <div className="space-y-2">
+    <>
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Select team member" />
@@ -74,7 +74,7 @@ export const TeamMemberSelect = ({ value, onChange }: TeamMemberSelectProps) => 
       </Select>
       <Dialog open={isAddingMember} onOpenChange={setIsAddingMember}>
         <DialogTrigger asChild>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" className="mt-2">
             Add New Member
           </Button>
         </DialogTrigger>
@@ -108,6 +108,6 @@ export const TeamMemberSelect = ({ value, onChange }: TeamMemberSelectProps) => 
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 };
