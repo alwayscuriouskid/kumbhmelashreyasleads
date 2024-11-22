@@ -65,7 +65,7 @@ export const BookingTableRow = ({ booking, visibleColumns, onBookingUpdate }: Bo
     <TableRow>
       {visibleColumns.itemType && (
         <TableCell>
-          {booking.inventory_items?.inventory_types?.name}
+          {booking.inventory_item?.inventory_types?.name}
         </TableCell>
       )}
       {visibleColumns.customer && (
@@ -146,7 +146,7 @@ export const BookingTableRow = ({ booking, visibleColumns, onBookingUpdate }: Bo
         <TableCell>
           <div className="space-y-1">
             <div className="text-sm">
-              Type: {booking.inventory_items?.inventory_types?.name}
+              Type: {booking.inventory_item?.inventory_types?.name}
             </div>
             {booking.payment_amount && (
               <div className="text-sm text-muted-foreground">

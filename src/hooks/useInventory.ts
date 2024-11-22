@@ -119,17 +119,23 @@ export const useBookings = () => {
   return useQuery({
     queryKey: ["bookings"],
     queryFn: async () => {
+      console.log('Fetching bookings');
       const { data, error } = await supabase
         .from("bookings")
         .select(`
           *,
-          inventory_items (
-            *,
-            inventory_types (*)
+          inventory_item:inventory_item_id (
+            id,
+            inventory_types (
+              id, name
+            )
           )
         `);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching bookings:', error);
+        throw error;
+      }
       return data as unknown as Booking[];
     },
   });
