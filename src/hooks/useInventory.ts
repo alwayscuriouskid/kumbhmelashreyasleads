@@ -10,15 +10,20 @@ import type {
   Booking 
 } from "@/types/inventory";
 
+// Base queries for inventory data
 export const useZones = () => {
   return useQuery({
     queryKey: ["zones"],
     queryFn: async () => {
+      console.log('Fetching zones');
       const { data, error } = await supabase
         .from("zones")
         .select("*");
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching zones:', error);
+        throw error;
+      }
       return data as Zone[];
     },
   });
@@ -28,11 +33,15 @@ export const useSectors = () => {
   return useQuery({
     queryKey: ["sectors"],
     queryFn: async () => {
+      console.log('Fetching sectors');
       const { data, error } = await supabase
         .from("sectors")
         .select("*, zones(*)");
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching sectors:', error);
+        throw error;
+      }
       return data as (Sector & { zones: Zone })[];
     },
   });
@@ -42,11 +51,15 @@ export const useInventoryTypes = () => {
   return useQuery({
     queryKey: ["inventory_types"],
     queryFn: async () => {
+      console.log('Fetching inventory types');
       const { data, error } = await supabase
         .from("inventory_types")
         .select("*");
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching inventory types:', error);
+        throw error;
+      }
       return data as InventoryType[];
     },
   });
@@ -56,6 +69,7 @@ export const useInventoryItems = () => {
   return useQuery({
     queryKey: ["inventory_items"],
     queryFn: async () => {
+      console.log('Fetching inventory items');
       const { data, error } = await supabase
         .from("inventory_items")
         .select(`
@@ -69,7 +83,10 @@ export const useInventoryItems = () => {
           )
         `);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching inventory items:', error);
+        throw error;
+      }
       return data as unknown as InventoryItem[];
     },
   });
@@ -162,6 +179,45 @@ export const useCreateBooking = () => {
         title: "Success",
         description: "Booking created successfully",
       });
+    },
+  });
+};
+
+// New analytics specific queries
+export const useInventoryMetrics = (timeRange: string = '7days') => {
+  return useQuery({
+    queryKey: ['inventory-metrics', timeRange],
+    queryFn: async () => {
+      console.log('Fetching inventory metrics for timeRange:', timeRange);
+      const { data, error } = await supabase
+        .from('inventory_detailed_metrics')
+        .select('*')
+        .order('date', { ascending: true });
+      
+      if (error) {
+        console.error('Error fetching inventory metrics:', error);
+        throw error;
+      }
+      return data;
+    },
+  });
+};
+
+export const useTeamPerformanceMetrics = (timeRange: string = '7days') => {
+  return useQuery({
+    queryKey: ['team-performance-metrics', timeRange],
+    queryFn: async () => {
+      console.log('Fetching team performance metrics for timeRange:', timeRange);
+      const { data, error } = await supabase
+        .from('detailed_sales_metrics')
+        .select('*')
+        .order('month', { ascending: false });
+      
+      if (error) {
+        console.error('Error fetching team performance metrics:', error);
+        throw error;
+      }
+      return data;
     },
   });
 };
