@@ -7,6 +7,8 @@ import ActivityFilters from "@/components/analytics/ActivityFilters";
 import DailyActivityChart from "@/components/analytics/DailyActivityChart";
 import WeeklyActivityChart from "@/components/analytics/WeeklyActivityChart";
 import TeamPerformance from "@/components/analytics/TeamPerformance";
+import DetailedLeadMetrics from "@/components/analytics/DetailedLeadMetrics";
+import LeadActionNotifications from "@/components/analytics/LeadActionNotifications";
 import { useState } from "react";
 
 interface Filters {
@@ -34,8 +36,19 @@ const LeadAnalytics = () => {
 
       <ActivityFilters onFilterChange={handleFilterChange} />
       
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2">
+          <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <LeadMetrics />
+          </Card>
+        </div>
+        <div>
+          <LeadActionNotifications />
+        </div>
+      </div>
+
       <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <LeadMetrics />
+        <DetailedLeadMetrics />
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
