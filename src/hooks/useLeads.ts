@@ -30,9 +30,19 @@ export const useLeads = () => {
     mutationFn: async (newLead: Partial<Lead>) => {
       console.log("Adding new lead:", newLead);
       const dbLead = frontendToDB(newLead);
+      
+      // Ensure required fields are present
+      if (!dbLead.client_name || !dbLead.contact_person || !dbLead.email || !dbLead.location || !dbLead.phone) {
+        throw new Error("Missing required fields");
+      }
+
       const { data, error } = await supabase
         .from('leads')
-        .insert([dbLead])
+        .insert([{
+          ...dbLead,
+          requirement: dbLead.requirement || {},
+          date: dbLead.date || new Date().toISOString().split('T')[0],
+        }])
         .select()
         .single();
 
@@ -64,6 +74,12 @@ export const useLeads = () => {
     mutationFn: async (updatedLead: Lead) => {
       console.log("Updating lead:", updatedLead);
       const dbLead = frontendToDB(updatedLead);
+
+      // Ensure required fields are present
+      if (!dbLead.client_name || !dbLead.contact_person || !dbLead.email || !dbLead.location || !dbLead.phone) {
+        throw new Error("Missing required fields");
+      }
+
       const { data, error } = await supabase
         .from('leads')
         .update(dbLead)
