@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OrdersAnalytics } from "@/components/analytics/inventory/OrdersAnalytics";
 import { BookingsAnalytics } from "@/components/analytics/inventory/BookingsAnalytics";
 import { StatusAnalytics } from "@/components/analytics/inventory/StatusAnalytics";
+import { DetailedInventoryAnalyticsTable } from "@/components/analytics/inventory/DetailedInventoryAnalyticsTable";
 import { AnalyticsFilters } from "@/components/analytics/inventory/AnalyticsFilters";
 
 const InventoryAnalytics = () => {
@@ -22,12 +23,17 @@ const InventoryAnalytics = () => {
         onTypeFilterChange={setTypeFilter}
       />
 
-      <Tabs defaultValue="status" className="space-y-4">
+      <Tabs defaultValue="detailed" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="status">Inventory Status</TabsTrigger>
+          <TabsTrigger value="detailed">Detailed Analysis</TabsTrigger>
+          <TabsTrigger value="status">Status Overview</TabsTrigger>
           <TabsTrigger value="orders">Orders Analysis</TabsTrigger>
           <TabsTrigger value="bookings">Bookings Analysis</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="detailed">
+          <DetailedInventoryAnalyticsTable />
+        </TabsContent>
 
         <TabsContent value="status">
           <StatusAnalytics zoneFilter={zoneFilter} typeFilter={typeFilter} />
