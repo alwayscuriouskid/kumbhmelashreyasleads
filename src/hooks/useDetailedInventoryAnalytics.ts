@@ -29,25 +29,16 @@ export const useDetailedInventoryAnalytics = () => {
       const { data, error } = await supabase
         .from('inventory_items')
         .select(`
-          id as item_id,
-          inventory_types!inner(name as type_name),
-          sectors!inner(
-            name as sector_name,
-            zones!inner(name as zone_name)
+          *,
+          inventory_types (name),
+          sectors (
+            name,
+            zones (name)
           ),
-          sku,
-          current_price,
-          min_price,
-          ltc,
-          dimensions,
-          quantity,
-          status,
-          created_at,
-          updated_at,
-          bookings(count),
-          bookings(count).filter(status.eq.confirmed),
-          order_items(count),
-          order_items(sum(price))
+          bookings:bookings_count,
+          confirmed_bookings:bookings_count!inner(status.eq.confirmed),
+          order_items:order_items_count,
+          order_revenue:order_items_sum_price
         `);
 
       if (error) {
@@ -56,10 +47,10 @@ export const useDetailedInventoryAnalytics = () => {
       }
 
       const formattedData: DetailedInventoryAnalytics[] = data.map(item => ({
-        item_id: item.item_id,
-        type_name: item.inventory_types.type_name,
-        zone_name: item.sectors.zones.zone_name,
-        sector_name: item.sectors.sector_name,
+        item_id: item.id,
+        type_name: item.inventory_types?.name || 'Unknown',
+        zone_name: item.sectors?.zones?.name || 'Unknown',
+        sector_name: item.sectors?.name || 'Unknown',
         sku: item.sku,
         current_price: item.current_price,
         min_price: item.min_price,
@@ -69,10 +60,10 @@ export const useDetailedInventoryAnalytics = () => {
         status: item.status,
         created_at: item.created_at,
         updated_at: item.updated_at,
-        total_bookings: item.bookings.count,
-        confirmed_bookings: item.bookings.filter.count,
-        times_ordered: item.order_items.count,
-        total_revenue: item.order_items.sum_price || 0
+        total_bookings: item.bookings || 0,
+        confirmed_bookings: item.confirmed_bookings || 0,
+        times_ordered: item.order_items || 0,
+        total_revenue: item.order_revenue || 0
       }));
 
       return formattedData;

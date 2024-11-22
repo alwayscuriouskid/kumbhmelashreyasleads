@@ -14,7 +14,7 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
 interface StatusMetric {
   status: string;
-  item_count: number;
+  count: number;
 }
 
 export const StatusAnalytics = ({ zoneFilter, typeFilter }: { zoneFilter: string; typeFilter: string }) => {
@@ -24,11 +24,11 @@ export const StatusAnalytics = ({ zoneFilter, typeFilter }: { zoneFilter: string
       console.log('Fetching inventory status metrics');
       let query = supabase
         .from('inventory_items')
-        .select('status, count(*) as item_count')
-        .groupBy('status');
+        .select('status, count')
+        .select('status, count(*)', { count: 'exact' });
       
       if (zoneFilter !== 'all') {
-        query = query.eq('sector.zone_id', zoneFilter);
+        query = query.eq('sectors.zones.id', zoneFilter);
       }
       if (typeFilter !== 'all') {
         query = query.eq('type_id', typeFilter);
@@ -47,7 +47,7 @@ export const StatusAnalytics = ({ zoneFilter, typeFilter }: { zoneFilter: string
 
   const statusData = statusMetrics?.map(metric => ({
     status: metric.status,
-    value: metric.item_count
+    value: metric.count
   })) || [];
 
   return (
