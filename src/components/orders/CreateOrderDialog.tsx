@@ -41,8 +41,9 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
             customer_email: formData.customerEmail,
             customer_phone: formData.customerPhone,
             customer_address: formData.customerAddress,
-            team_member_id: formData.teamMemberId,
+            team_member_id: formData.assignedTo,
             payment_method: formData.paymentMethod,
+            payment_terms: formData.paymentTerms,
             notes: formData.notes,
             total_amount: totalAmount,
             status: "pending",
@@ -65,6 +66,14 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
         .insert(orderItems);
 
       if (itemsError) throw itemsError;
+
+      // Update inventory items status
+      const { error: updateError } = await supabase
+        .from("inventory_items")
+        .update({ status: "booked" })
+        .in("id", formData.selectedItems);
+
+      if (updateError) throw updateError;
 
       toast({
         title: "Success",

@@ -13,8 +13,8 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
 import { InventorySelector } from "./InventorySelector";
-import { TeamMemberSelect } from "./TeamMemberSelect";
 import { CustomerInfoSection } from "./CustomerInfoSection";
+import { AssignedToSelect } from "./AssignedToSelect"; // Changed from TeamMemberSelect
 
 interface OrderFormProps {
   onSubmit: (data: any) => void;
@@ -29,8 +29,9 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
     customerEmail: "",
     customerPhone: "",
     customerAddress: "",
-    teamMemberId: "",
+    assignedTo: "", // Changed from teamMemberId
     paymentMethod: "",
+    paymentTerms: "", // Added payment terms
     notes: "",
   });
 
@@ -56,10 +57,10 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
       });
       return;
     }
-    if (!formData.teamMemberId) {
+    if (!formData.assignedTo) {
       toast({
         title: "Error",
-        description: "Please select a team member",
+        description: "Please select an assignee",
         variant: "destructive",
       });
       return;
@@ -116,9 +117,9 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
             </div>
           )}
 
-          <TeamMemberSelect
-            value={formData.teamMemberId}
-            onChange={(value) => handleFormChange("teamMemberId", value)}
+          <AssignedToSelect
+            value={formData.assignedTo}
+            onChange={(value) => handleFormChange("assignedTo", value)}
           />
 
           <div className="space-y-2">
@@ -135,6 +136,25 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
                 <SelectItem value="card">Card</SelectItem>
                 <SelectItem value="upi">UPI</SelectItem>
                 <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="paymentTerms">Payment Terms</Label>
+            <Select
+              value={formData.paymentTerms}
+              onValueChange={(value) => handleFormChange("paymentTerms", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select payment terms" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="immediate">Immediate Payment</SelectItem>
+                <SelectItem value="net15">Net 15 Days</SelectItem>
+                <SelectItem value="net30">Net 30 Days</SelectItem>
+                <SelectItem value="net45">Net 45 Days</SelectItem>
+                <SelectItem value="net60">Net 60 Days</SelectItem>
               </SelectContent>
             </Select>
           </div>
