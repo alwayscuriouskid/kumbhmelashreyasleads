@@ -1,5 +1,5 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { format } from "date-fns";
+import { format, isToday, isYesterday, isThisWeek } from "date-fns";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import TeamActivityFilters from "./TeamActivityFilters";
@@ -83,18 +83,39 @@ const TeamActivityTable = () => {
   });
 
   const filteredActivities = activities.filter((activity) => {
+    const activityDate = new Date(activity.date);
+
+    // Team member filter
     if (selectedTeamMember !== "all" && activity.teamMember !== selectedTeamMember) {
       return false;
     }
-    if (selectedDate && activity.date !== format(selectedDate, "yyyy-MM-dd")) {
-      return false;
-    }
+
+    // Activity type filter
     if (activityType !== 'all' && activity.type !== activityType) {
       return false;
     }
+
+    // Lead search filter
     if (leadSearch && !activity.leadName.toLowerCase().includes(leadSearch.toLowerCase())) {
       return false;
     }
+
+    // Date filter
+    if (selectedDate) {
+      const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
+      const activityDateStr = format(activityDate, "yyyy-MM-dd");
+
+      if (isToday(selectedDate)) {
+        return isToday(activityDate);
+      } else if (isYesterday(selectedDate)) {
+        return isYesterday(activityDate);
+      } else if (isThisWeek(selectedDate)) {
+        return isThisWeek(activityDate);
+      } else {
+        return activityDateStr === selectedDateStr;
+      }
+    }
+
     return true;
   });
 

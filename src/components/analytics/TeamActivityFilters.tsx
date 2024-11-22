@@ -3,6 +3,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { TableColumnToggle } from "@/components/shared/TableColumnToggle";
+import { useState } from "react";
 
 interface TeamActivityFiltersProps {
   selectedDate: Date | undefined;
@@ -29,6 +30,10 @@ const TeamActivityFilters = ({
   visibleColumns,
   onToggleColumn,
 }: TeamActivityFiltersProps) => {
+  const [dateFilterType, setDateFilterType] = useState("all");
+  const [customStartDate, setCustomStartDate] = useState<Date>();
+  const [customEndDate, setCustomEndDate] = useState<Date>();
+
   const columns = [
     { key: "time", label: "Time" },
     { key: "type", label: "Type" },
@@ -41,6 +46,43 @@ const TeamActivityFilters = ({
     { key: "nextAction", label: "Next Action" },
     { key: "activityOutcome", label: "Activity Outcome" },
   ];
+
+  const handleDateFilterChange = (value: string) => {
+    setDateFilterType(value);
+    
+    const today = new Date();
+    let newDate: Date | undefined;
+
+    switch (value) {
+      case "today":
+        newDate = today;
+        break;
+      case "yesterday":
+        newDate = new Date(today.setDate(today.getDate() - 1));
+        break;
+      case "thisWeek":
+        const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+        newDate = startOfWeek;
+        break;
+      case "custom":
+        // Don't set any date, wait for custom range selection
+        newDate = undefined;
+        break;
+      default:
+        newDate = undefined;
+    }
+
+    onDateSelect(newDate);
+  };
+
+  const handleCustomDateRange = (startDate: Date | undefined, endDate: Date | undefined) => {
+    setCustomStartDate(startDate);
+    setCustomEndDate(endDate);
+    // Pass the date range to parent component
+    if (startDate && endDate) {
+      onDateSelect(startDate); // You might want to modify the parent component to handle date ranges
+    }
+  };
 
   return (
     <Card className="p-4 space-y-4">
@@ -69,12 +111,34 @@ const TeamActivityFilters = ({
             <SelectItem value="email">Emails</SelectItem>
           </SelectContent>
         </Select>
-        
-        <DatePicker
-          selected={selectedDate}
-          onSelect={onDateSelect}
-          placeholderText="Select date"
-        />
+
+        <Select value={dateFilterType} onValueChange={handleDateFilterChange}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select date filter" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Dates</SelectItem>
+            <SelectItem value="today">Today</SelectItem>
+            <SelectItem value="yesterday">Yesterday</SelectItem>
+            <SelectItem value="thisWeek">This Week</SelectItem>
+            <SelectItem value="custom">Custom Range</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {dateFilterType === "custom" && (
+          <div className="flex gap-2">
+            <DatePicker
+              selected={customStartDate}
+              onSelect={(date) => handleCustomDateRange(date, customEndDate)}
+              placeholderText="Start date"
+            />
+            <DatePicker
+              selected={customEndDate}
+              onSelect={(date) => handleCustomDateRange(customStartDate, date)}
+              placeholderText="End date"
+            />
+          </div>
+        )}
 
         <Input
           placeholder="Search by lead name..."
