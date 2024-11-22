@@ -65,17 +65,17 @@ const Orders = () => {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 w-full max-w-[calc(100vw-280px)]">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Orders</h1>
         <CreateOrderDialog onSuccess={refetch} />
       </div>
 
-      <Card>
-        <CardHeader>
+      <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <CardHeader className="px-0">
           <CardTitle>All Orders</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           <div className="space-y-4">
             <OrdersFilters
               statusFilter={statusFilter}
@@ -93,15 +93,17 @@ const Orders = () => {
               onDateFilterChange={handleDateFilterChange}
             />
             
-            <ScrollArea className="h-[calc(100vh-20rem)]">
-              <OrdersTable
-                orders={filteredOrders || []}
-                isLoading={isLoading}
-                visibleColumns={visibleColumns}
-                teamMembers={teamMembers || []}
-                onOrderUpdate={refetch}
-              />
-            </ScrollArea>
+            <div className="rounded-md border">
+              <ScrollArea className="h-[calc(100vh-20rem)]">
+                <OrdersTable
+                  orders={filteredOrders || []}
+                  isLoading={isLoading}
+                  visibleColumns={visibleColumns}
+                  teamMembers={teamMembers || []}
+                  onOrderUpdate={refetch}
+                />
+              </ScrollArea>
+            </div>
           </div>
         </CardContent>
       </Card>

@@ -63,55 +63,56 @@ export const OrdersTable = ({ orders, isLoading, visibleColumns, teamMembers, on
   };
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          {visibleColumns.orderId && <TableHead>Order ID</TableHead>}
-          {visibleColumns.date && <TableHead>Date</TableHead>}
-          {visibleColumns.customer && <TableHead>Customer</TableHead>}
-          {visibleColumns.teamMember && <TableHead>Team Member</TableHead>}
-          {visibleColumns.totalAmount && <TableHead>Total Amount</TableHead>}
-          {visibleColumns.paymentStatus && <TableHead>Payment Status</TableHead>}
-          {visibleColumns.orderStatus && <TableHead>Order Status</TableHead>}
-          {visibleColumns.inventoryItems && <TableHead>Inventory Items</TableHead>}
-          {visibleColumns.paymentConfirmation && <TableHead>Payment Confirmation</TableHead>}
-          {visibleColumns.nextPaymentDate && <TableHead>Next Payment Date</TableHead>}
-          {visibleColumns.nextPaymentDetails && <TableHead>Next Payment Details</TableHead>}
-          <TableHead>Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {isLoading ? (
+    <div className="w-full">
+      <Table>
+        <TableHeader>
           <TableRow>
-            <TableCell colSpan={12} className="text-center">
-              Loading...
-            </TableCell>
+            {visibleColumns.orderId && <TableHead>Order ID</TableHead>}
+            {visibleColumns.date && <TableHead>Date</TableHead>}
+            {visibleColumns.customer && <TableHead>Customer</TableHead>}
+            {visibleColumns.teamMember && <TableHead>Team Member</TableHead>}
+            {visibleColumns.totalAmount && <TableHead>Total Amount</TableHead>}
+            {visibleColumns.paymentStatus && <TableHead>Payment Status</TableHead>}
+            {visibleColumns.orderStatus && <TableHead>Order Status</TableHead>}
+            {visibleColumns.inventoryItems && <TableHead>Inventory Items</TableHead>}
+            {visibleColumns.paymentConfirmation && <TableHead>Payment Confirmation</TableHead>}
+            {visibleColumns.nextPaymentDate && <TableHead>Next Payment Date</TableHead>}
+            {visibleColumns.nextPaymentDetails && <TableHead>Next Payment Details</TableHead>}
+            <TableHead className="sticky right-0 bg-background">Actions</TableHead>
           </TableRow>
-        ) : (
-          orders?.map((order) => (
-            <TableRow key={order.id}>
-              {visibleColumns.orderId && <TableCell>{order.id}</TableCell>}
-              {visibleColumns.date && (
-                <TableCell>
-                  {format(new Date(order.created_at), "PPP")}
-                </TableCell>
-              )}
-              {visibleColumns.customer && (
-                <TableCell>
-                  <div className="space-y-1">
-                    <EditableCell
-                      value={editingOrder === order.id ? editedValues.customer_name || '' : order.customer_name || ''}
-                      isEditing={editingOrder === order.id}
-                      onChange={(value) => handleCellChange('customer_name', value)}
-                    />
-                    <EditableCell
-                      value={editingOrder === order.id ? editedValues.customer_email || '' : order.customer_email || ''}
-                      isEditing={editingOrder === order.id}
-                      onChange={(value) => handleCellChange('customer_email', value)}
-                    />
-                  </div>
-                </TableCell>
-              )}
+        </TableHeader>
+        <TableBody>
+          {isLoading ? (
+            <TableRow>
+              <TableCell colSpan={12} className="text-center">
+                Loading...
+              </TableCell>
+            </TableRow>
+          ) : (
+            orders?.map((order) => (
+              <TableRow key={order.id}>
+                {visibleColumns.orderId && <TableCell>{order.id}</TableCell>}
+                {visibleColumns.date && (
+                  <TableCell>
+                    {format(new Date(order.created_at), "PPP")}
+                  </TableCell>
+                )}
+                {visibleColumns.customer && (
+                  <TableCell>
+                    <div className="space-y-1">
+                      <EditableCell
+                        value={editingOrder === order.id ? editedValues.customer_name || '' : order.customer_name || ''}
+                        isEditing={editingOrder === order.id}
+                        onChange={(value) => handleCellChange('customer_name', value)}
+                      />
+                      <EditableCell
+                        value={editingOrder === order.id ? editedValues.customer_email || '' : order.customer_email || ''}
+                        isEditing={editingOrder === order.id}
+                        onChange={(value) => handleCellChange('customer_email', value)}
+                      />
+                    </div>
+                  </TableCell>
+                )}
               {visibleColumns.teamMember && (
                 <TableCell>
                   {teamMembers?.find(member => member.id === order.team_member_id)?.name}
@@ -191,19 +192,20 @@ export const OrdersTable = ({ orders, isLoading, visibleColumns, teamMembers, on
                   />
                 </TableCell>
               )}
-              <TableCell>
-                <TableActions
-                  isEditing={editingOrder === order.id}
-                  onEdit={() => handleEdit(order.id, order)}
-                  onSave={() => handleSave(order.id)}
-                  onCancel={handleCancel}
-                  onDelete={() => {}}
-                />
-              </TableCell>
-            </TableRow>
-          ))
-        )}
-      </TableBody>
-    </Table>
+                <TableCell className="sticky right-0 bg-background">
+                  <TableActions
+                    isEditing={editingOrder === order.id}
+                    onEdit={() => handleEdit(order.id, order)}
+                    onSave={() => handleSave(order.id)}
+                    onCancel={handleCancel}
+                    onDelete={() => {}}
+                  />
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 };
