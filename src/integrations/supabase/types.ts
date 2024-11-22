@@ -55,6 +55,7 @@ export type Database = {
           id: string
           ltc: number | null
           min_price: number
+          quantity: number
           sector_id: string
           status: string
           type_id: string
@@ -67,6 +68,7 @@ export type Database = {
           id?: string
           ltc?: number | null
           min_price: number
+          quantity?: number
           sector_id: string
           status: string
           type_id: string
@@ -79,6 +81,7 @@ export type Database = {
           id?: string
           ltc?: number | null
           min_price?: number
+          quantity?: number
           sector_id?: string
           status?: string
           type_id?: string

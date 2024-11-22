@@ -13,6 +13,7 @@ import { Plus } from "lucide-react";
 import { useInventoryTypes, useSectors } from "@/hooks/useInventory";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) => {
   const { data: types } = useInventoryTypes();
@@ -25,6 +26,7 @@ export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) 
     min_price: "",
     ltc: "",
     dimensions: "",
+    quantity: "1",
     status: "available"
   });
 
@@ -38,7 +40,8 @@ export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) 
           ...formData,
           current_price: Number(formData.current_price),
           min_price: Number(formData.min_price),
-          ltc: Number(formData.ltc)
+          ltc: Number(formData.ltc),
+          quantity: Number(formData.quantity)
         }]);
 
       if (error) throw error;
@@ -67,45 +70,59 @@ export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) 
           Add Inventory Item
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="bg-background">
         <DialogHeader>
           <DialogTitle>Add New Inventory Item</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="type">Type</Label>
-            <select
-              id="type"
-              className="w-full border rounded p-2"
-              value={formData.type_id}
-              onChange={(e) => setFormData({ ...formData, type_id: e.target.value })}
-              required
+            <Select 
+              value={formData.type_id} 
+              onValueChange={(value) => setFormData({ ...formData, type_id: value })}
             >
-              <option value="">Select Type</option>
-              {types?.map((type) => (
-                <option key={type.id} value={type.id}>
-                  {type.name}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full bg-background">
+                <SelectValue placeholder="Select Type" />
+              </SelectTrigger>
+              <SelectContent>
+                {types?.map((type) => (
+                  <SelectItem key={type.id} value={type.id}>
+                    {type.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           
           <div className="space-y-2">
             <Label htmlFor="sector">Sector</Label>
-            <select
-              id="sector"
-              className="w-full border rounded p-2"
-              value={formData.sector_id}
-              onChange={(e) => setFormData({ ...formData, sector_id: e.target.value })}
-              required
+            <Select 
+              value={formData.sector_id} 
+              onValueChange={(value) => setFormData({ ...formData, sector_id: value })}
             >
-              <option value="">Select Sector</option>
-              {sectors?.map((sector) => (
-                <option key={sector.id} value={sector.id}>
-                  {sector.zones?.name} / {sector.name}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full bg-background">
+                <SelectValue placeholder="Select Sector" />
+              </SelectTrigger>
+              <SelectContent>
+                {sectors?.map((sector) => (
+                  <SelectItem key={sector.id} value={sector.id}>
+                    {sector.zones?.name} / {sector.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="quantity">Quantity</Label>
+            <Input
+              id="quantity"
+              type="number"
+              min="1"
+              value={formData.quantity}
+              onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+              required
+            />
           </div>
 
           <div className="space-y-2">
@@ -151,17 +168,19 @@ export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) 
 
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
-            <select
-              id="status"
-              className="w-full border rounded p-2"
-              value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-              required
+            <Select 
+              value={formData.status} 
+              onValueChange={(value) => setFormData({ ...formData, status: value })}
             >
-              <option value="available">Available</option>
-              <option value="booked">Booked</option>
-              <option value="sold">Sold</option>
-            </select>
+              <SelectTrigger className="w-full bg-background">
+                <SelectValue placeholder="Select Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="available">Available</SelectItem>
+                <SelectItem value="booked">Booked</SelectItem>
+                <SelectItem value="sold">Sold</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <Button type="submit" className="w-full">
