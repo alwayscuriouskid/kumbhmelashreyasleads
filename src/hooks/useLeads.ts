@@ -31,9 +31,12 @@ export const useLeads = () => {
       console.log("Adding new lead:", newLead);
       const dbLead = frontendToDB(newLead);
       
-      // Ensure required fields are present
-      if (!dbLead.client_name || !dbLead.contact_person || !dbLead.email || !dbLead.location || !dbLead.phone) {
-        throw new Error("Missing required fields");
+      // Validate required fields
+      const requiredFields = ['client_name', 'contact_person', 'email', 'location', 'phone'] as const;
+      const missingFields = requiredFields.filter(field => !dbLead[field]);
+      
+      if (missingFields.length > 0) {
+        throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
       }
 
       const { data, error } = await supabase
@@ -65,7 +68,7 @@ export const useLeads = () => {
       console.error("Error in addLead mutation:", error);
       toast({
         title: "Error",
-        description: "Failed to add lead. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to add lead. Please try again.",
         variant: "destructive",
       });
     }
@@ -76,9 +79,12 @@ export const useLeads = () => {
       console.log("Updating lead:", updatedLead);
       const dbLead = frontendToDB(updatedLead);
 
-      // Ensure required fields are present
-      if (!dbLead.client_name || !dbLead.contact_person || !dbLead.email || !dbLead.location || !dbLead.phone) {
-        throw new Error("Missing required fields");
+      // Validate required fields
+      const requiredFields = ['client_name', 'contact_person', 'email', 'location', 'phone'] as const;
+      const missingFields = requiredFields.filter(field => !dbLead[field]);
+      
+      if (missingFields.length > 0) {
+        throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
       }
 
       const { data, error } = await supabase
@@ -106,7 +112,7 @@ export const useLeads = () => {
       console.error("Error in updateLead mutation:", error);
       toast({
         title: "Error",
-        description: "Failed to update lead. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to update lead. Please try again.",
         variant: "destructive",
       });
     }
