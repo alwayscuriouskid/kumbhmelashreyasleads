@@ -17,11 +17,14 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
 
-const Sidebar = () => {
+interface SidebarProps {
+  isCollapsed: boolean;
+  setIsCollapsed: (value: boolean) => void;
+}
+
+const Sidebar = ({ isCollapsed, setIsCollapsed }: SidebarProps) => {
   const location = useLocation();
-  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -44,7 +47,7 @@ const Sidebar = () => {
   return (
     <div 
       className={cn(
-        "h-full bg-muted/40 border-r transition-all duration-300 fixed",
+        "h-full bg-muted/40 border-r transition-all duration-300 fixed top-0 left-0 z-40",
         isCollapsed ? "w-16" : "w-64"
       )}
     >
