@@ -40,7 +40,7 @@ export const useFileTagOperations = ({
     }
   };
 
-  const addTag = async (name: string) => {
+  const addTag = async (name: string): Promise<FileTag> => {
     try {
       console.log('Adding tag:', name);
       const { data, error } = await supabase
@@ -56,7 +56,7 @@ export const useFileTagOperations = ({
         name: data.name,
       };
 
-      setTags([...tags, newTag]);
+      setTags(prevTags => [...prevTags, newTag]);
       console.log('Added tag:', newTag);
       return newTag;
     } catch (error) {
@@ -95,7 +95,7 @@ export const useFileTagOperations = ({
       if (error) throw error;
 
       const tag = tags.find(t => t.id === tagId);
-      if (!tag) return;
+      if (!tag) throw new Error('Tag not found');
 
       setFolders(folders.map(folder => {
         if (folder.id === folderId) {
@@ -115,7 +115,7 @@ export const useFileTagOperations = ({
         return folder;
       }));
 
-      console.log('Added tag to file:', { fileId, tagId });
+      console.log('Successfully added tag to file');
     } catch (error) {
       console.error('Error adding tag to file:', error);
       toast.toast({
@@ -123,6 +123,7 @@ export const useFileTagOperations = ({
         description: "Failed to add tag to file",
         variant: "destructive",
       });
+      throw error;
     }
   };
 
@@ -154,7 +155,7 @@ export const useFileTagOperations = ({
         return folder;
       }));
 
-      console.log('Removed tag from file:', { fileId, tagId });
+      console.log('Successfully removed tag from file');
     } catch (error) {
       console.error('Error removing tag from file:', error);
       toast.toast({
@@ -162,6 +163,7 @@ export const useFileTagOperations = ({
         description: "Failed to remove tag from file",
         variant: "destructive",
       });
+      throw error;
     }
   };
 

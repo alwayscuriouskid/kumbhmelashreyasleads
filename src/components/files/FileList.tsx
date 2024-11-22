@@ -25,6 +25,7 @@ export const FileList = ({
 }: FileListProps) => {
   const { toast } = useToast();
   const [isAddingTag, setIsAddingTag] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
 
   const handleAddTag = async (folderId: string, fileId: string, tagValue: string) => {
     if (tagValue === "new") {
@@ -32,8 +33,14 @@ export const FileList = ({
       if (name) {
         try {
           setIsAddingTag(true);
+          setSelectedFile(fileId);
           const newTag = await onAddTag(name);
-          onAddTagToFile(folderId, fileId, newTag.id);
+          console.log('New tag created:', newTag);
+          await onAddTagToFile(folderId, fileId, newTag.id);
+          toast({
+            title: "Success",
+            description: "Tag added successfully",
+          });
         } catch (error) {
           console.error('Error adding tag:', error);
           toast({
@@ -43,10 +50,27 @@ export const FileList = ({
           });
         } finally {
           setIsAddingTag(false);
+          setSelectedFile(null);
         }
       }
     } else if (tagValue) {
-      onAddTagToFile(folderId, fileId, tagValue);
+      try {
+        setSelectedFile(fileId);
+        await onAddTagToFile(folderId, fileId, tagValue);
+        toast({
+          title: "Success",
+          description: "Tag added successfully",
+        });
+      } catch (error) {
+        console.error('Error adding existing tag:', error);
+        toast({
+          title: "Error",
+          description: "Failed to add tag",
+          variant: "destructive",
+        });
+      } finally {
+        setSelectedFile(null);
+      }
     }
   };
 
@@ -88,14 +112,17 @@ export const FileList = ({
                     <select
                       onChange={(e) => handleAddTag(folder.id, file.id, e.target.value)}
                       className="h-6 rounded-md border border-input bg-background px-2 text-sm"
-                      disabled={isAddingTag}
+                      disabled={isAddingTag || selectedFile === file.id}
+                      value=""
                     >
                       <option value="">Add tag...</option>
-                      {availableTags.map((tag) => (
-                        <option key={tag.id} value={tag.id}>
-                          {tag.name}
-                        </option>
-                      ))}
+                      {availableTags
+                        .filter(tag => !file.tags.some(fileTag => fileTag.id === tag.id))
+                        .map((tag) => (
+                          <option key={tag.id} value={tag.id}>
+                            {tag.name}
+                          </option>
+                        ))}
                       <option value="new">+ New Tag</option>
                     </select>
                   </div>
