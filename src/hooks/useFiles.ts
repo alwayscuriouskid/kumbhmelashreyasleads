@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { File, Folder, FileTag, FileType } from '@/types/files';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import { useFileOperations } from './useFileOperations';
 import { useFileTagOperations } from './useFileTagOperations';
@@ -13,7 +12,7 @@ export const useFiles = () => {
   const { fetchFolders, addFolder, deleteFolder, addFile, deleteFile } = useFileOperations({ 
     folders, 
     setFolders, 
-    toast 
+    toast: { toast } 
   });
 
   const { 
@@ -26,7 +25,7 @@ export const useFiles = () => {
     setFolders, 
     tags, 
     setTags, 
-    toast 
+    toast: { toast }
   });
 
   // Fetch folders and files on mount

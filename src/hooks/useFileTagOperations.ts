@@ -1,6 +1,6 @@
 import { Folder, FileTag } from '@/types/files';
 import { supabase } from '@/integrations/supabase/client';
-import { Toast } from '@/components/ui/use-toast';
+import { ToastProps } from '@/components/ui/toast';
 
 interface UseFileTagOperationsProps {
   folders: Folder[];
@@ -8,7 +8,7 @@ interface UseFileTagOperationsProps {
   tags: FileTag[];
   setTags: (tags: FileTag[]) => void;
   toast: {
-    toast: (props: Toast) => void;
+    toast: (props: ToastProps) => void;
   };
 }
 
@@ -74,14 +74,17 @@ export const useFileTagOperations = ({
     try {
       console.log('Adding tag to file:', { folderId, fileId, tagId });
       
-      // Check if the tag is already added to the file
-      const { data: existingRelation } = await supabase
+      // First check if the relation already exists
+      const { data: existingRelation, error: checkError } = await supabase
         .from('file_tag_relations')
-        .select('*')
+        .select()
         .eq('file_id', fileId)
         .eq('tag_id', tagId)
-        .single();
+        .maybeSingle(); // Use maybeSingle instead of single to handle no results
 
+      if (checkError) throw checkError;
+
+      // If relation already exists, return early
       if (existingRelation) {
         console.log('Tag already exists on file');
         return;

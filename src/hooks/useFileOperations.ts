@@ -1,12 +1,12 @@
 import { Folder, File, FileType } from '@/types/files';
 import { supabase } from '@/integrations/supabase/client';
-import { Toast } from '@/components/ui/use-toast';
+import { ToastProps } from '@/components/ui/toast';
 
 interface UseFileOperationsProps {
   folders: Folder[];
   setFolders: (folders: Folder[]) => void;
   toast: {
-    toast: (props: Toast) => void;
+    toast: (props: ToastProps) => void;
   };
 }
 
