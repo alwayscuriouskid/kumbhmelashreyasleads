@@ -68,7 +68,7 @@ export const TeamMemberSelect = ({ value, onChange }: TeamMemberSelectProps) => 
               Add New Member
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="z-[100]">
             <DialogHeader>
               <DialogTitle>Add New Team Member</DialogTitle>
             </DialogHeader>
@@ -100,10 +100,10 @@ export const TeamMemberSelect = ({ value, onChange }: TeamMemberSelectProps) => 
         </Dialog>
       </div>
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger>
+        <SelectTrigger className="w-full">
           <SelectValue placeholder="Select team member" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="z-[100]">
           {teamMembers?.map((member) => (
             <SelectItem key={member.id} value={member.id}>
               {member.name}

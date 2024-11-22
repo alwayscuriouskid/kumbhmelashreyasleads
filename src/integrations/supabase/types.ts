@@ -14,6 +14,7 @@ export type Database = {
           booking_reference: string | null
           cancellation_reason: string | null
           created_at: string | null
+          customer_address: string | null
           customer_email: string | null
           customer_name: string | null
           customer_phone: string | null
@@ -35,6 +36,7 @@ export type Database = {
           booking_reference?: string | null
           cancellation_reason?: string | null
           created_at?: string | null
+          customer_address?: string | null
           customer_email?: string | null
           customer_name?: string | null
           customer_phone?: string | null
@@ -56,6 +58,7 @@ export type Database = {
           booking_reference?: string | null
           cancellation_reason?: string | null
           created_at?: string | null
+          customer_address?: string | null
           customer_email?: string | null
           customer_name?: string | null
           customer_phone?: string | null

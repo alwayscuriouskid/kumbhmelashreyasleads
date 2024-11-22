@@ -9,17 +9,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/ui/date-picker";
 import { TableColumnToggle } from "@/components/shared/TableColumnToggle";
+import { CreateBookingDialog } from "@/components/bookings/CreateBookingDialog";
 
 const Bookings = () => {
-  const { data: bookings, isLoading } = useBookings();
+  const { data: bookings, isLoading, refetch } = useBookings();
   const [statusFilter, setStatusFilter] = useState("all");
   const [teamMemberFilter, setTeamMemberFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -62,9 +61,7 @@ const Bookings = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Bookings</h1>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" /> Create Booking
-        </Button>
+        <CreateBookingDialog onSuccess={refetch} />
       </div>
 
       <Card>
