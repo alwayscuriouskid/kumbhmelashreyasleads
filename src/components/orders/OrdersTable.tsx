@@ -19,37 +19,39 @@ export const OrdersTable = ({
   onOrderUpdate 
 }: OrdersTableProps) => {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <OrdersTableHeader visibleColumns={visibleColumns} />
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {isLoading ? (
+    <div className="relative">
+      <Table>
+        <TableHeader>
           <TableRow>
-            <TableCell colSpan={12} className="text-center">
-              Loading...
-            </TableCell>
+            <OrdersTableHeader visibleColumns={visibleColumns} />
           </TableRow>
-        ) : orders.length === 0 ? (
-          <TableRow>
-            <TableCell colSpan={12} className="text-center">
-              No orders found
-            </TableCell>
-          </TableRow>
-        ) : (
-          orders.map((order) => (
-            <OrdersTableRow
-              key={order.id}
-              order={order}
-              visibleColumns={visibleColumns}
-              teamMembers={teamMembers}
-              onOrderUpdate={onOrderUpdate}
-            />
-          ))
-        )}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {isLoading ? (
+            <TableRow>
+              <TableCell colSpan={12} className="text-center">
+                Loading...
+              </TableCell>
+            </TableRow>
+          ) : orders.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={12} className="text-center">
+                No orders found
+              </TableCell>
+            </TableRow>
+          ) : (
+            orders.map((order) => (
+              <OrdersTableRow
+                key={order.id}
+                order={order}
+                visibleColumns={visibleColumns}
+                teamMembers={teamMembers}
+                onOrderUpdate={onOrderUpdate}
+              />
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 };

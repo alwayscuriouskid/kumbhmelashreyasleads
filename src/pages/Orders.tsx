@@ -6,6 +6,7 @@ import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { OrdersFilters } from "@/components/orders/OrdersFilters";
 import { OrdersTable } from "@/components/orders/OrdersTable";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { format, isEqual } from "date-fns";
 
 const Orders = () => {
   const { data: orders, isLoading, refetch } = useOrders();
@@ -52,15 +53,23 @@ const Orders = () => {
     }
   };
 
-  // Filter orders
+  // Filter orders with improved next payment date filtering
   const filteredOrders = orders?.filter((order) => {
     if (statusFilter !== "all" && order.status !== statusFilter) return false;
     if (teamMemberFilter !== "all" && order.team_member_id !== teamMemberFilter) return false;
     if (paymentStatusFilter !== "all" && order.payment_status !== paymentStatusFilter) return false;
     if (searchQuery && !order.customer_name?.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     if (orderDate && new Date(order.created_at).toDateString() !== orderDate.toDateString()) return false;
-    if (nextPaymentDate && order.next_payment_date &&
-        new Date(order.next_payment_date).toDateString() !== nextPaymentDate.toDateString()) return false;
+    
+    // Improved next payment date filtering
+    if (nextPaymentDate && order.next_payment_date) {
+      const orderNextPaymentDate = new Date(order.next_payment_date);
+      return isEqual(
+        new Date(orderNextPaymentDate.getFullYear(), orderNextPaymentDate.getMonth(), orderNextPaymentDate.getDate()),
+        new Date(nextPaymentDate.getFullYear(), nextPaymentDate.getMonth(), nextPaymentDate.getDate())
+      );
+    }
+    
     return true;
   });
 
@@ -93,7 +102,7 @@ const Orders = () => {
               onDateFilterChange={handleDateFilterChange}
             />
             
-            <div className="table-container">
+            <ScrollArea className="rounded-md border">
               <OrdersTable
                 orders={filteredOrders || []}
                 isLoading={isLoading}
@@ -101,7 +110,7 @@ const Orders = () => {
                 teamMembers={teamMembers || []}
                 onOrderUpdate={refetch}
               />
-            </div>
+            </ScrollArea>
           </div>
         </CardContent>
       </Card>
