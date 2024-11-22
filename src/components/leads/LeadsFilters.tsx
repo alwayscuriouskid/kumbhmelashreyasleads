@@ -21,6 +21,16 @@ const LeadsFilters = ({
   toggleColumn,
   customStatuses,
 }: LeadsFiltersProps) => {
+  const defaultStatuses = ["suspect", "prospect", "analysis", "negotiation", "conclusion", "ongoing_order"];
+  const allStatuses = [...defaultStatuses, ...customStatuses];
+
+  const formatStatusLabel = (status: string) => {
+    return status
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
   return (
     <div className="mb-6 p-4 border rounded-lg space-y-4">
       <div className="flex flex-wrap gap-4">
@@ -31,13 +41,9 @@ const LeadsFilters = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="approved">Approved</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
-              <SelectItem value="followup">Follow Up</SelectItem>
-              {customStatuses.map((status) => (
+              {allStatuses.map((status) => (
                 <SelectItem key={status} value={status}>
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                  {formatStatusLabel(status)}
                 </SelectItem>
               ))}
             </SelectContent>

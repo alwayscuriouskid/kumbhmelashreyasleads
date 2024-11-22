@@ -112,6 +112,20 @@ const Leads = () => {
     });
   };
 
+  const handleAddCustomStatus = (status: string) => {
+    console.log("Adding new custom status:", status);
+    setCustomStatuses(prev => {
+      if (!prev.includes(status)) {
+        return [...prev, status];
+      }
+      return prev;
+    });
+    toast({
+      title: "Status Added",
+      description: `New status "${status}" has been added successfully.`,
+    });
+  };
+
   const toggleColumn = (column: keyof typeof visibleColumns) => {
     setVisibleColumns(prev => ({
       ...prev,
@@ -137,6 +151,7 @@ const Leads = () => {
             onSubmit={handleAddLead}
             onCancel={() => setShowAddForm(false)}
             customStatuses={customStatuses}
+            onAddCustomStatus={handleAddCustomStatus}
           />
         </DialogContent>
       </Dialog>
