@@ -6,7 +6,7 @@ interface UseFileTagOperationsProps {
   folders: Folder[];
   setFolders: (folders: Folder[]) => void;
   tags: FileTag[];
-  setTags: (tags: FileTag[]) => void;
+  setTags: React.Dispatch<React.SetStateAction<FileTag[]>>;
   toast: {
     toast: (props: ToastProps) => void;
   };
@@ -56,7 +56,7 @@ export const useFileTagOperations = ({
         name: data.name,
       };
 
-      setTags(prevTags => [...prevTags, newTag]);
+      setTags((prevTags: FileTag[]) => [...prevTags, newTag]);
       console.log('Added tag:', newTag);
       return newTag;
     } catch (error) {
