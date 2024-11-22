@@ -32,11 +32,19 @@ export interface InventoryItem {
   created_at: string;
   ltc?: number;
   dimensions?: string;
-  quantity: number;  // Added this field
-  inventory_types?: { name: string };
+  quantity: number;
+  sku?: string;
+  inventory_types?: { 
+    id: string;
+    name: string 
+  };
   sectors?: { 
+    id: string;
     name: string;
-    zones?: { name: string };
+    zones?: { 
+      id: string;
+      name: string 
+    };
   };
 }
 

@@ -60,15 +60,12 @@ export const useInventoryItems = () => {
         .from("inventory_items")
         .select(`
           *,
-          inventory_types (name),
-          sectors (name, zones (name))
+          inventory_types (id, name),
+          sectors (id, name, zones (id, name))
         `);
       
       if (error) throw error;
-      return data as (InventoryItem & {
-        inventory_types: { name: string };
-        sectors: { name: string; zones: { name: string } };
-      })[];
+      return data as InventoryItem[];
     },
   });
 };
