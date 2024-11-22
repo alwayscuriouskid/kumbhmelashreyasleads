@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { TableColumnToggle } from "@/components/shared/TableColumnToggle";
 import { useState } from "react";
+import { useTeamMemberOptions } from "@/hooks/useTeamMemberOptions";
 
 interface TeamActivityFiltersProps {
   selectedDate: Date | undefined;
@@ -33,6 +34,9 @@ const TeamActivityFilters = ({
   const [dateFilterType, setDateFilterType] = useState("all");
   const [customStartDate, setCustomStartDate] = useState<Date>();
   const [customEndDate, setCustomEndDate] = useState<Date>();
+  const { data: teamMembers, isLoading: isLoadingTeamMembers } = useTeamMemberOptions();
+
+  console.log("Rendering TeamActivityFilters with team members:", teamMembers);
 
   const columns = [
     { key: "time", label: "Time" },
@@ -65,7 +69,6 @@ const TeamActivityFilters = ({
         newDate = startOfWeek;
         break;
       case "custom":
-        // Don't set any date, wait for custom range selection
         newDate = undefined;
         break;
       default:
@@ -78,9 +81,8 @@ const TeamActivityFilters = ({
   const handleCustomDateRange = (startDate: Date | undefined, endDate: Date | undefined) => {
     setCustomStartDate(startDate);
     setCustomEndDate(endDate);
-    // Pass the date range to parent component
     if (startDate && endDate) {
-      onDateSelect(startDate); // You might want to modify the parent component to handle date ranges
+      onDateSelect(startDate);
     }
   };
 
@@ -93,9 +95,11 @@ const TeamActivityFilters = ({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Members</SelectItem>
-            <SelectItem value="john">John Doe</SelectItem>
-            <SelectItem value="jane">Jane Smith</SelectItem>
-            <SelectItem value="mike">Mike Johnson</SelectItem>
+            {teamMembers?.map((member) => (
+              <SelectItem key={member.id} value={member.id}>
+                {member.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         

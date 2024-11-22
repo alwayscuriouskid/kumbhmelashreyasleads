@@ -3,6 +3,9 @@ import { format, isToday, isYesterday, isThisWeek } from "date-fns";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import TeamActivityFilters from "./TeamActivityFilters";
+import { useTeamMemberOptions } from "@/hooks/useTeamMemberOptions";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 interface Activity {
   id: string;
@@ -22,40 +25,6 @@ interface Activity {
   activityOutcome?: string;
 }
 
-// Updated mock data to include new fields
-const activities: Activity[] = [
-  {
-    id: "1",
-    type: "call",
-    description: "Follow-up call with ABC Corp",
-    time: "10:00 AM",
-    teamMember: "john",
-    date: "2024-03-20",
-    leadName: "ABC Corp",
-    nextFollowUp: "2024-03-25",
-    followUpOutcome: "Client interested in proposal",
-    nextAction: "Send detailed proposal",
-    activityOutcome: "Positive response"
-  },
-  {
-    id: "2",
-    type: "status_change",
-    description: "Lead status updated for XYZ Ltd",
-    time: "2:00 PM",
-    teamMember: "jane",
-    date: "2024-03-20",
-    leadName: "XYZ Ltd",
-    statusChange: {
-      from: "pending",
-      to: "approved"
-    },
-    nextFollowUp: "2024-03-22",
-    followUpOutcome: "Contract signed",
-    nextAction: "Schedule kickoff meeting",
-    activityOutcome: "Deal closed"
-  }
-];
-
 const TeamActivityTable = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedTeamMember, setSelectedTeamMember] = useState<string>('all');
@@ -72,6 +41,22 @@ const TeamActivityTable = () => {
     followUpOutcome: true,
     nextAction: true,
     activityOutcome: true
+  });
+
+  const { data: activities = [], isLoading } = useQuery({
+    queryKey: ["team-activities", selectedTeamMember, activityType, leadSearch, selectedDate],
+    queryFn: async () => {
+      console.log("Fetching activities with filters:", { 
+        selectedTeamMember, 
+        activityType,
+        leadSearch,
+        selectedDate 
+      });
+
+      // In a real implementation, we would fetch this data from the database
+      // For now, returning mock data
+      return [];
+    }
   });
 
   console.log("Rendering TeamActivityTable with filters:", { 

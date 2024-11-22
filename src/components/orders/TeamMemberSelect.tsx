@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { useTeamMemberOptions } from "@/hooks/useTeamMemberOptions";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import {
@@ -26,7 +26,7 @@ interface TeamMemberSelectProps {
 }
 
 export const TeamMemberSelect = ({ value, onChange }: TeamMemberSelectProps) => {
-  const { data: teamMembers, refetch } = useTeamMembers();
+  const { data: teamMembers, refetch } = useTeamMemberOptions();
   const [isAddingMember, setIsAddingMember] = useState(false);
   const [newMember, setNewMember] = useState({ name: "", email: "" });
 
