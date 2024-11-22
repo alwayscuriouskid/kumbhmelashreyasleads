@@ -90,14 +90,6 @@ const Leads = () => {
     followUpOutcome: true
   });
 
-  const handleAddCustomStatus = (status: string) => {
-    console.log("Parent: Adding custom status:", status);
-    if (!customStatuses.includes(status)) {
-      setCustomStatuses(prev => [...prev, status]);
-      console.log("Updated custom statuses:", [...customStatuses, status]);
-    }
-  };
-
   const handleUpdateLead = (updatedLead: Lead) => {
     setLeads(prevLeads =>
       prevLeads.map(lead =>
@@ -145,7 +137,6 @@ const Leads = () => {
             onSubmit={handleAddLead}
             onCancel={() => setShowAddForm(false)}
             customStatuses={customStatuses}
-            onAddCustomStatus={handleAddCustomStatus}
           />
         </DialogContent>
       </Dialog>
@@ -154,8 +145,6 @@ const Leads = () => {
         <div className="w-full">
           <LeadsHeader
             onAddNew={() => setShowAddForm(true)}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
           />
 
           <LeadsFilters
@@ -166,7 +155,6 @@ const Leads = () => {
             visibleColumns={visibleColumns}
             toggleColumn={toggleColumn}
             customStatuses={customStatuses}
-            onAddCustomStatus={handleAddCustomStatus}
           />
         </div>
       </Card>

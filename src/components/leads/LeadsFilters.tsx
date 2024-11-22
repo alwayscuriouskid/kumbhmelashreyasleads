@@ -1,7 +1,6 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import CustomStatusInput from "./CustomStatusInput";
 
 interface LeadsFiltersProps {
   statusFilter: string;
@@ -11,7 +10,6 @@ interface LeadsFiltersProps {
   visibleColumns: Record<string, boolean>;
   toggleColumn: (column: string) => void;
   customStatuses: string[];
-  onAddCustomStatus: (status: string) => void;
 }
 
 const LeadsFilters = ({
@@ -22,13 +20,11 @@ const LeadsFilters = ({
   visibleColumns,
   toggleColumn,
   customStatuses,
-  onAddCustomStatus,
 }: LeadsFiltersProps) => {
   return (
     <div className="mb-6 p-4 border rounded-lg space-y-4">
       <div className="flex flex-wrap gap-4">
         <div className="space-y-2 w-full">
-          <CustomStatusInput onAddStatus={onAddCustomStatus} />
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filter by status" />
