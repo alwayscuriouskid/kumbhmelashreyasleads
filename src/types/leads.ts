@@ -73,8 +73,8 @@ export interface LeadDB {
   price_quoted: number | null;
   next_action: string | null;
   follow_up_outcome: string | null;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export interface Lead {
@@ -119,31 +119,37 @@ export const dbToFrontend = (lead: LeadDB): Lead => ({
   leadRef: lead.lead_ref || undefined,
   leadSource: lead.lead_source || undefined,
   activities: [],
-  createdAt: lead.created_at,
-  updatedAt: lead.updated_at,
+  createdAt: lead.created_at || new Date().toISOString(),
+  updatedAt: lead.updated_at || new Date().toISOString(),
   priceQuoted: lead.price_quoted || undefined,
   nextAction: lead.next_action || undefined,
   followUpOutcome: lead.follow_up_outcome || undefined
 });
 
-export const frontendToDB = (lead: Partial<Lead>): Partial<LeadDB> => ({
-  id: lead.id,
-  client_name: lead.clientName,
-  location: lead.location,
-  contact_person: lead.contactPerson,
-  phone: lead.phone,
-  email: lead.email,
-  requirement: lead.requirement || {},
-  status: lead.status || 'pending',
-  remarks: lead.remarks || null,
-  next_follow_up: lead.nextFollowUp || null,
-  budget: lead.budget || null,
-  lead_ref: lead.leadRef || null,
-  lead_source: lead.leadSource || null,
-  price_quoted: lead.priceQuoted || null,
-  next_action: lead.nextAction || null,
-  follow_up_outcome: lead.followUpOutcome || null,
-  date: lead.date || new Date().toISOString().split('T')[0],
-  created_at: lead.createdAt,
-  updated_at: new Date().toISOString()
-});
+export const frontendToDB = (lead: Partial<Lead>): Partial<LeadDB> => {
+  if (!lead.clientName || !lead.location || !lead.contactPerson || !lead.phone || !lead.email) {
+    throw new Error('Missing required fields');
+  }
+
+  return {
+    id: lead.id,
+    client_name: lead.clientName,
+    location: lead.location,
+    contact_person: lead.contactPerson,
+    phone: lead.phone,
+    email: lead.email,
+    requirement: lead.requirement || {},
+    status: lead.status || 'pending',
+    remarks: lead.remarks || null,
+    next_follow_up: lead.nextFollowUp || null,
+    budget: lead.budget || null,
+    lead_ref: lead.leadRef || null,
+    lead_source: lead.leadSource || null,
+    price_quoted: lead.priceQuoted || null,
+    next_action: lead.nextAction || null,
+    follow_up_outcome: lead.followUpOutcome || null,
+    date: lead.date || new Date().toISOString().split('T')[0],
+    created_at: lead.createdAt || new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+};

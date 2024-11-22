@@ -29,33 +29,27 @@ export const useLeads = () => {
   const addLead = useMutation({
     mutationFn: async (newLead: Partial<Lead>) => {
       console.log("Adding new lead:", newLead);
-      const dbLead = frontendToDB(newLead);
-      
-      // Validate required fields
-      const requiredFields = ['client_name', 'contact_person', 'email', 'location', 'phone'] as const;
-      const missingFields = requiredFields.filter(field => !dbLead[field]);
-      
-      if (missingFields.length > 0) {
-        throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
-      }
+      try {
+        const dbLead = frontendToDB(newLead);
+        
+        const { data, error } = await supabase
+          .from('leads')
+          .insert([dbLead])
+          .select()
+          .single();
 
-      const { data, error } = await supabase
-        .from('leads')
-        .insert([{
-          ...dbLead,
-          requirement: dbLead.requirement || {},
-          date: dbLead.date || new Date().toISOString().split('T')[0],
-          status: dbLead.status || 'pending'
-        }])
-        .select()
-        .single();
+        if (error) {
+          console.error("Error adding lead:", error);
+          throw error;
+        }
 
-      if (error) {
-        console.error("Error adding lead:", error);
+        return dbToFrontend(data as LeadDB);
+      } catch (error) {
+        if (error instanceof Error) {
+          throw new Error(`Failed to add lead: ${error.message}`);
+        }
         throw error;
       }
-
-      return dbToFrontend(data as LeadDB);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
@@ -77,33 +71,28 @@ export const useLeads = () => {
   const updateLead = useMutation({
     mutationFn: async (updatedLead: Lead) => {
       console.log("Updating lead:", updatedLead);
-      const dbLead = frontendToDB(updatedLead);
+      try {
+        const dbLead = frontendToDB(updatedLead);
 
-      // Validate required fields
-      const requiredFields = ['client_name', 'contact_person', 'email', 'location', 'phone'] as const;
-      const missingFields = requiredFields.filter(field => !dbLead[field]);
-      
-      if (missingFields.length > 0) {
-        throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
-      }
+        const { data, error } = await supabase
+          .from('leads')
+          .update(dbLead)
+          .eq('id', updatedLead.id)
+          .select()
+          .single();
 
-      const { data, error } = await supabase
-        .from('leads')
-        .update({
-          ...dbLead,
-          requirement: dbLead.requirement || {},
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', updatedLead.id)
-        .select()
-        .single();
+        if (error) {
+          console.error("Error updating lead:", error);
+          throw error;
+        }
 
-      if (error) {
-        console.error("Error updating lead:", error);
+        return dbToFrontend(data as LeadDB);
+      } catch (error) {
+        if (error instanceof Error) {
+          throw new Error(`Failed to update lead: ${error.message}`);
+        }
         throw error;
       }
-
-      return dbToFrontend(data as LeadDB);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
