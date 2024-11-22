@@ -32,12 +32,14 @@ export const TeamMemberSelect = ({ value, onChange }: TeamMemberSelectProps) => 
 
   const handleAddMember = async () => {
     try {
-      const { error } = await supabase.from("team_members").insert([
-        {
+      const { error } = await supabase
+        .from("team_members")
+        .insert([{
           name: newMember.name,
           email: newMember.email,
-        },
-      ]);
+          role: 'sales',
+          status: 'active'
+        }]);
 
       if (error) throw error;
 

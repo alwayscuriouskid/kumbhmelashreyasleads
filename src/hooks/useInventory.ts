@@ -139,7 +139,18 @@ export const useCreateOrder = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (orderData: Omit<Order, "id" | "created_at" | "updated_at">) => {
+    mutationFn: async (orderData: {
+      customer_name: string;
+      customer_email?: string;
+      customer_phone: string;
+      customer_address?: string;
+      team_member_id?: string;
+      team_member_name: string;
+      payment_method?: string;
+      notes?: string;
+      status: string;
+      total_amount: number;
+    }) => {
       const { data, error } = await supabase
         .from("orders")
         .insert([orderData])

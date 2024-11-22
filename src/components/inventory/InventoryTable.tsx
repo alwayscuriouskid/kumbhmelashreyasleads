@@ -52,7 +52,9 @@ export const InventoryTable = () => {
           ltc: editedValues.ltc,
           dimensions: editedValues.dimensions,
           quantity: editedValues.quantity,
-          sku: editedValues.sku
+          sku: editedValues.sku,
+          sector_id: editedValues.sector_id, // Add this line
+          type_id: editedValues.type_id // Add this line
         })
         .eq('id', editingId);
 
