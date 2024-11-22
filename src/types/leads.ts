@@ -46,6 +46,14 @@ export interface Activity {
     from: string;
     to: string;
   };
+  // Add new fields for team activity display
+  time?: string;
+  description?: string;
+  teamMember?: string;
+  leadName?: string;
+  nextFollowUp?: string;
+  followUpOutcome?: string;
+  activityOutcome?: string;
 }
 
 export interface Lead {

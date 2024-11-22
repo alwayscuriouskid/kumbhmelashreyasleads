@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { Activity } from "@/types/leads";
 
 export const useTeamActivities = (
   selectedTeamMember: string,
@@ -55,7 +56,25 @@ export const useTeamActivities = (
       }
 
       console.log("Fetched activities:", data);
-      return data;
+
+      // Map the data to match our Activity type
+      return (data || []).map((item: any): Activity => ({
+        id: item.id,
+        type: item.type,
+        date: item.date,
+        time: format(new Date(item.date), 'HH:mm'),
+        outcome: item.outcome || '',
+        notes: item.notes || '',
+        nextAction: item.next_action,
+        assignedTo: item.team_member_id,
+        contactPerson: '',
+        description: item.notes,
+        teamMember: item.team_members?.name || 'Unknown',
+        leadName: item.leads?.client_name || 'Unknown',
+        nextFollowUp: item.next_follow_up_date,
+        followUpOutcome: item.outcome,
+        activityOutcome: item.outcome
+      }));
     }
   });
 };

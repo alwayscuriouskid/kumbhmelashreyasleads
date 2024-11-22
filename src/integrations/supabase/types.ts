@@ -6,9 +6,69 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export type Database = {
+export interface Database {
   public: {
     Tables: {
+      lead_activities: {
+        Row: {
+          id: string;
+          lead_id: string;
+          team_member_id: string | null;
+          type: string;
+          date: string;
+          notes: string | null;
+          outcome: string | null;
+          next_action: string | null;
+          next_follow_up_date: string | null;
+          completed: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          lead_id: string;
+          team_member_id?: string | null;
+          type: string;
+          date?: string;
+          notes?: string | null;
+          outcome?: string | null;
+          next_action?: string | null;
+          next_follow_up_date?: string | null;
+          completed?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          lead_id?: string;
+          team_member_id?: string | null;
+          type?: string;
+          date?: string;
+          notes?: string | null;
+          outcome?: string | null;
+          next_action?: string | null;
+          next_follow_up_date?: string | null;
+          completed?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "lead_activities_lead_id_fkey";
+            columns: ["lead_id"];
+            isOneToOne: false;
+            referencedRelation: "leads";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "lead_activities_team_member_id_fkey";
+            columns: ["team_member_id"];
+            isOneToOne: false;
+            referencedRelation: "team_members";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       bookings: {
         Row: {
           booking_reference: string | null
@@ -243,7 +303,7 @@ export type Database = {
           ltc?: number | null
           min_price?: number
           quantity?: number
-          sector_id?: string
+          sector_id: string
           sku?: string | null
           status?: string
           type_id?: string
@@ -433,8 +493,8 @@ export type Database = {
           created_at?: string | null
           customer_address?: string | null
           customer_email?: string | null
-          customer_name?: string | null
-          customer_phone?: string | null
+          customer_name: string
+          customer_phone: string | null
           id?: string
           notes?: string | null
           payment_date?: string | null
@@ -443,8 +503,8 @@ export type Database = {
           status: string
           team_member_id?: string | null
           team_member_name?: string
-          total_amount: number
-          updated_at?: string | null
+          total_amount: number;
+          updated_at?: string | null;
         }
         Update: {
           commission_amount?: number | null
@@ -452,18 +512,18 @@ export type Database = {
           created_at?: string | null
           customer_address?: string | null
           customer_email?: string | null
-          customer_name?: string | null
-          customer_phone?: string | null
-          id?: string
+          customer_name?: string;
+          customer_phone?: string | null;
+          id?: string;
           notes?: string | null
           payment_date?: string | null
           payment_method?: string | null
           payment_status?: string | null
-          status?: string
-          team_member_id?: string | null
-          team_member_name?: string
-          total_amount?: number
-          updated_at?: string | null
+          status?: string;
+          team_member_id?: string | null;
+          team_member_name?: string;
+          total_amount?: number;
+          updated_at?: string | null;
         }
         Relationships: [
           {
@@ -513,7 +573,7 @@ export type Database = {
           id?: string
           name?: string
           updated_at?: string | null
-          zone_id?: string
+          zone_id: string;
         }
         Relationships: [
           {
@@ -540,7 +600,7 @@ export type Database = {
           commission_rate?: number | null
           created_at?: string | null
           email?: string | null
-          id?: string
+          id: string
           name: string
           role?: string | null
           status?: string | null
@@ -637,7 +697,6 @@ export type Database = {
           total_bookings: number | null
           total_commission: number | null
           total_orders: number | null
-          total_revenue: number | null
         }
         Relationships: []
       }
@@ -718,7 +777,7 @@ export type Tables<
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
         Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
@@ -730,10 +789,10 @@ export type Tables<
         PublicSchema["Views"])
     ? (PublicSchema["Tables"] &
         PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-        Row: infer R
-      }
-      ? R
-      : never
+      Row: infer R
+    }
+    ? R
+    : never
     : never
 
 export type TablesInsert<
@@ -805,3 +864,4 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
     ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+
