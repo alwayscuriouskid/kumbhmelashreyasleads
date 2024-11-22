@@ -1,6 +1,8 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DatePicker } from "@/components/ui/date-picker";
+import CustomStatusInput from "./CustomStatusInput";
 
 interface LeadsFiltersProps {
   statusFilter: string;
@@ -10,6 +12,11 @@ interface LeadsFiltersProps {
   visibleColumns: Record<string, boolean>;
   toggleColumn: (column: string) => void;
   customStatuses: string[];
+  onAddCustomStatus: (status: string) => void;
+  dateFilter: Date | undefined;
+  setDateFilter: (date: Date | undefined) => void;
+  locationFilter: string;
+  setLocationFilter: (location: string) => void;
 }
 
 const LeadsFilters = ({
@@ -20,39 +27,58 @@ const LeadsFilters = ({
   visibleColumns,
   toggleColumn,
   customStatuses,
+  onAddCustomStatus,
+  dateFilter,
+  setDateFilter,
+  locationFilter,
+  setLocationFilter,
 }: LeadsFiltersProps) => {
-  const defaultStatuses = ["suspect", "prospect", "analysis", "negotiation", "conclusion", "ongoing_order"];
-  const allStatuses = [...defaultStatuses, ...customStatuses];
-
-  const formatStatusLabel = (status: string) => {
-    return status
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  };
-
   return (
     <div className="mb-6 p-4 border rounded-lg space-y-4">
       <div className="flex flex-wrap gap-4">
-        <div className="space-y-2 w-full">
+        <div className="space-y-2">
+          <CustomStatusInput onAddStatus={onAddCustomStatus} />
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
-              {allStatuses.map((status) => (
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+              <SelectItem value="followup">Follow Up</SelectItem>
+              {customStatuses.map((status) => (
                 <SelectItem key={status} value={status}>
-                  {formatStatusLabel(status)}
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Date</label>
+          <DatePicker
+            selected={dateFilter}
+            onSelect={setDateFilter}
+            placeholderText="Filter by date"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Location</label>
+          <Input
+            placeholder="Filter by location..."
+            value={locationFilter}
+            onChange={(e) => setLocationFilter(e.target.value)}
+            className="w-[200px]"
+          />
+        </div>
+
         <div className="flex-1">
           <Input
-            placeholder="Search by client name, location, or contact person..."
+            placeholder="Search by client name or contact person..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />

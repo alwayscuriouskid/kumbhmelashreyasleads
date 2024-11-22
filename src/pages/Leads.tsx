@@ -12,6 +12,8 @@ const Leads = () => {
   const { leads, isLoading, addLead, updateLead } = useLeads();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [dateFilter, setDateFilter] = useState<Date>();
+  const [locationFilter, setLocationFilter] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [customStatuses, setCustomStatuses] = useState<string[]>([]);
   const [visibleColumns, setVisibleColumns] = useState({
@@ -62,13 +64,31 @@ const Leads = () => {
 
   const filteredLeads = leads
     .filter(lead => statusFilter === "all" || lead.status === statusFilter)
+    .filter(lead => {
+      if (dateFilter) {
+        const leadDate = new Date(lead.date);
+        return leadDate.toDateString() === dateFilter.toDateString();
+      }
+      return true;
+    })
+    .filter(lead => 
+      locationFilter ? lead.location.toLowerCase().includes(locationFilter.toLowerCase()) : true
+    )
     .filter(lead =>
       searchQuery
         ? lead.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          lead.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
           lead.contactPerson.toLowerCase().includes(searchQuery.toLowerCase())
         : true
     );
+
+  console.log("Filtered leads with filters:", { 
+    statusFilter, 
+    dateFilter, 
+    locationFilter, 
+    searchQuery, 
+    totalLeads: leads.length,
+    filteredCount: filteredLeads.length 
+  });
 
   if (isLoading) {
     return <div>Loading leads...</div>;
@@ -101,6 +121,11 @@ const Leads = () => {
             visibleColumns={visibleColumns}
             toggleColumn={toggleColumn}
             customStatuses={customStatuses}
+            onAddCustomStatus={handleAddCustomStatus}
+            dateFilter={dateFilter}
+            setDateFilter={setDateFilter}
+            locationFilter={locationFilter}
+            setLocationFilter={setLocationFilter}
           />
         </div>
       </Card>
