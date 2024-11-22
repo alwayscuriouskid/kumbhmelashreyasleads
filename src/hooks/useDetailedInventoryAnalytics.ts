@@ -35,10 +35,12 @@ export const useDetailedInventoryAnalytics = () => {
             name,
             zones!inner (name)
           ),
-          bookings:bookings (count),
+          bookings (count),
           confirmed_bookings:bookings!inner (count),
-          order_count:order_items (count),
-          total_revenue:order_items (sum(price))
+          order_items (
+            count,
+            total_price:price(sum)
+          )
         `)
         .eq('bookings.status', 'confirmed');
 
@@ -63,8 +65,8 @@ export const useDetailedInventoryAnalytics = () => {
         updated_at: item.updated_at,
         total_bookings: (item.bookings?.[0]?.count as number) || 0,
         confirmed_bookings: (item.confirmed_bookings?.[0]?.count as number) || 0,
-        times_ordered: (item.order_count?.[0]?.count as number) || 0,
-        total_revenue: (item.total_revenue?.[0]?.sum as number) || 0
+        times_ordered: (item.order_items?.[0]?.count as number) || 0,
+        total_revenue: (item.order_items?.[0]?.total_price as number) || 0
       }));
     },
   });
