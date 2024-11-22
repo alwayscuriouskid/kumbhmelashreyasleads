@@ -3,11 +3,87 @@ import { supabase } from "@/integrations/supabase/client";
 import { Lead, LeadDB, dbToFrontend, frontendToDB } from "@/types/leads";
 import { useToast } from "@/hooks/use-toast";
 
+// Dummy data for development preview
+const dummyLeads: Lead[] = [
+  {
+    id: "1",
+    date: new Date().toISOString().split('T')[0],
+    clientName: "ABC Corp",
+    location: "Mumbai",
+    contactPerson: "Raj Kumar",
+    phone: "9876543210",
+    email: "raj@abccorp.com",
+    requirement: {
+      hoardings: 5,
+      entryGates: 2,
+      foodStalls: 3
+    },
+    status: "prospect",
+    remarks: "Interested in event setup",
+    budget: "₹500,000",
+    leadSource: "Website",
+    nextFollowUp: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    nextAction: "Schedule meeting",
+    followUpOutcome: "Positive initial contact",
+    followUps: [],
+    activities: [
+      {
+        id: "a1",
+        type: "call",
+        date: new Date().toISOString(),
+        outcome: "Initial contact made",
+        notes: "Client showed interest in our services",
+        assignedTo: "John Smith",
+        contactPerson: "Raj Kumar",
+        description: "Follow-up call about proposal"
+      }
+    ],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "2",
+    date: new Date().toISOString().split('T')[0],
+    clientName: "XYZ Ltd",
+    location: "Delhi",
+    contactPerson: "Priya Singh",
+    phone: "8765432109",
+    email: "priya@xyzltd.com",
+    requirement: {
+      ledHoardingSpots: 3,
+      skyBalloons: 1,
+      webSeries: 1
+    },
+    status: "negotiation",
+    remarks: "Budget discussion pending",
+    budget: "₹750,000",
+    leadSource: "Referral",
+    nextFollowUp: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    nextAction: "Follow up on proposal",
+    followUpOutcome: "Reviewing proposal",
+    followUps: [],
+    activities: [
+      {
+        id: "a2",
+        type: "meeting",
+        date: new Date().toISOString(),
+        outcome: "Proposal presented",
+        notes: "Client requested detailed pricing",
+        assignedTo: "Sarah Johnson",
+        contactPerson: "Priya Singh",
+        description: "Initial requirements gathering"
+      }
+    ],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  }
+];
+
 export const useLeads = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: leads = [], isLoading } = useQuery({
+  const { data: leads = dummyLeads, isLoading } = useQuery({
     queryKey: ['leads'],
     queryFn: async () => {
       console.log("Fetching leads from database");
@@ -18,11 +94,12 @@ export const useLeads = () => {
 
       if (error) {
         console.error("Error fetching leads:", error);
-        throw error;
+        return dummyLeads; // Fallback to dummy data if fetch fails
       }
 
-      console.log("Fetched leads:", data);
-      return (data || []).map(dbToFrontend);
+      const fetchedLeads = (data || []).map(dbToFrontend);
+      console.log("Fetched leads:", fetchedLeads);
+      return fetchedLeads.length > 0 ? fetchedLeads : dummyLeads;
     }
   });
 

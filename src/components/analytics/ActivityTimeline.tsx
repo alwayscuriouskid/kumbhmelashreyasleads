@@ -23,6 +23,20 @@ const activities = [
     description: 'Sent pricing details',
     time: '1 day ago',
   },
+  {
+    id: 4,
+    type: 'call',
+    leadName: 'Global Events',
+    description: 'Discussed event requirements',
+    time: '2 days ago',
+  },
+  {
+    id: 5,
+    type: 'meeting',
+    leadName: 'Event Masters',
+    description: 'Contract signing meeting',
+    time: '3 days ago',
+  }
 ];
 
 const getIcon = (type: string) => {

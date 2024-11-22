@@ -5,7 +5,7 @@ const data = [
   { name: 'Referral', value: 30 },
   { name: 'Cold Call', value: 20 },
   { name: 'Social', value: 15 },
-  { name: 'Other', value: 10 },
+  { name: 'Exhibition', value: 25 },
 ];
 
 const LeadSourceChart = () => {

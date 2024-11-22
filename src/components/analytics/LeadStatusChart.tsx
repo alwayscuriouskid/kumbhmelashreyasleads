@@ -1,13 +1,14 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 const data = [
-  { name: 'Pending', value: 45 },
-  { name: 'Approved', value: 30 },
-  { name: 'Rejected', value: 15 },
-  { name: 'Follow Up', value: 30 },
+  { name: 'Prospect', value: 45 },
+  { name: 'Negotiation', value: 30 },
+  { name: 'Analysis', value: 15 },
+  { name: 'Conclusion', value: 20 },
+  { name: 'Ongoing Order', value: 10 },
 ];
 
-const COLORS = ['#3b82f6', '#22c55e', '#ef4444', '#f59e0b'];
+const COLORS = ['#3b82f6', '#22c55e', '#ef4444', '#f59e0b', '#8b5cf6'];
 
 const LeadStatusChart = () => {
   return (
