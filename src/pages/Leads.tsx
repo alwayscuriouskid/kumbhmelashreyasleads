@@ -35,10 +35,10 @@ const mockLeads: Lead[] = [
         nextFollowUpDate: "2024-02-25"
       }
     ],
-    activities: [], // Added missing property
-    createdAt: "2024-02-20T10:00:00Z", // Added missing property
-    updatedAt: "2024-02-20T10:00:00Z", // Added missing property
-    score: 75 // Optional property added
+    activities: [],
+    createdAt: "2024-02-20T10:00:00Z",
+    updatedAt: "2024-02-20T10:00:00Z",
+    score: 75
   },
   {
     id: "2",
@@ -57,17 +57,16 @@ const mockLeads: Lead[] = [
     remarks: "Contract signed",
     budget: "₹750,000",
     followUps: [],
-    activities: [], // Added missing property
-    createdAt: "2024-02-21T09:00:00Z", // Added missing property
-    updatedAt: "2024-02-21T09:00:00Z", // Added missing property
-    score: 90 // Optional property added
+    activities: [],
+    createdAt: "2024-02-21T09:00:00Z",
+    updatedAt: "2024-02-21T09:00:00Z",
+    score: 90
   }
 ];
 
 const Leads = () => {
   const [leads, setLeads] = useState<Lead[]>(mockLeads);
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [leadRefFilter, setLeadRefFilter] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [customStatuses, setCustomStatuses] = useState<string[]>([]);
@@ -130,7 +129,6 @@ const Leads = () => {
 
   const filteredLeads = leads
     .filter(lead => statusFilter === "all" || lead.status === statusFilter)
-    .filter(lead => !leadRefFilter || (lead.leadRef && lead.leadRef.toLowerCase().includes(leadRefFilter.toLowerCase())))
     .filter(lead =>
       searchQuery
         ? lead.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -163,8 +161,6 @@ const Leads = () => {
           <LeadsFilters
             statusFilter={statusFilter}
             setStatusFilter={setStatusFilter}
-            leadRefFilter={leadRefFilter}
-            setLeadRefFilter={setLeadRefFilter}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             visibleColumns={visibleColumns}

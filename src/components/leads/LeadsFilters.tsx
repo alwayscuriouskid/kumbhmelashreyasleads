@@ -1,5 +1,5 @@
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import CustomStatusInput from "./CustomStatusInput";
 
@@ -24,9 +24,6 @@ const LeadsFilters = ({
   customStatuses,
   onAddCustomStatus,
 }: LeadsFiltersProps) => {
-  const defaultStatuses = ["pending", "approved", "rejected", "followup"];
-  const allStatuses = [...defaultStatuses, ...customStatuses];
-
   return (
     <div className="mb-6 p-4 border rounded-lg space-y-4">
       <div className="flex flex-wrap gap-4">
@@ -38,7 +35,11 @@ const LeadsFilters = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
-              {allStatuses.map((status) => (
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+              <SelectItem value="followup">Follow Up</SelectItem>
+              {customStatuses.map((status) => (
                 <SelectItem key={status} value={status}>
                   {status.charAt(0).toUpperCase() + status.slice(1)}
                 </SelectItem>

@@ -67,4 +67,7 @@ export interface Lead {
   createdAt: string;
   updatedAt: string;
   score?: number;
+  priceQuoted?: number;
+  nextAction?: string;
+  followUpOutcome?: string;
 }
