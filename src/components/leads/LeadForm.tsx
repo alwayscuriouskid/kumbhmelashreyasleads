@@ -17,7 +17,7 @@ interface LeadFormProps {
   initialData?: Partial<Lead>;
   mode?: "add" | "edit";
   customStatuses: string[];
-  onAddCustomStatus: (status: string) => void;
+  onAddCustomStatus?: (status: string) => void; // Made optional with ?
 }
 
 const LeadForm = ({ 
