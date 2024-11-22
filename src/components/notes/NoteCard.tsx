@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Note } from "@/types/notes";
@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { NoteHeader } from "./NoteHeader";
 import { NoteTags } from "./NoteTags";
 import Draggable from "react-draggable";
+import { MINIMUM_NOTE_SIZE } from "@/utils/notePositioning";
 
 interface NoteCardProps {
   note: Note;
@@ -24,6 +25,10 @@ const NoteCard = ({ note, onUpdate, categories, tags, onAddCategory }: NoteCardP
   const nodeRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
+
+  useEffect(() => {
+    setEditedNote(note);
+  }, [note]);
 
   const handleSave = () => {
     if (!editedNote.title.trim() || !editedNote.content.trim()) {
@@ -84,8 +89,8 @@ const NoteCard = ({ note, onUpdate, categories, tags, onAddCategory }: NoteCardP
     const startHeight = editedNote.height || 200;
 
     const handleMouseMove = (e: MouseEvent) => {
-      const newWidth = Math.max(300, startWidth + (e.pageX - startX));
-      const newHeight = Math.max(200, startHeight + (e.pageY - startY));
+      const newWidth = Math.max(MINIMUM_NOTE_SIZE.width, startWidth + (e.pageX - startX));
+      const newHeight = Math.max(MINIMUM_NOTE_SIZE.height, startHeight + (e.pageY - startY));
 
       setEditedNote(prev => ({
         ...prev,

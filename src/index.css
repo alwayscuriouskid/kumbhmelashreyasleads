@@ -46,6 +46,22 @@
   #root {
     @apply min-h-screen w-full;
   }
+
+  .notes-container {
+    @apply w-full max-w-full relative;
+    min-height: calc(100vh - 12rem);
+  }
+
+  .notes-container > div {
+    @apply grid gap-4;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+
+  .note-card {
+    @apply transition-all duration-200;
+    min-width: 200px;
+    min-height: 150px;
+  }
 }
 
 .table-container {
