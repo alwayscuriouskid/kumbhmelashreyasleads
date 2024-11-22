@@ -15,7 +15,6 @@ const Leads = () => {
   const [dateFilter, setDateFilter] = useState<Date>();
   const [locationFilter, setLocationFilter] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
-  const [customStatuses, setCustomStatuses] = useState<string[]>([]);
   const [visibleColumns, setVisibleColumns] = useState({
     date: true,
     clientName: true,
@@ -48,13 +47,6 @@ const Leads = () => {
     await updateLead.mutateAsync(updatedLead);
   };
 
-  const handleAddCustomStatus = (status: string) => {
-    console.log("Adding new custom status:", status);
-    if (!customStatuses.includes(status)) {
-      setCustomStatuses(prev => [...prev, status]);
-    }
-  };
-
   const toggleColumn = (column: keyof typeof visibleColumns) => {
     setVisibleColumns(prev => ({
       ...prev,
@@ -81,15 +73,6 @@ const Leads = () => {
         : true
     );
 
-  console.log("Filtered leads with filters:", { 
-    statusFilter, 
-    dateFilter, 
-    locationFilter, 
-    searchQuery, 
-    totalLeads: leads.length,
-    filteredCount: filteredLeads.length 
-  });
-
   if (isLoading) {
     return <div>Loading leads...</div>;
   }
@@ -101,44 +84,31 @@ const Leads = () => {
           <LeadForm
             onSubmit={handleAddLead}
             onCancel={() => setShowAddForm(false)}
-            customStatuses={customStatuses}
-            onAddCustomStatus={handleAddCustomStatus}
           />
         </DialogContent>
       </Dialog>
 
-      <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="w-full">
-          <LeadsHeader
-            onAddNew={() => setShowAddForm(true)}
-          />
+      <LeadsHeader onAddNew={() => setShowAddForm(true)} />
 
-          <LeadsFilters
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            visibleColumns={visibleColumns}
-            toggleColumn={toggleColumn}
-            customStatuses={customStatuses}
-            onAddCustomStatus={handleAddCustomStatus}
-            dateFilter={dateFilter}
-            setDateFilter={setDateFilter}
-            locationFilter={locationFilter}
-            setLocationFilter={setLocationFilter}
-          />
-        </div>
-      </Card>
+      <LeadsFilters
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        visibleColumns={visibleColumns}
+        toggleColumn={toggleColumn}
+        dateFilter={dateFilter}
+        setDateFilter={setDateFilter}
+        locationFilter={locationFilter}
+        setLocationFilter={setLocationFilter}
+      />
 
       <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="w-full">
-          <LeadsTable
-            leads={filteredLeads}
-            visibleColumns={visibleColumns}
-            onUpdateLead={handleUpdateLead}
-            customStatuses={customStatuses}
-          />
-        </div>
+        <LeadsTable
+          leads={filteredLeads}
+          visibleColumns={visibleColumns}
+          onUpdateLead={handleUpdateLead}
+        />
       </Card>
     </div>
   );
