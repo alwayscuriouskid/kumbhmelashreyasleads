@@ -9,21 +9,26 @@ import {
 } from "recharts";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { InventoryStatusMetric } from "@/types/inventory";
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
+interface StatusMetric {
+  status: string;
+  item_count: number;
+}
+
 export const StatusAnalytics = ({ zoneFilter, typeFilter }: { zoneFilter: string; typeFilter: string }) => {
-  const { data: statusMetrics } = useQuery<InventoryStatusMetric[]>({
+  const { data: statusMetrics } = useQuery<StatusMetric[]>({
     queryKey: ['inventory-status-metrics', zoneFilter, typeFilter],
     queryFn: async () => {
       console.log('Fetching inventory status metrics');
       let query = supabase
-        .from('inventory_status_metrics')
-        .select('*');
+        .from('inventory_items')
+        .select('status, count(*) as item_count')
+        .groupBy('status');
       
       if (zoneFilter !== 'all') {
-        query = query.eq('zone_id', zoneFilter);
+        query = query.eq('sector.zone_id', zoneFilter);
       }
       if (typeFilter !== 'all') {
         query = query.eq('type_id', typeFilter);
@@ -40,18 +45,10 @@ export const StatusAnalytics = ({ zoneFilter, typeFilter }: { zoneFilter: string
     },
   });
 
-  const statusData = statusMetrics?.reduce((acc: { status: string; value: number }[], metric) => {
-    const existingStatus = acc.find(item => item.status === metric.status);
-    if (existingStatus) {
-      existingStatus.value += metric.item_count;
-    } else {
-      acc.push({
-        status: metric.status,
-        value: metric.item_count
-      });
-    }
-    return acc;
-  }, []) || [];
+  const statusData = statusMetrics?.map(metric => ({
+    status: metric.status,
+    value: metric.item_count
+  })) || [];
 
   return (
     <div className="space-y-4">
