@@ -9,11 +9,62 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { FiltersSection } from "@/components/notes/FiltersSection";
 import { Note } from "@/types/notes";
 
+const GRID_GAP = 20;
+const NOTE_WIDTH = 300;
+const NOTE_HEIGHT = 200;
+
 const Templates = () => {
   const [search, setSearch] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { notes, setNotes, categories, tags, addCategory, setCategories, setTags } = useNotes();
   
+  const calculateNextPosition = () => {
+    if (notes.length === 0) return { x: GRID_GAP, y: GRID_GAP };
+
+    // Calculate grid positions
+    const positions = notes.map(note => ({
+      x: note.position?.x || 0,
+      y: note.position?.y || 0,
+      width: note.width || NOTE_WIDTH,
+      height: note.height || NOTE_HEIGHT,
+    }));
+
+    // Find the first available position in a grid layout
+    let row = 0;
+    let col = 0;
+    let foundPosition = false;
+    let newPosition = { x: 0, y: 0 };
+
+    while (!foundPosition) {
+      const testX = col * (NOTE_WIDTH + GRID_GAP) + GRID_GAP;
+      const testY = row * (NOTE_HEIGHT + GRID_GAP) + GRID_GAP;
+      
+      // Check if this position overlaps with any existing note
+      const hasOverlap = positions.some(pos => {
+        return (
+          testX < (pos.x + pos.width + GRID_GAP) &&
+          (testX + NOTE_WIDTH + GRID_GAP) > pos.x &&
+          testY < (pos.y + pos.height + GRID_GAP) &&
+          (testY + NOTE_HEIGHT + GRID_GAP) > pos.y
+        );
+      });
+
+      if (!hasOverlap) {
+        newPosition = { x: testX, y: testY };
+        foundPosition = true;
+      } else {
+        // Move to next column or row
+        col++;
+        if (col * (NOTE_WIDTH + GRID_GAP) > window.innerWidth - NOTE_WIDTH - GRID_GAP) {
+          col = 0;
+          row++;
+        }
+      }
+    }
+
+    return newPosition;
+  };
+
   const filteredNotes = notes.filter((note) => {
     const matchesSearch = 
       note.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -22,17 +73,17 @@ const Templates = () => {
     return matchesSearch;
   });
 
-  const handleUpdateNote = (updatedNote) => {
+  const handleUpdateNote = (updatedNote: Note) => {
     setNotes(notes.map((note) => (note.id === updatedNote.id ? updatedNote : note)));
   };
 
-  const handleAddCategory = (category) => {
+  const handleAddCategory = (category: string) => {
     if (!categories.includes(category)) {
       addCategory(category);
     }
   };
 
-  const handleDeleteCategory = (categoryToDelete) => {
+  const handleDeleteCategory = (categoryToDelete: string) => {
     setCategories(categories.filter(category => category !== categoryToDelete));
     setNotes(notes.map(note => ({
       ...note,
@@ -40,7 +91,7 @@ const Templates = () => {
     })));
   };
 
-  const handleDeleteTag = (tagToDelete) => {
+  const handleDeleteTag = (tagToDelete: string) => {
     setTags(tags.filter(tag => tag !== tagToDelete));
     setNotes(notes.map(note => ({
       ...note,
@@ -49,10 +100,15 @@ const Templates = () => {
   };
 
   const handleCreateNote = (noteData: Omit<Note, "id" | "createdAt">) => {
+    const position = calculateNextPosition();
+    
     const newNote: Note = {
       ...noteData,
       id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
+      position,
+      width: NOTE_WIDTH,
+      height: NOTE_HEIGHT,
     };
     
     setNotes(prevNotes => [...prevNotes, newNote]);

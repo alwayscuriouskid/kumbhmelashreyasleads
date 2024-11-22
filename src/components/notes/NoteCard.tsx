@@ -22,6 +22,8 @@ const NoteCard = ({ note, onUpdate, categories, tags, onAddCategory }: NoteCardP
   const [zIndex, setZIndex] = useState(1);
   const { toast } = useToast();
   const nodeRef = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
 
   const handleSave = () => {
     if (!editedNote.title.trim() || !editedNote.content.trim()) {
@@ -58,7 +60,50 @@ const NoteCard = ({ note, onUpdate, categories, tags, onAddCategory }: NoteCardP
   };
 
   const handleDragStart = () => {
+    setIsDragging(true);
     setZIndex(prev => prev + 1);
+  };
+
+  const handleDragStop = (e: any, data: any) => {
+    setIsDragging(false);
+    if (Math.abs(data.x - (note.position?.x || 0)) > 5 || Math.abs(data.y - (note.position?.y || 0)) > 5) {
+      onUpdate({
+        ...editedNote,
+        position: { x: data.x, y: data.y }
+      });
+    }
+  };
+
+  const handleResize = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const startX = e.pageX;
+    const startY = e.pageY;
+    const startWidth = editedNote.width || 300;
+    const startHeight = editedNote.height || 200;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const newWidth = Math.max(300, startWidth + (e.pageX - startX));
+      const newHeight = Math.max(200, startHeight + (e.pageY - startY));
+
+      setEditedNote(prev => ({
+        ...prev,
+        width: newWidth,
+        height: newHeight
+      }));
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      setIsResizing(false);
+      onUpdate(editedNote);
+    };
+
+    setIsResizing(true);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
   };
 
   return (
@@ -67,34 +112,21 @@ const NoteCard = ({ note, onUpdate, categories, tags, onAddCategory }: NoteCardP
       bounds="parent"
       nodeRef={nodeRef}
       onStart={handleDragStart}
+      onStop={handleDragStop}
       defaultPosition={note.position || { x: 0, y: 0 }}
-      onStop={(e, data) => {
-        const container = document.querySelector('.notes-container');
-        if (container) {
-          const bounds = container.getBoundingClientRect();
-          const noteElement = nodeRef.current as HTMLElement | null;
-          if (noteElement) {
-            const noteBounds = noteElement.getBoundingClientRect();
-            const x = Math.min(Math.max(data.x, 0), bounds.width - noteBounds.width);
-            onUpdate({
-              ...editedNote,
-              position: { x, y: data.y }
-            });
-          }
-        }
-      }}
+      position={isDragging ? undefined : note.position}
     >
       <div 
         ref={nodeRef} 
         className="absolute"
         style={{ 
           zIndex,
-          width: Math.min(note.width || 300, window.innerWidth - 40),
-          height: note.height || 'auto',
-          maxWidth: 'calc(100vw - 40px)'
+          width: editedNote.width || 300,
+          height: editedNote.height || 200,
+          transition: isDragging ? 'none' : 'all 0.2s ease-out'
         }}
       >
-        <Card className="group hover:border-primary/50 transition-colors w-full h-full resize overflow-auto rounded-lg">
+        <Card className="group hover:border-primary/50 transition-colors w-full h-full overflow-hidden rounded-lg relative">
           <div className="absolute inset-x-0 top-0 h-6 bg-background/80 backdrop-blur-sm cursor-move drag-handle" />
           <CardHeader className="space-y-1 pt-8">
             <NoteHeader
@@ -108,14 +140,14 @@ const NoteCard = ({ note, onUpdate, categories, tags, onAddCategory }: NoteCardP
               onAddCategory={onAddCategory}
             />
           </CardHeader>
-          <CardContent>
+          <CardContent className="overflow-y-auto" style={{ maxHeight: 'calc(100% - 140px)' }}>
             {isEditing ? (
               <Textarea
                 value={editedNote.content}
                 onChange={(e) =>
                   setEditedNote({ ...editedNote, content: e.target.value })
                 }
-                className="min-h-[100px] text-sm resize-y"
+                className="min-h-[100px] text-sm resize-none"
                 placeholder="Note Content"
               />
             ) : (
@@ -135,6 +167,14 @@ const NoteCard = ({ note, onUpdate, categories, tags, onAddCategory }: NoteCardP
               availableTags={tags}
             />
           </CardFooter>
+          <div
+            className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize"
+            onMouseDown={handleResize}
+            style={{
+              background: 'transparent',
+              transform: 'translate(50%, 50%)'
+            }}
+          />
         </Card>
       </div>
     </Draggable>
