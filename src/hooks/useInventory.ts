@@ -60,12 +60,17 @@ export const useInventoryItems = () => {
         .from("inventory_items")
         .select(`
           *,
-          inventory_types (id, name),
-          sectors (id, name, zones (id, name))
+          inventory_types (
+            id, name, total_quantity, unit_type
+          ),
+          sectors (
+            id, name,
+            zones (id, name)
+          )
         `);
       
       if (error) throw error;
-      return data as InventoryItem[];
+      return data as unknown as InventoryItem[];
     },
   });
 };
@@ -82,7 +87,7 @@ export const useOrders = () => {
             *,
             inventory_items (
               *,
-              inventory_types (id, name)
+              inventory_types (id, name, total_quantity, unit_type)
             )
           )
         `);
@@ -104,13 +109,13 @@ export const useBookings = () => {
           *,
           inventory_items (
             *,
-            inventory_types (name)
+            inventory_types (id, name, total_quantity, unit_type)
           )
         `);
       
       if (error) throw error;
       console.log("Fetched bookings:", data);
-      return data as Booking[];
+      return data as unknown as Booking[];
     },
   });
 };
