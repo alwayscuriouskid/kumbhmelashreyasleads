@@ -2,13 +2,14 @@ import { File, FileTag, Folder } from "@/types/files";
 import { Button } from "@/components/ui/button";
 import { File as FileIcon, Tag, Trash2, Image, FileText } from "lucide-react";
 import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface FileListProps {
   folders: Folder[];
   onDeleteFolder: (id: string) => void;
   onAddFile: (folderId: string, file: Omit<File, 'id' | 'createdAt' | 'tags'>) => void;
   onDeleteFile: (folderId: string, fileId: string) => void;
-  onAddTag: (name: string) => FileTag;
+  onAddTag: (name: string) => Promise<FileTag>;
   onAddTagToFile: (folderId: string, fileId: string, tagId: string) => void;
   onRemoveTagFromFile: (folderId: string, fileId: string, tagId: string) => void;
   availableTags: FileTag[];
@@ -22,6 +23,33 @@ export const FileList = ({
   onRemoveTagFromFile,
   availableTags,
 }: FileListProps) => {
+  const { toast } = useToast();
+  const [isAddingTag, setIsAddingTag] = useState(false);
+
+  const handleAddTag = async (folderId: string, fileId: string, tagValue: string) => {
+    if (tagValue === "new") {
+      const name = prompt("Enter new tag name");
+      if (name) {
+        try {
+          setIsAddingTag(true);
+          const newTag = await onAddTag(name);
+          onAddTagToFile(folderId, fileId, newTag.id);
+        } catch (error) {
+          console.error('Error adding tag:', error);
+          toast({
+            title: "Error",
+            description: "Failed to create new tag",
+            variant: "destructive",
+          });
+        } finally {
+          setIsAddingTag(false);
+        }
+      }
+    } else if (tagValue) {
+      onAddTagToFile(folderId, fileId, tagValue);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {folders.map((folder) => (
@@ -58,19 +86,9 @@ export const FileList = ({
                       </Button>
                     ))}
                     <select
-                      onChange={(e) => {
-                        const tagId = e.target.value;
-                        if (tagId === "new") {
-                          const name = prompt("Enter new tag name");
-                          if (name) {
-                            const newTag = onAddTag(name);
-                            onAddTagToFile(folder.id, file.id, newTag.id);
-                          }
-                        } else if (tagId) {
-                          onAddTagToFile(folder.id, file.id, tagId);
-                        }
-                      }}
+                      onChange={(e) => handleAddTag(folder.id, file.id, e.target.value)}
                       className="h-6 rounded-md border border-input bg-background px-2 text-sm"
+                      disabled={isAddingTag}
                     >
                       <option value="">Add tag...</option>
                       {availableTags.map((tag) => (
