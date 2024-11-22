@@ -8,9 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 interface InventorySelectorProps {
   selectedItems: string[];
   onItemSelect: (itemIds: string[]) => void;
+  maxItems?: number;
 }
 
-export const InventorySelector = ({ selectedItems, onItemSelect }: InventorySelectorProps) => {
+export const InventorySelector = ({ selectedItems, onItemSelect, maxItems }: InventorySelectorProps) => {
   const { data: inventoryItems } = useInventoryItems();
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -26,6 +27,18 @@ export const InventorySelector = ({ selectedItems, onItemSelect }: InventorySele
     
     return matchesSearch && matchesType && matchesZone && isAvailable;
   });
+
+  const handleItemSelect = (itemId: string) => {
+    if (selectedItems.includes(itemId)) {
+      onItemSelect(selectedItems.filter(id => id !== itemId));
+    } else {
+      if (maxItems && selectedItems.length >= maxItems) {
+        onItemSelect([itemId]); // Replace existing selection
+      } else {
+        onItemSelect([...selectedItems, itemId]);
+      }
+    }
+  };
 
   // Get unique types and zones for filters
   const types = Array.from(new Set(inventoryItems?.map(item => ({
@@ -88,13 +101,7 @@ export const InventorySelector = ({ selectedItems, onItemSelect }: InventorySele
                 ? "border-primary bg-primary/5"
                 : ""
             }`}
-            onClick={() =>
-              onItemSelect(
-                selectedItems.includes(item.id)
-                  ? selectedItems.filter((id) => id !== item.id)
-                  : [...selectedItems, item.id]
-              )
-            }
+            onClick={() => handleItemSelect(item.id)}
           >
             <div className="font-medium">
               {item.inventory_types?.name} - {item.sku}

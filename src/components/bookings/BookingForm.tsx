@@ -8,6 +8,7 @@ import { TeamMemberSelect } from "../orders/TeamMemberSelect";
 import { InventorySelector } from "../orders/InventorySelector";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { DatePicker } from "@/components/ui/date-picker";
+import { useToast } from "@/components/ui/use-toast";
 import {
   Select,
   SelectContent,
@@ -23,6 +24,7 @@ interface BookingFormProps {
 
 export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
   const { data: teamMembers } = useTeamMembers();
+  const { toast } = useToast();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
@@ -142,7 +144,7 @@ export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
               <SelectTrigger>
                 <SelectValue placeholder="Select payment method" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[60]">
                 <SelectItem value="cash">Cash</SelectItem>
                 <SelectItem value="card">Card</SelectItem>
                 <SelectItem value="upi">UPI</SelectItem>
