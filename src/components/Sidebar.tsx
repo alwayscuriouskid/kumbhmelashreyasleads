@@ -44,14 +44,14 @@ const Sidebar = () => {
   return (
     <div 
       className={cn(
-        "relative pb-12 min-h-screen bg-muted/40 border-r transition-all duration-300",
-        isCollapsed ? "w-16" : "w-full sm:w-64"
+        "h-full bg-muted/40 border-r transition-all duration-300",
+        isCollapsed ? "w-16" : "w-64"
       )}
     >
       <Button
         variant="ghost"
         size="icon"
-        className="absolute right-[-12px] top-3 z-50 h-6 w-6 rounded-full border bg-background"
+        className="absolute right-[-12px] top-3 z-50 h-6 w-6 rounded-full border bg-background hidden sm:flex"
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
         {isCollapsed ? (
@@ -64,7 +64,7 @@ const Sidebar = () => {
       <div className="space-y-4 py-4">
         <div className="px-3 py-2">
           {!isCollapsed && (
-            <h2 className="mb-2 px-4 text-lg font-semibold">Kumbh Mela Leads</h2>
+            <h2 className="mb-2 px-4 text-lg font-semibold truncate">Kumbh Mela Leads</h2>
           )}
           <div className="space-y-1">
             <ScrollArea className="h-[calc(100vh-8rem)]">
@@ -74,13 +74,13 @@ const Sidebar = () => {
                   variant={isActive(path) ? "secondary" : "ghost"}
                   className={cn(
                     "w-full justify-start",
-                    isCollapsed && "px-2"
+                    isCollapsed ? "px-2" : ""
                   )}
                   asChild
                 >
                   <Link to={path}>
                     <Icon className={cn("h-4 w-4", !isCollapsed && "mr-2")} />
-                    {!isCollapsed && label}
+                    {!isCollapsed && <span className="truncate">{label}</span>}
                   </Link>
                 </Button>
               ))}
