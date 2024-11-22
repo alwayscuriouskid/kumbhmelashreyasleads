@@ -82,14 +82,14 @@ export const useOrders = () => {
             *,
             inventory_items (
               *,
-              inventory_types (name)
+              inventory_types (id, name)
             )
           )
         `);
       
       if (error) throw error;
       console.log("Fetched orders:", data);
-      return data as Order[];
+      return data as unknown as Order[];
     },
   });
 };

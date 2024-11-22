@@ -34,10 +34,7 @@ export interface InventoryItem {
   dimensions?: string;
   quantity: number;
   sku?: string;
-  inventory_types?: { 
-    id: string;
-    name: string 
-  };
+  inventory_types?: InventoryType;
   sectors?: { 
     id: string;
     name: string;
@@ -94,8 +91,6 @@ export interface Booking {
   payment_amount?: number;
   inventory_items?: {
     id: string;
-    inventory_types?: {
-      name: string;
-    };
+    inventory_types?: InventoryType;
   };
 }
