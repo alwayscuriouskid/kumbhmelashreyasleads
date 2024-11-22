@@ -44,7 +44,7 @@ const Sidebar = () => {
   return (
     <div 
       className={cn(
-        "h-full bg-muted/40 border-r transition-all duration-300",
+        "h-full bg-muted/40 border-r transition-all duration-300 fixed",
         isCollapsed ? "w-16" : "w-64"
       )}
     >
