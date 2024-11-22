@@ -54,7 +54,7 @@ export const useTeamActivities = (
       // Map the lead data to match our Activity type
       return (data || []).map((item): Activity => ({
         id: item.id,
-        type: item.status === item.status ? 'status_change' : 'note',
+        type: 'status_change',
         date: item.created_at,
         time: format(new Date(item.created_at), 'HH:mm'),
         outcome: item.follow_up_outcome || '',

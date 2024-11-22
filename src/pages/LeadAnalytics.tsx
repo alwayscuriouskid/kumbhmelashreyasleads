@@ -10,6 +10,8 @@ import TeamPerformance from "@/components/analytics/TeamPerformance";
 import DetailedLeadMetrics from "@/components/analytics/DetailedLeadMetrics";
 import LeadActionNotifications from "@/components/analytics/LeadActionNotifications";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Filters {
   timeRange: string;
@@ -20,6 +22,36 @@ interface Filters {
 const LeadAnalytics = () => {
   const [filters, setFilters] = useState<Filters>({
     timeRange: "today",
+  });
+
+  const { data: analyticsData } = useQuery({
+    queryKey: ['lead-analytics', filters],
+    queryFn: async () => {
+      console.log("Fetching analytics data with filters:", filters);
+      
+      const { data: leads, error } = await supabase
+        .from('leads')
+        .select('*');
+
+      if (error) {
+        console.error("Error fetching analytics data:", error);
+        throw error;
+      }
+
+      // Process the data based on filters
+      const filteredLeads = leads?.filter(lead => {
+        const leadDate = new Date(lead.created_at);
+        if (filters.timeRange === "today") {
+          const today = new Date();
+          return leadDate.toDateString() === today.toDateString();
+        }
+        // Add more filter conditions as needed
+        return true;
+      });
+
+      console.log("Filtered analytics data:", filteredLeads);
+      return filteredLeads || [];
+    }
   });
 
   console.log("Analytics filters updated:", filters);

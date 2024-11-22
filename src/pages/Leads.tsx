@@ -2,87 +2,30 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Lead } from "@/types/leads";
-import { useToast } from "@/components/ui/use-toast";
 import LeadsHeader from "@/components/leads/LeadsHeader";
 import LeadsFilters from "@/components/leads/LeadsFilters";
 import LeadsTable from "@/components/leads/LeadsTable";
 import LeadForm from "@/components/leads/LeadForm";
-
-const mockLeads: Lead[] = [
-  {
-    id: "123e4567-e89b-12d3-a456-426614174000",
-    date: "2024-02-20",
-    clientName: "ABC Corp",
-    location: "Mumbai Central",
-    contactPerson: "John Doe",
-    phone: "+91 9876543210",
-    email: "john@abccorp.com",
-    requirement: {
-      hoardings: 5,
-      electricPoles: 100,
-      chargingPoints: 10
-    },
-    status: "pending",
-    remarks: "Interested in prime locations",
-    nextFollowUp: "2024-02-25",
-    budget: "₹500,000",
-    followUps: [
-      {
-        id: "f1",
-        date: "2024-02-18",
-        notes: "Initial meeting - Client showed interest in hoardings",
-        outcome: "Positive response",
-        nextFollowUpDate: "2024-02-25"
-      }
-    ],
-    activities: [],
-    createdAt: "2024-02-20T10:00:00Z",
-    updatedAt: "2024-02-20T10:00:00Z",
-    score: 75
-  },
-  {
-    id: "223e4567-e89b-12d3-a456-426614174001",
-    date: "2024-02-21",
-    clientName: "XYZ Ltd",
-    location: "Andheri East",
-    contactPerson: "Jane Smith",
-    phone: "+91 9876543211",
-    email: "jane@xyzltd.com",
-    requirement: {
-      entryGates: 2,
-      watchTowers: 1,
-      skyBalloons: 1
-    },
-    status: "approved",
-    remarks: "Contract signed",
-    budget: "₹750,000",
-    followUps: [],
-    activities: [],
-    createdAt: "2024-02-21T09:00:00Z",
-    updatedAt: "2024-02-21T09:00:00Z",
-    score: 90
-  }
-];
+import { useLeads } from "@/hooks/useLeads";
 
 const Leads = () => {
-  const [leads, setLeads] = useState<Lead[]>(mockLeads);
+  const { leads, isLoading, addLead, updateLead } = useLeads();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [customStatuses, setCustomStatuses] = useState<string[]>([]);
-  const { toast } = useToast();
   const [visibleColumns, setVisibleColumns] = useState({
-    date: false,
-    clientName: false,
+    date: true,
+    clientName: true,
     location: true,
     contactPerson: true,
-    phone: false,
-    email: false,
-    requirements: false,
-    status: false,
+    phone: true,
+    email: true,
+    requirements: true,
+    status: true,
     remarks: true,
-    nextFollowUp: false,
-    budget: false,
+    nextFollowUp: true,
+    budget: true,
     leadRef: true,
     leadSource: true,
     priceQuoted: true,
@@ -90,40 +33,24 @@ const Leads = () => {
     followUpOutcome: true
   });
 
-  const handleUpdateLead = (updatedLead: Lead) => {
-    setLeads(prevLeads =>
-      prevLeads.map(lead =>
-        lead.id === updatedLead.id ? updatedLead : lead
-      )
-    );
+  const handleAddLead = async (newLead: Partial<Lead>) => {
+    await addLead.mutateAsync({
+      ...newLead as any,
+      requirement: newLead.requirement || {},
+      date: newLead.date || new Date().toISOString().split('T')[0],
+    });
+    setShowAddForm(false);
   };
 
-  const handleAddLead = (newLead: Partial<Lead>) => {
-    const leadToAdd: Lead = {
-      ...newLead as Lead,
-      id: crypto.randomUUID(), // Generate proper UUID
-      followUps: [],
-    };
-    setLeads(prev => [leadToAdd, ...prev]);
-    setShowAddForm(false);
-    toast({
-      title: "Lead Added",
-      description: "The new lead has been successfully added.",
-    });
+  const handleUpdateLead = async (updatedLead: Lead) => {
+    await updateLead.mutateAsync(updatedLead);
   };
 
   const handleAddCustomStatus = (status: string) => {
     console.log("Adding new custom status:", status);
-    setCustomStatuses(prev => {
-      if (!prev.includes(status)) {
-        return [...prev, status];
-      }
-      return prev;
-    });
-    toast({
-      title: "Status Added",
-      description: `New status "${status}" has been added successfully.`,
-    });
+    if (!customStatuses.includes(status)) {
+      setCustomStatuses(prev => [...prev, status]);
+    }
   };
 
   const toggleColumn = (column: keyof typeof visibleColumns) => {
@@ -142,6 +69,10 @@ const Leads = () => {
           lead.contactPerson.toLowerCase().includes(searchQuery.toLowerCase())
         : true
     );
+
+  if (isLoading) {
+    return <div>Loading leads...</div>;
+  }
 
   return (
     <div className="space-y-4 w-full max-w-[calc(100vw-280px)]">
