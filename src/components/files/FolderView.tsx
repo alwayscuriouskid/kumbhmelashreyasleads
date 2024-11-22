@@ -7,6 +7,7 @@ import { useFiles } from "@/hooks/useFiles";
 import { FileList } from "./FileList";
 import { ArrowLeft, Upload, Search, Filter } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Sheet,
   SheetContent,
@@ -25,17 +26,41 @@ const FolderView = () => {
 
   const folder = folders.find(f => f.id === folderId);
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (!folder) return;
     
-    acceptedFiles.forEach(file => {
-      addFile(folder.id, {
-        name: file.name,
-        type: folder.type,
-        folderId: folder.id,
-        size: file.size,
-      });
-    });
+    for (const file of acceptedFiles) {
+      try {
+        console.log('Uploading file:', file.name);
+        
+        // Upload file to Supabase Storage
+        const fileExt = file.name.split('.').pop();
+        const filePath = `${folder.id}/${crypto.randomUUID()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('files')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        // Add file metadata to database
+        await addFile(folder.id, {
+          name: file.name,
+          type: folder.type,
+          folderId: folder.id,
+          size: file.size,
+        });
+
+        console.log('File uploaded successfully:', filePath);
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        toast({
+          title: "Error",
+          description: `Failed to upload ${file.name}`,
+          variant: "destructive",
+        });
+      }
+    }
 
     toast({
       title: "Files uploaded",
