@@ -1,5 +1,7 @@
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
 import { Order } from "@/types/inventory";
+import { OrdersTableHeader } from "./OrdersTableHeader";
+import { OrdersTableRow } from "./OrdersTableRow";
 
 interface OrdersTableProps {
   orders: Order[];
