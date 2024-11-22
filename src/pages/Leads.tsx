@@ -101,7 +101,7 @@ const Leads = () => {
   const handleAddLead = (newLead: Partial<Lead>) => {
     const leadToAdd: Lead = {
       ...newLead as Lead,
-      id: `${Date.now()}`,
+      id: crypto.randomUUID(), // Generate proper UUID
       followUps: [],
     };
     setLeads(prev => [leadToAdd, ...prev]);

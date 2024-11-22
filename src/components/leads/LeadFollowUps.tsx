@@ -8,6 +8,7 @@ import ActivityTracker from "./ActivityTracker";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface LeadFollowUpsProps {
   leadId: string;
@@ -27,18 +28,43 @@ const LeadFollowUps = ({
   onLeadUpdate
 }: LeadFollowUpsProps) => {
   const [showNewForm, setShowNewForm] = useState(false);
+  const { toast } = useToast();
 
   const updateLeadTable = async (updates: any) => {
     try {
+      // Validate UUID format
+      if (!leadId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+        console.error("Invalid UUID format for leadId:", leadId);
+        toast({
+          title: "Error",
+          description: "Invalid lead ID format",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('leads')
         .update(updates)
         .eq('id', leadId);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error updating lead:", error);
+        toast({
+          title: "Error",
+          description: "Failed to update lead information",
+          variant: "destructive",
+        });
+        throw error;
+      }
 
       console.log("Lead table updated successfully:", updates);
       onLeadUpdate?.(updates);
+      
+      toast({
+        title: "Success",
+        description: "Lead information updated successfully",
+      });
     } catch (error) {
       console.error("Error updating lead:", error);
     }
