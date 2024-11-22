@@ -38,7 +38,7 @@ export const useDetailedInventoryAnalytics = () => {
           bookings:bookings (count),
           confirmed_bookings:bookings!inner (count),
           order_count:order_items (count),
-          total_revenue:order_items (sum)
+          total_revenue:order_items (sum(price))
         `)
         .eq('bookings.status', 'confirmed');
 
