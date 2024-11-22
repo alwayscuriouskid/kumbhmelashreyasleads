@@ -1,7 +1,5 @@
-import { Table, TableBody, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
 import { Order } from "@/types/inventory";
-import { OrdersTableHeader } from "./OrdersTableHeader";
-import { OrdersTableRow } from "./OrdersTableRow";
 
 interface OrdersTableProps {
   orders: Order[];
@@ -14,7 +12,7 @@ interface OrdersTableProps {
 export const OrdersTable = ({ 
   orders, 
   isLoading, 
-  visibleColumns, 
+  visibleColumns,
   teamMembers,
   onOrderUpdate 
 }: OrdersTableProps) => {
@@ -32,8 +30,14 @@ export const OrdersTable = ({
               Loading...
             </TableCell>
           </TableRow>
+        ) : orders.length === 0 ? (
+          <TableRow>
+            <TableCell colSpan={12} className="text-center">
+              No orders found
+            </TableCell>
+          </TableRow>
         ) : (
-          orders?.map((order) => (
+          orders.map((order) => (
             <OrdersTableRow
               key={order.id}
               order={order}
