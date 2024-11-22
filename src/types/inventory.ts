@@ -62,6 +62,9 @@ export interface Order {
   payment_date?: string;
   commission_amount?: number;
   commission_percentage?: number;
+  payment_confirmation?: string;
+  next_payment_date?: string;
+  next_payment_details?: string;
   order_items?: OrderItem[];
 }
 

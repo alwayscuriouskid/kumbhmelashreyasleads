@@ -14,9 +14,9 @@ import { format } from "date-fns";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { DatePicker } from "@/components/ui/date-picker";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { TableColumnToggle } from "@/components/shared/TableColumnToggle";
+import { OrderDateFilters } from "@/components/orders/OrderDateFilters";
 import type { Order } from "@/types/inventory";
 
 const Orders = () => {
@@ -25,7 +25,8 @@ const Orders = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [teamMemberFilter, setTeamMemberFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [dateRange, setDateRange] = useState<Date>();
+  const [orderDate, setOrderDate] = useState<Date>();
+  const [nextPaymentDate, setNextPaymentDate] = useState<Date>();
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
   const [visibleColumns, setVisibleColumns] = useState({
     orderId: true,
@@ -36,6 +37,9 @@ const Orders = () => {
     paymentStatus: true,
     orderStatus: true,
     inventoryItems: true,
+    paymentConfirmation: true,
+    nextPaymentDate: true,
+    nextPaymentDetails: true,
   });
 
   const columns = [
@@ -47,7 +51,18 @@ const Orders = () => {
     { key: "paymentStatus", label: "Payment Status" },
     { key: "orderStatus", label: "Order Status" },
     { key: "inventoryItems", label: "Inventory Items" },
+    { key: "paymentConfirmation", label: "Payment Confirmation" },
+    { key: "nextPaymentDate", label: "Next Payment Date" },
+    { key: "nextPaymentDetails", label: "Next Payment Details" },
   ];
+
+  const handleDateFilterChange = (type: string, date: Date | undefined) => {
+    if (type === "orderDate") {
+      setOrderDate(date);
+    } else {
+      setNextPaymentDate(date);
+    }
+  };
 
   // Filter orders
   const filteredOrders = orders?.filter((order: Order) => {
@@ -55,7 +70,9 @@ const Orders = () => {
     if (teamMemberFilter !== "all" && order.team_member_id !== teamMemberFilter) return false;
     if (paymentStatusFilter !== "all" && order.payment_status !== paymentStatusFilter) return false;
     if (searchQuery && !order.customer_name?.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-    if (dateRange && new Date(order.created_at).toDateString() !== dateRange.toDateString()) return false;
+    if (orderDate && new Date(order.created_at).toDateString() !== orderDate.toDateString()) return false;
+    if (nextPaymentDate && order.next_payment_date && 
+        new Date(order.next_payment_date).toDateString() !== nextPaymentDate.toDateString()) return false;
     return true;
   });
 
@@ -115,13 +132,9 @@ const Orders = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-[250px]"
               />
-
-              <DatePicker
-                selected={dateRange}
-                onSelect={setDateRange}
-                placeholderText="Filter by date"
-              />
             </div>
+
+            <OrderDateFilters onDateFilterChange={handleDateFilterChange} />
 
             <TableColumnToggle
               columns={columns}
@@ -140,12 +153,15 @@ const Orders = () => {
                   {visibleColumns.paymentStatus && <TableHead>Payment Status</TableHead>}
                   {visibleColumns.orderStatus && <TableHead>Order Status</TableHead>}
                   {visibleColumns.inventoryItems && <TableHead>Inventory Items</TableHead>}
+                  {visibleColumns.paymentConfirmation && <TableHead>Payment Confirmation</TableHead>}
+                  {visibleColumns.nextPaymentDate && <TableHead>Next Payment Date</TableHead>}
+                  {visibleColumns.nextPaymentDetails && <TableHead>Next Payment Details</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center">
+                    <TableCell colSpan={11} className="text-center">
                       Loading...
                     </TableCell>
                   </TableRow>
@@ -212,6 +228,17 @@ const Orders = () => {
                             ))}
                           </div>
                         </TableCell>
+                      )}
+                      {visibleColumns.paymentConfirmation && (
+                        <TableCell>{order.payment_confirmation}</TableCell>
+                      )}
+                      {visibleColumns.nextPaymentDate && (
+                        <TableCell>
+                          {order.next_payment_date && format(new Date(order.next_payment_date), "PPP")}
+                        </TableCell>
+                      )}
+                      {visibleColumns.nextPaymentDetails && (
+                        <TableCell>{order.next_payment_details}</TableCell>
                       )}
                     </TableRow>
                   ))
