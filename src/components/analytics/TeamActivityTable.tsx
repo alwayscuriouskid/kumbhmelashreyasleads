@@ -5,70 +5,15 @@ import TeamActivityTableHeader from "./TeamActivityTableHeader";
 import TeamActivityRow from "./TeamActivityRow";
 import { Activity } from "@/types/leads";
 import { supabase } from "@/integrations/supabase/client";
-
-const dummyActivities: Activity[] = [
-  {
-    id: "1",
-    date: new Date().toISOString(),
-    time: "09:30",
-    type: "call",
-    description: "Initial contact call",
-    teamMember: "John Smith",
-    leadName: "ABC Corp",
-    statusChange: { from: "prospect", to: "negotiation" },
-    nextFollowUp: "2024-03-20",
-    followUpOutcome: "Positive response",
-    nextAction: "Send proposal",
-    activityOutcome: "Client interested in LED hoardings",
-    outcome: "Successful initial contact",
-    notes: "Client showed strong interest in our LED hoarding solutions",
-    assignedTo: "John Smith",
-    contactPerson: "Raj Kumar"
-  },
-  {
-    id: "2",
-    date: new Date().toISOString(),
-    time: "11:00",
-    type: "meeting",
-    description: "Proposal presentation",
-    teamMember: "Sarah Johnson",
-    leadName: "XYZ Ltd",
-    statusChange: { from: "negotiation", to: "analysis" },
-    nextFollowUp: "2024-03-22",
-    followUpOutcome: "Budget discussion pending",
-    nextAction: "Prepare revised quotation",
-    activityOutcome: "Client requested detailed pricing",
-    outcome: "Proposal presented successfully",
-    notes: "Client requested detailed breakdown of costs",
-    assignedTo: "Sarah Johnson",
-    contactPerson: "Priya Singh"
-  },
-  {
-    id: "3",
-    date: new Date().toISOString(),
-    time: "14:15",
-    type: "email",
-    description: "Quotation sent",
-    teamMember: "Mike Wilson",
-    leadName: "Tech Solutions",
-    statusChange: { from: "analysis", to: "conclusion" },
-    nextFollowUp: "2024-03-21",
-    followUpOutcome: "Awaiting response",
-    nextAction: "Follow up call",
-    activityOutcome: "Sent detailed pricing structure",
-    outcome: "Quotation sent successfully",
-    notes: "Detailed pricing structure sent as requested",
-    assignedTo: "Mike Wilson",
-    contactPerson: "Alex Thompson"
-  }
-];
+import { useToast } from "@/hooks/use-toast";
 
 const TeamActivityTable = () => {
-  const [activities, setActivities] = useState<Activity[]>(dummyActivities);
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedTeamMember, setSelectedTeamMember] = useState<string>('all');
   const [activityType, setActivityType] = useState<string>('all');
   const [leadSearch, setLeadSearch] = useState<string>('');
+  const { toast } = useToast();
   const [visibleColumns, setVisibleColumns] = useState({
     time: true,
     type: true,
@@ -82,9 +27,56 @@ const TeamActivityTable = () => {
     activityOutcome: true
   });
 
+  const fetchActivities = async () => {
+    try {
+      const { data: activitiesData, error: activitiesError } = await supabase
+        .from('activities')
+        .select(`
+          *,
+          lead:leads (
+            client_name,
+            next_follow_up,
+            follow_up_outcome,
+            next_action
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (activitiesError) throw activitiesError;
+
+      const transformedActivities = activitiesData.map(activity => ({
+        id: activity.id,
+        date: activity.created_at,
+        time: new Date(activity.created_at).toLocaleTimeString(),
+        type: activity.type,
+        description: activity.notes,
+        teamMember: activity.assigned_to,
+        leadName: activity.lead?.client_name,
+        nextFollowUp: activity.lead?.next_follow_up,
+        followUpOutcome: activity.lead?.follow_up_outcome,
+        nextAction: activity.lead?.next_action,
+        activityOutcome: activity.outcome,
+        outcome: activity.outcome,
+        notes: activity.notes,
+        assignedTo: activity.assigned_to,
+        contactPerson: activity.contact_person
+      }));
+
+      setActivities(transformedActivities);
+    } catch (error) {
+      console.error('Error fetching activities:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load activities",
+        variant: "destructive",
+      });
+    }
+  };
+
   useEffect(() => {
-    console.log("Setting up real-time subscription for team activities");
-    
+    fetchActivities();
+
+    // Subscribe to real-time updates
     const channel = supabase
       .channel('team-activities')
       .on(
@@ -96,21 +88,7 @@ const TeamActivityTable = () => {
         },
         (payload) => {
           console.log('Real-time activity update received:', payload);
-          
-          // Update activities based on the change type
-          if (payload.eventType === 'INSERT') {
-            setActivities(prev => [payload.new as Activity, ...prev]);
-          } else if (payload.eventType === 'UPDATE') {
-            setActivities(prev => 
-              prev.map(activity => 
-                activity.id === payload.new.id ? payload.new as Activity : activity
-              )
-            );
-          } else if (payload.eventType === 'DELETE') {
-            setActivities(prev => 
-              prev.filter(activity => activity.id !== payload.old.id)
-            );
-          }
+          fetchActivities(); // Refresh the entire list when we get an update
         }
       )
       .subscribe((status) => {
@@ -118,18 +96,9 @@ const TeamActivityTable = () => {
       });
 
     return () => {
-      console.log("Cleaning up team activities subscription");
       supabase.removeChannel(channel);
     };
   }, []);
-
-  console.log("Rendering TeamActivityTable with filters:", { 
-    selectedDate, 
-    selectedTeamMember, 
-    activityType,
-    leadSearch,
-    visibleColumns 
-  });
 
   return (
     <div className="space-y-4">

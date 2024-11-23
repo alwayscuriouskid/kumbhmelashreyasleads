@@ -41,12 +41,15 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson }: ActivityTrack
         throw activityError;
       }
 
-      // Then update the leads table
+      // Then update the leads table with the latest activity information
       const { error: leadError } = await supabase
         .from('leads')
         .update({
           next_action: activity.nextAction,
           follow_up_outcome: activity.outcome,
+          next_follow_up: activity.type === 'follow_up' ? 
+            new Date(activity.date || new Date()).toISOString().split('T')[0] : 
+            undefined,
           updated_at: new Date().toISOString()
         })
         .eq('id', leadId);
