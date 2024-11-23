@@ -22,7 +22,7 @@ const Layout = ({ children }: LayoutProps) => {
       >
         <ScrollArea className="h-screen w-full">
           <div className="p-2 sm:p-4 lg:p-8">
-            <main className="animate-fade-in max-w-[2000px] mx-auto">
+            <main className="animate-fade-in max-w-[1800px] mx-auto">
               {children}
             </main>
           </div>

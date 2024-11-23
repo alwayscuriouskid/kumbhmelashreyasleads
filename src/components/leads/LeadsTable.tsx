@@ -11,7 +11,7 @@ interface LeadsTableProps {
 
 const LeadsTable = ({ leads, visibleColumns, onUpdateLead, customStatuses }: LeadsTableProps) => {
   return (
-    <div className="table-container rounded-md border border-border">
+    <div className="table-container rounded-md border border-border overflow-x-auto pr-4">
       <Table>
         <TableHeader>
           <TableRow>
@@ -31,7 +31,7 @@ const LeadsTable = ({ leads, visibleColumns, onUpdateLead, customStatuses }: Lea
             {visibleColumns.priceQuoted && <TableHead>Price Quoted</TableHead>}
             {visibleColumns.nextAction && <TableHead>Next Action</TableHead>}
             {visibleColumns.followUpOutcome && <TableHead>Follow Up Outcome</TableHead>}
-            <TableHead className="w-[60px] sticky right-0 bg-background z-20">Actions</TableHead>
+            <TableHead className="w-[60px] sticky right-4 bg-background z-20">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

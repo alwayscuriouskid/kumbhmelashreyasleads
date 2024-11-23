@@ -83,7 +83,7 @@ const Leads = () => {
   }
 
   return (
-    <div className="space-y-4 w-full max-w-[calc(100vw-280px)]">
+    <div className="space-y-4 w-full max-w-[calc(100vw-280px)] pr-6">
       <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <LeadForm
