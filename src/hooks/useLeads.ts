@@ -94,10 +94,10 @@ export const useLeads = () => {
 
       if (error) {
         console.error("Error fetching leads:", error);
-        return dummyLeads; // Fallback to dummy data if fetch fails
+        return dummyLeads;
       }
 
-      const fetchedLeads = (data || []).map(dbToFrontend);
+      const fetchedLeads = (data as LeadDB[]).map(dbToFrontend);
       console.log("Fetched leads:", fetchedLeads);
       return fetchedLeads.length > 0 ? fetchedLeads : dummyLeads;
     }

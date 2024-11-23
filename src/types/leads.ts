@@ -63,7 +63,7 @@ export interface LeadDB {
   contact_person: string;
   phone: string;
   email: string;
-  requirement: Requirement;
+  requirement: unknown; // Changed from Requirement to unknown for safe type casting
   status: string;
   remarks: string | null;
   next_follow_up: string | null;
@@ -75,6 +75,7 @@ export interface LeadDB {
   follow_up_outcome: string | null;
   created_at: string | null;
   updated_at: string | null;
+  team_member_id?: string | null;
 }
 
 export interface Lead {
@@ -110,7 +111,7 @@ export const dbToFrontend = (lead: LeadDB): Lead => ({
   contactPerson: lead.contact_person,
   phone: lead.phone,
   email: lead.email,
-  requirement: lead.requirement,
+  requirement: (lead.requirement as Requirement) || {},
   status: lead.status,
   remarks: lead.remarks || '',
   nextFollowUp: lead.next_follow_up || undefined,
@@ -126,7 +127,7 @@ export const dbToFrontend = (lead: LeadDB): Lead => ({
   followUpOutcome: lead.follow_up_outcome || undefined
 });
 
-export const frontendToDB = (lead: Partial<Lead>): LeadDB => {
+export const frontendToDB = (lead: Partial<Lead>): Omit<LeadDB, 'requirement'> & { requirement: Requirement } => {
   // Validate required fields
   if (!lead.clientName || !lead.location || !lead.contactPerson || !lead.phone || !lead.email) {
     throw new Error('Missing required fields: clientName, location, contactPerson, phone, and email are required');
