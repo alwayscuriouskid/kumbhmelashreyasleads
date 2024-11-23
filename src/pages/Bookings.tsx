@@ -115,7 +115,7 @@ const Bookings = () => {
               onToggleColumn={(key) => setVisibleColumns(prev => ({ ...prev, [key]: !prev[key] }))}
             />
 
-            <ScrollArea className="rounded-md border">
+            <ScrollArea className="h-[calc(100vh-24rem)] w-full rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>

@@ -102,7 +102,7 @@ const Orders = () => {
               onDateFilterChange={handleDateFilterChange}
             />
             
-            <ScrollArea className="rounded-md border">
+            <ScrollArea className="h-[calc(100vh-24rem)] w-full rounded-md border">
               <OrdersTable
                 orders={filteredOrders || []}
                 isLoading={isLoading}
