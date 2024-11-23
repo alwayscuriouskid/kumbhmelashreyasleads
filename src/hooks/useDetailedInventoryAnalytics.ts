@@ -13,6 +13,8 @@ export interface DetailedInventoryAnalytics {
   dimensions: string | null;
   quantity: number;
   available_quantity: number;
+  sold_quantity: number;
+  maintenance_quantity: number;
   status: string;
   created_at: string;
   updated_at: string;
@@ -52,6 +54,9 @@ export const useDetailedInventoryAnalytics = () => {
 
       return data.map(item => {
         const bookedQuantity = (item.bookings?.[0]?.count as number) || 0;
+        const availableQty = item.quantity - bookedQuantity;
+        const soldQty = item.status === 'sold' ? item.quantity : 0;
+        const maintenanceQty = item.status === 'maintenance' ? item.quantity : 0;
         
         return {
           item_id: item.id,
@@ -64,7 +69,9 @@ export const useDetailedInventoryAnalytics = () => {
           ltc: item.ltc,
           dimensions: item.dimensions,
           quantity: item.quantity,
-          available_quantity: item.quantity - bookedQuantity,
+          available_quantity: availableQty,
+          sold_quantity: soldQty,
+          maintenance_quantity: maintenanceQty,
           status: item.status,
           created_at: item.created_at,
           updated_at: item.updated_at
