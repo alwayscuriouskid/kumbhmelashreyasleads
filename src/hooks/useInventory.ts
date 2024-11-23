@@ -80,6 +80,10 @@ export const useInventoryItems = () => {
           sectors (
             id, name,
             zones (id, name)
+          ),
+          bookings (
+            id,
+            status
           )
         `);
       
@@ -87,7 +91,12 @@ export const useInventoryItems = () => {
         console.error('Error fetching inventory items:', error);
         throw error;
       }
-      return data as unknown as InventoryItem[];
+
+      // Calculate available quantity by subtracting active bookings
+      return data.map(item => ({
+        ...item,
+        available_quantity: item.quantity - (item.bookings?.filter(b => b.status === 'confirmed').length || 0)
+      }));
     },
   });
 };

@@ -32,6 +32,7 @@ export const InventoryTable = () => {
     ltc: true,
     dimensions: true,
     quantity: true,
+    availableQuantity: true,
     status: true,
     sku: true,
   });
@@ -141,7 +142,8 @@ export const InventoryTable = () => {
               {visibleColumns.minPrice && <TableHead>Min Price</TableHead>}
               {visibleColumns.ltc && <TableHead>LTC</TableHead>}
               {visibleColumns.dimensions && <TableHead>Dimensions</TableHead>}
-              {visibleColumns.quantity && <TableHead>Quantity</TableHead>}
+              {visibleColumns.quantity && <TableHead>Total Quantity</TableHead>}
+              {visibleColumns.availableQuantity && <TableHead>Available Quantity</TableHead>}
               {visibleColumns.status && <TableHead>Status</TableHead>}
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
@@ -226,6 +228,11 @@ export const InventoryTable = () => {
                       })}
                       type="number"
                     />
+                  </TableCell>
+                )}
+                {visibleColumns.availableQuantity && (
+                  <TableCell>
+                    {item.available_quantity || item.quantity}
                   </TableCell>
                 )}
                 {visibleColumns.status && (

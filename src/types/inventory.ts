@@ -33,6 +33,7 @@ export interface InventoryItem {
   ltc?: number;
   dimensions?: string;
   quantity: number;
+  available_quantity?: number;
   sku?: string;
   inventory_types?: InventoryType;
   sectors?: { 
@@ -43,6 +44,10 @@ export interface InventoryItem {
       name: string 
     };
   };
+  bookings?: {
+    id: string;
+    status: string;
+  }[];
 }
 
 export interface Order {
