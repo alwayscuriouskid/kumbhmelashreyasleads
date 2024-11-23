@@ -11,7 +11,11 @@ import { Settings2 } from "lucide-react";
 import { useSectors, useDeleteSector } from "@/hooks/useInventory";
 import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
 
-export const ManageSectorDialog = () => {
+interface ManageSectorDialogProps {
+  children?: React.ReactNode;
+}
+
+export const ManageSectorDialog = ({ children }: ManageSectorDialogProps) => {
   const [open, setOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedSectorId, setSelectedSectorId] = useState<string | null>(null);
@@ -32,10 +36,12 @@ export const ManageSectorDialog = () => {
     <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" className="bg-background text-foreground">
-            <Settings2 className="mr-2 h-4 w-4" />
-            Manage Sectors
-          </Button>
+          {children || (
+            <Button variant="outline" className="bg-background text-foreground">
+              <Settings2 className="mr-2 h-4 w-4" />
+              Manage Sectors
+            </Button>
+          )}
         </DialogTrigger>
         <DialogContent className="max-w-md">
           <DialogHeader>

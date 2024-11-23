@@ -11,7 +11,11 @@ import { Settings2 } from "lucide-react";
 import { useZones, useDeleteZone } from "@/hooks/useInventory";
 import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
 
-export const ManageZoneDialog = () => {
+interface ManageZoneDialogProps {
+  children?: React.ReactNode;
+}
+
+export const ManageZoneDialog = ({ children }: ManageZoneDialogProps) => {
   const [open, setOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
@@ -32,10 +36,12 @@ export const ManageZoneDialog = () => {
     <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" className="bg-background text-foreground">
-            <Settings2 className="mr-2 h-4 w-4" />
-            Manage Zones
-          </Button>
+          {children || (
+            <Button variant="outline" className="bg-background text-foreground">
+              <Settings2 className="mr-2 h-4 w-4" />
+              Manage Zones
+            </Button>
+          )}
         </DialogTrigger>
         <DialogContent className="max-w-md">
           <DialogHeader>

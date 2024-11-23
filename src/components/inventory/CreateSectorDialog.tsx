@@ -15,7 +15,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useZones } from "@/hooks/useInventory";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export const CreateSectorDialog = ({ onSuccess }: { onSuccess: () => void }) => {
+interface CreateSectorDialogProps {
+  onSuccess: () => void;
+  children?: React.ReactNode;
+}
+
+export const CreateSectorDialog = ({ onSuccess, children }: CreateSectorDialogProps) => {
   const { data: zones } = useZones();
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -53,10 +58,12 @@ export const CreateSectorDialog = ({ onSuccess }: { onSuccess: () => void }) => 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="bg-background text-foreground">
-          <Plus className="mr-2 h-4 w-4" />
-          Add Sector
-        </Button>
+        {children || (
+          <Button variant="outline" className="bg-background text-foreground">
+            <Plus className="mr-2 h-4 w-4" />
+            Add Sector
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="bg-background">
         <DialogHeader>
