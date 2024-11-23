@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FollowUp, Activity } from "@/types/leads";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import ActivityList from "./ActivityList";
 
 interface LeadFollowUpsProps {
   leadId: string;
@@ -28,7 +29,49 @@ const LeadFollowUps = ({
   onLeadUpdate
 }: LeadFollowUpsProps) => {
   const [showNewForm, setShowNewForm] = useState(false);
+  const [activities, setActivities] = useState<Activity[]>([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    fetchActivities();
+  }, [leadId]);
+
+  const fetchActivities = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('activities')
+        .select('*')
+        .eq('lead_id', leadId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      console.log("Fetched activities:", data);
+      setActivities(data.map(activity => ({
+        id: activity.id,
+        type: activity.type,
+        date: activity.created_at,
+        notes: activity.notes || '',
+        outcome: activity.outcome || '',
+        startTime: activity.start_time,
+        endTime: activity.end_time,
+        assignedTo: activity.assigned_to || '',
+        nextAction: activity.next_action,
+        contactPerson: activity.contact_person || '',
+        location: activity.location,
+        callType: activity.call_type as 'incoming' | 'outgoing' | undefined
+      })));
+    } catch (error) {
+      console.error("Error fetching activities:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load activities",
+        variant: "destructive",
+      });
+    }
+  };
 
   const updateLeadTable = async (updates: any) => {
     try {
@@ -87,25 +130,8 @@ const LeadFollowUps = ({
 
   const handleActivityAdd = async (activity: Activity) => {
     console.log("Adding new activity:", activity);
-    
-    try {
-      // Update lead table with activity information
-      const updates = {
-        next_action: activity.nextAction,
-        follow_up_outcome: activity.outcome,
-        updated_at: new Date().toISOString()
-      };
-
-      await updateLeadTable(updates);
-      onActivityAdd?.(activity);
-    } catch (error) {
-      console.error("Failed to add activity:", error);
-      toast({
-        title: "Error",
-        description: "Failed to add activity",
-        variant: "destructive",
-      });
-    }
+    setActivities(prev => [activity, ...prev]);
+    onActivityAdd?.(activity);
   };
 
   return (
@@ -152,36 +178,62 @@ const LeadFollowUps = ({
 
       <ScrollArea className="h-[400px] w-full rounded-md border">
         <div className="space-y-3 p-2 sm:p-4">
-          {followUps.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">No follow-ups yet</p>
+          {activities.length === 0 && followUps.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-8">No activities or follow-ups yet</p>
           ) : (
-            followUps.map((followUp) => (
-              <Card key={followUp.id} className="animate-fade-in">
-                <CardHeader className="p-3 sm:p-4 space-y-1">
-                  <div className="flex flex-row justify-between items-start gap-2 flex-wrap">
-                    <CardTitle className="text-sm font-medium">
-                      {new Date(followUp.date).toLocaleDateString()}
-                    </CardTitle>
-                    {followUp.nextFollowUpDate && (
-                      <span className="text-xs text-muted-foreground">
-                        Next: {new Date(followUp.nextFollowUpDate).toLocaleDateString()}
-                      </span>
+            <>
+              {activities.map((activity) => (
+                <Card key={activity.id} className="animate-fade-in">
+                  <CardHeader className="p-3 sm:p-4 space-y-1">
+                    <div className="flex flex-row justify-between items-start gap-2 flex-wrap">
+                      <CardTitle className="text-sm font-medium">
+                        {new Date(activity.date).toLocaleDateString()} - {activity.type}
+                      </CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-3 sm:p-4 pt-0">
+                    <p className="text-sm break-words">{activity.notes}</p>
+                    {activity.outcome && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Outcome: {activity.outcome}
+                      </p>
                     )}
-                  </div>
-                </CardHeader>
-                <CardContent className="p-3 sm:p-4 pt-0">
-                  <p className="text-sm break-words">{followUp.notes}</p>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Outcome: {followUp.outcome}
-                  </p>
-                  {followUp.assignedTo && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Assigned to: {followUp.assignedTo}
+                    {activity.assignedTo && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Assigned to: {activity.assignedTo}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+              {followUps.map((followUp) => (
+                <Card key={followUp.id} className="animate-fade-in">
+                  <CardHeader className="p-3 sm:p-4 space-y-1">
+                    <div className="flex flex-row justify-between items-start gap-2 flex-wrap">
+                      <CardTitle className="text-sm font-medium">
+                        {new Date(followUp.date).toLocaleDateString()}
+                      </CardTitle>
+                      {followUp.nextFollowUpDate && (
+                        <span className="text-xs text-muted-foreground">
+                          Next: {new Date(followUp.nextFollowUpDate).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-3 sm:p-4 pt-0">
+                    <p className="text-sm break-words">{followUp.notes}</p>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Outcome: {followUp.outcome}
                     </p>
-                  )}
-                </CardContent>
-              </Card>
-            ))
+                    {followUp.assignedTo && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Assigned to: {followUp.assignedTo}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </>
           )}
         </div>
       </ScrollArea>

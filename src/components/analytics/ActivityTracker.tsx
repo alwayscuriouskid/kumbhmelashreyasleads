@@ -17,22 +17,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson }: ActivityTrack
     console.log("Updating lead with activity data:", activity);
     
     try {
-      // First update the leads table
-      const { error: leadError } = await supabase
-        .from('leads')
-        .update({
-          next_action: activity.nextAction,
-          follow_up_outcome: activity.outcome,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', leadId);
-
-      if (leadError) {
-        console.error("Error updating lead with activity data:", leadError);
-        throw leadError;
-      }
-
-      // Then store the activity in activities table
+      // First store the activity in activities table
       const { data: activityData, error: activityError } = await supabase
         .from('activities')
         .insert({
@@ -56,7 +41,22 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson }: ActivityTrack
         throw activityError;
       }
 
-      console.log("Successfully updated lead and stored activity:", activityData);
+      // Then update the leads table
+      const { error: leadError } = await supabase
+        .from('leads')
+        .update({
+          next_action: activity.nextAction,
+          follow_up_outcome: activity.outcome,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', leadId);
+
+      if (leadError) {
+        console.error("Error updating lead with activity data:", leadError);
+        throw leadError;
+      }
+
+      console.log("Successfully stored activity and updated lead:", activityData);
       return activityData;
     } catch (error) {
       console.error("Failed to update lead with activity data:", error);
@@ -73,7 +73,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson }: ActivityTrack
     console.log("Submitting new activity:", formData);
     
     try {
-      // First update the lead table and store activity
+      // First store activity and update lead
       const activityData = await updateLeadWithActivityData(formData);
       
       // Then notify parent component with complete activity data
