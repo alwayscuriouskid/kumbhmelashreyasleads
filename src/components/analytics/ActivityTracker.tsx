@@ -47,9 +47,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson }: ActivityTrack
         .update({
           next_action: activity.nextAction,
           follow_up_outcome: activity.outcome,
-          next_follow_up: activity.type === 'follow_up' ? 
-            new Date(activity.date || new Date()).toISOString().split('T')[0] : 
-            undefined,
+          next_follow_up: activity.nextFollowUpDate || null,
           updated_at: new Date().toISOString()
         })
         .eq('id', leadId);
