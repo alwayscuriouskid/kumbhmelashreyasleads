@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Note } from "@/types/notes";
+import { Note, dbToNote } from "@/types/notes";
 import { useToast } from "@/components/ui/use-toast";
 
 export const useNotesOperations = (
@@ -19,9 +19,9 @@ export const useNotesOperations = (
       if (error) throw error;
 
       console.log("Fetched notes:", data);
-      setNotes(data || []);
+      const formattedNotes = data?.map(dbToNote) || [];
+      setNotes(formattedNotes);
       
-      // Extract unique categories and tags
       const uniqueCategories = [...new Set(data?.map(note => note.category).filter(Boolean))];
       const uniqueTags = [...new Set(data?.flatMap(note => note.tags || []))];
       
@@ -42,21 +42,25 @@ export const useNotesOperations = (
       console.log("Creating note:", noteData);
       const { data, error } = await supabase
         .from('notes')
-        .insert([noteData])
+        .insert([{
+          ...noteData,
+          position: JSON.stringify(noteData.position)
+        }])
         .select()
         .single();
 
       if (error) throw error;
 
       console.log("Created note:", data);
-      setNotes(prev => [data, ...prev]);
+      const formattedNote = dbToNote(data);
+      setNotes(prev => [formattedNote, ...prev]);
       
       toast({
         title: "Success",
         description: "Note created successfully",
       });
 
-      return data;
+      return formattedNote;
     } catch (error) {
       console.error("Error creating note:", error);
       toast({
@@ -72,7 +76,10 @@ export const useNotesOperations = (
       console.log("Updating note:", updatedNote);
       const { data, error } = await supabase
         .from('notes')
-        .update(updatedNote)
+        .update({
+          ...updatedNote,
+          position: JSON.stringify(updatedNote.position)
+        })
         .eq('id', updatedNote.id)
         .select()
         .single();
@@ -80,14 +87,15 @@ export const useNotesOperations = (
       if (error) throw error;
 
       console.log("Updated note:", data);
-      setNotes(prev => prev.map(note => note.id === data.id ? data : note));
+      const formattedNote = dbToNote(data);
+      setNotes(prev => prev.map(note => note.id === formattedNote.id ? formattedNote : note));
       
       toast({
         title: "Success",
         description: "Note updated successfully",
       });
 
-      return data;
+      return formattedNote;
     } catch (error) {
       console.error("Error updating note:", error);
       toast({

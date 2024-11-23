@@ -19,18 +19,17 @@ const Templates = () => {
     return matchesSearch;
   });
 
-  const handleCreateNote = (noteData: Omit<Note, "id" | "createdAt">) => {
-    const newNote: Note = {
-      ...noteData,
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-      ...DEFAULT_NOTE_SIZE,
-    };
-    
-    setNotes(prevNotes => [newNote, ...prevNotes]);
-    console.log("New template created:", newNote);
+const handleCreateNote = (noteData: Omit<Note, "id" | "created_at">) => {
+  const newNote: Omit<Note, "id"> = {
+    ...noteData,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    ...DEFAULT_NOTE_SIZE,
   };
-
+  
+  setNotes(prevNotes => [{ ...newNote, id: crypto.randomUUID() }, ...prevNotes]);
+  console.log("New template created:", newNote);
+};
   const handleUpdateNote = (updatedNote: Note) => {
     setNotes(notes.map((note) => (note.id === updatedNote.id ? updatedNote : note)));
     console.log("Template updated:", updatedNote);

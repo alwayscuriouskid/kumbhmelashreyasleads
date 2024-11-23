@@ -19,15 +19,15 @@ const Notes = () => {
     return matchesSearch;
   });
 
-  const handleCreateNote = (noteData: Omit<Note, "id" | "createdAt">) => {
-    const newNote: Note = {
+  const handleCreateNote = (noteData: Omit<Note, "id" | "created_at">) => {
+    const newNote: Omit<Note, "id"> = {
       ...noteData,
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
       ...DEFAULT_NOTE_SIZE,
     };
     
-    setNotes(prevNotes => [newNote, ...prevNotes]);
+    setNotes(prevNotes => [{ ...newNote, id: crypto.randomUUID() }, ...prevNotes]);
     console.log("New note created:", newNote);
   };
 

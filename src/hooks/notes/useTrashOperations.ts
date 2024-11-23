@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Note } from "@/types/notes";
+import { Note, dbToNote } from "@/types/notes";
 import { useToast } from "@/components/ui/use-toast";
 
 export const useTrashOperations = (
@@ -45,7 +45,7 @@ export const useTrashOperations = (
       if (error) throw error;
 
       console.log("Fetched trashed notes:", data);
-      return data;
+      return data?.map(dbToNote) || [];
     } catch (error) {
       console.error("Error fetching trashed notes:", error);
       toast({
@@ -70,7 +70,8 @@ export const useTrashOperations = (
       if (error) throw error;
 
       console.log("Restored note:", data);
-      setNotes(prev => [data, ...prev]);
+      const formattedNote = dbToNote(data);
+      setNotes(prev => [formattedNote, ...prev]);
       
       toast({
         title: "Success",
