@@ -15,6 +15,7 @@ import {
   LineChart,
   ChevronLeft,
   ChevronRight,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -36,6 +37,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }: SidebarProps) => {
     { path: "/team-activities", icon: Activity, label: "Team Activities" },
     { path: "/notes", icon: FileText, label: "Notes" },
     { path: "/templates", icon: FolderKanban, label: "Templates" },
+    { path: "/trash", icon: Trash2, label: "Trash" },
     { path: "/todo", icon: ListTodo, label: "Todo" },
     { path: "/files", icon: FileStack, label: "Files" },
     { path: "/inventory", icon: Package, label: "Inventory" },

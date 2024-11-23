@@ -6,6 +6,9 @@ import { useToast } from "@/components/ui/use-toast";
 import { NoteHeader } from "./NoteHeader";
 import { NoteTags } from "./NoteTags";
 import { MINIMUM_NOTE_SIZE } from "@/utils/notePositioning";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
+import { useNotes } from "@/hooks/useNotes";
 
 interface NoteCardProps {
   note: Note;
@@ -22,6 +25,7 @@ const NoteCard = ({ note, onUpdate, categories, tags, onAddCategory }: NoteCardP
   const [isResizing, setIsResizing] = useState(false);
   const { toast } = useToast();
   const nodeRef = useRef(null);
+  const { deleteNote } = useNotes();
 
   useEffect(() => {
     setEditedNote(note);
@@ -93,6 +97,10 @@ const NoteCard = ({ note, onUpdate, categories, tags, onAddCategory }: NoteCardP
     document.addEventListener('mouseup', handleMouseUp);
   };
 
+  const handleDelete = async () => {
+    await deleteNote(note.id);
+  };
+
   return (
     <div 
       ref={nodeRef} 
@@ -105,16 +113,28 @@ const NoteCard = ({ note, onUpdate, categories, tags, onAddCategory }: NoteCardP
       <Card className="note-card group hover:border-primary/50 transition-colors w-full h-full overflow-hidden rounded-lg relative">
         <div className="absolute inset-x-0 top-0 h-6 bg-background/80 backdrop-blur-sm" />
         <CardHeader className="space-y-1 pt-8">
-          <NoteHeader
-            isEditing={isEditing}
-            editedNote={editedNote}
-            setEditedNote={setEditedNote}
-            setIsEditing={setIsEditing}
-            handleSave={handleSave}
-            categories={categories}
-            originalNote={note}
-            onAddCategory={onAddCategory}
-          />
+          <div className="flex items-center justify-between">
+            <NoteHeader
+              isEditing={isEditing}
+              editedNote={editedNote}
+              setEditedNote={setEditedNote}
+              setIsEditing={setIsEditing}
+              handleSave={handleSave}
+              categories={categories}
+              originalNote={note}
+              onAddCategory={onAddCategory}
+            />
+            {!note.deleted_at && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={handleDelete}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent className="overflow-y-auto" style={{ maxHeight: 'calc(100% - 140px)' }}>
           {isEditing ? (
@@ -143,14 +163,16 @@ const NoteCard = ({ note, onUpdate, categories, tags, onAddCategory }: NoteCardP
             availableTags={tags}
           />
         </CardFooter>
-        <div
-          className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize"
-          onMouseDown={handleResize}
-          style={{
-            background: 'transparent',
-            transform: 'translate(50%, 50%)'
-          }}
-        />
+        {!note.deleted_at && (
+          <div
+            className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize"
+            onMouseDown={handleResize}
+            style={{
+              background: 'transparent',
+              transform: 'translate(50%, 50%)'
+            }}
+          />
+        )}
       </Card>
     </div>
   );

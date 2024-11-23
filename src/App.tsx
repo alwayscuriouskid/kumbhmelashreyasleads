@@ -13,6 +13,7 @@ import LeadAnalytics from "./pages/LeadAnalytics";
 import TeamActivities from "./pages/TeamActivities";
 import Notes from "./pages/Notes";
 import Templates from "./pages/Templates";
+import Trash from "./pages/Trash";
 import Todo from "./pages/Todo";
 import Files from "./pages/Files";
 import FolderView from "./components/files/FolderView";
@@ -98,6 +99,16 @@ const App = () => {
                   <ProtectedRoute>
                     <Layout>
                       <Templates />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/trash"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Trash />
                     </Layout>
                   </ProtectedRoute>
                 }

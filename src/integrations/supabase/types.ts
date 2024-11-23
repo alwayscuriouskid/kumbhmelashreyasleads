@@ -460,6 +460,48 @@ export type Database = {
           },
         ]
       }
+      notes: {
+        Row: {
+          category: string | null
+          content: string
+          created_at: string | null
+          deleted_at: string | null
+          height: number | null
+          id: string
+          position: Json | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          width: number | null
+        }
+        Insert: {
+          category?: string | null
+          content: string
+          created_at?: string | null
+          deleted_at?: string | null
+          height?: number | null
+          id?: string
+          position?: Json | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          width?: number | null
+        }
+        Update: {
+          category?: string | null
+          content?: string
+          created_at?: string | null
+          deleted_at?: string | null
+          height?: number | null
+          id?: string
+          position?: Json | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          width?: number | null
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string | null
