@@ -1,8 +1,8 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { TableColumnToggle } from "@/components/shared/TableColumnToggle";
+import { DatePicker } from "@/components/ui/date-picker";
 import { useState } from "react";
 import { useTeamMemberOptions } from "@/hooks/useTeamMemberOptions";
 
@@ -17,6 +17,8 @@ interface TeamActivityFiltersProps {
   onLeadSearchChange: (value: string) => void;
   visibleColumns: Record<string, boolean>;
   onToggleColumn: (columnKey: string) => void;
+  sortBy: string;
+  onSortChange: (value: string) => void;
 }
 
 const TeamActivityFilters = ({
@@ -30,13 +32,15 @@ const TeamActivityFilters = ({
   onLeadSearchChange,
   visibleColumns,
   onToggleColumn,
+  sortBy,
+  onSortChange,
 }: TeamActivityFiltersProps) => {
   const [dateFilterType, setDateFilterType] = useState("all");
   const [customStartDate, setCustomStartDate] = useState<Date>();
   const [customEndDate, setCustomEndDate] = useState<Date>();
-  const { data: teamMembers, isLoading: isLoadingTeamMembers } = useTeamMemberOptions();
+  const { data: teamMembers } = useTeamMemberOptions();
 
-  console.log("Rendering TeamActivityFilters with team members:", teamMembers);
+  console.log("Rendering TeamActivityFilters with sort option:", sortBy);
 
   const columns = [
     { key: "time", label: "Time" },
@@ -113,6 +117,18 @@ const TeamActivityFilters = ({
             <SelectItem value="call">Calls</SelectItem>
             <SelectItem value="meeting">Meetings</SelectItem>
             <SelectItem value="email">Emails</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={sortBy} onValueChange={onSortChange}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="date_desc">Date (Newest First)</SelectItem>
+            <SelectItem value="date_asc">Date (Oldest First)</SelectItem>
+            <SelectItem value="follow_up_desc">Follow-up Date (Latest First)</SelectItem>
+            <SelectItem value="follow_up_asc">Follow-up Date (Earliest First)</SelectItem>
           </SelectContent>
         </Select>
 
