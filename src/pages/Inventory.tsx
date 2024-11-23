@@ -6,7 +6,6 @@ import { CreateInventoryDialog } from "@/components/inventory/CreateInventoryDia
 import { CreateTypeDialog } from "@/components/inventory/CreateTypeDialog";
 import { CreateZoneDialog } from "@/components/inventory/CreateZoneDialog";
 import { CreateSectorDialog } from "@/components/inventory/CreateSectorDialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Inventory = () => {
   const { data: items, refetch } = useInventoryItems();
@@ -40,9 +39,7 @@ const Inventory = () => {
           <CardTitle>Inventory Items</CardTitle>
         </CardHeader>
         <CardContent>
-          <ScrollArea className="h-[calc(100vh-24rem)] w-full rounded-md">
-            <InventoryTable />
-          </ScrollArea>
+          <InventoryTable />
         </CardContent>
       </Card>
     </div>

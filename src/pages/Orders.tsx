@@ -5,7 +5,6 @@ import { useState } from "react";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { OrdersFilters } from "@/components/orders/OrdersFilters";
 import { OrdersTable } from "@/components/orders/OrdersTable";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { format, isEqual } from "date-fns";
 
 const Orders = () => {
@@ -102,15 +101,13 @@ const Orders = () => {
               onDateFilterChange={handleDateFilterChange}
             />
             
-            <ScrollArea className="h-[calc(100vh-24rem)] w-full rounded-md border">
-              <OrdersTable
-                orders={filteredOrders || []}
-                isLoading={isLoading}
-                visibleColumns={visibleColumns}
-                teamMembers={teamMembers || []}
-                onOrderUpdate={refetch}
-              />
-            </ScrollArea>
+            <OrdersTable
+              orders={filteredOrders || []}
+              isLoading={isLoading}
+              visibleColumns={visibleColumns}
+              teamMembers={teamMembers || []}
+              onOrderUpdate={refetch}
+            />
           </div>
         </CardContent>
       </Card>
