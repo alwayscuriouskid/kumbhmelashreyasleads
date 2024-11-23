@@ -7,10 +7,10 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { OrderForm } from "./OrderForm";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import { OrderForm } from "./OrderForm";
 
 interface CreateOrderDialogProps {
   onSuccess: () => void;
@@ -21,17 +21,6 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
 
   const handleCreateOrder = async (formData: any) => {
     try {
-      // Calculate total amount from selected items
-      const { data: items } = await supabase
-        .from("inventory_items")
-        .select("id, current_price")
-        .in("id", formData.selectedItems);
-
-      const totalAmount = items?.reduce(
-        (sum, item) => sum + Number(item.current_price),
-        0
-      );
-
       // Create the order
       const { data: order, error: orderError } = await supabase
         .from("orders")
@@ -45,7 +34,7 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
             payment_method: formData.paymentMethod,
             payment_terms: formData.paymentTerms,
             notes: formData.notes,
-            total_amount: totalAmount,
+            total_amount: formData.totalAmount,
             status: "pending",
           },
         ])
@@ -54,11 +43,12 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
 
       if (orderError) throw orderError;
 
-      // Create order items
+      // Create order items with quantities
       const orderItems = formData.selectedItems.map((itemId: string) => ({
         order_id: order.id,
         inventory_item_id: itemId,
-        price: items?.find((item) => item.id === itemId)?.current_price || 0,
+        quantity: formData.quantities[itemId] || 1,
+        price: formData.quantities[itemId] || 1,
       }));
 
       const { error: itemsError } = await supabase

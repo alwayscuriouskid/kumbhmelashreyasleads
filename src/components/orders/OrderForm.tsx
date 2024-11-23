@@ -23,6 +23,7 @@ interface OrderFormProps {
 export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
   const { data: inventoryItems } = useInventoryItems();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [formData, setFormData] = useState({
     customerName: "",
     customerEmail: "",
@@ -34,12 +35,14 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
     notes: "",
   });
 
-  // Calculate total bill based on selected items
+  // Calculate total bill based on selected items and their quantities
   const totalBill = useMemo(() => {
-    return inventoryItems
-      ?.filter(item => selectedItems.includes(item.id))
-      .reduce((sum, item) => sum + Number(item.current_price), 0) || 0;
-  }, [selectedItems, inventoryItems]);
+    return selectedItems.reduce((sum, itemId) => {
+      const item = inventoryItems?.find(i => i.id === itemId);
+      const quantity = quantities[itemId] || 1;
+      return sum + ((item?.current_price || 0) * quantity);
+    }, 0);
+  }, [selectedItems, quantities, inventoryItems]);
 
   // Get selected items details for display
   const selectedItemsDetails = useMemo(() => {
@@ -64,11 +67,39 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
       });
       return;
     }
-    onSubmit({ ...formData, selectedItems });
+
+    // Validate quantities
+    for (const itemId of selectedItems) {
+      const item = inventoryItems?.find(i => i.id === itemId);
+      const requestedQuantity = quantities[itemId] || 1;
+      
+      if (item && requestedQuantity > (item.available_quantity || 0)) {
+        toast({
+          title: "Error",
+          description: `Only ${item.available_quantity} units available for ${item.inventory_types?.name}`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    onSubmit({ 
+      ...formData, 
+      selectedItems,
+      quantities,
+      totalAmount: totalBill
+    });
   };
 
   const handleFormChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleQuantityChange = (itemId: string, quantity: number) => {
+    setQuantities(prev => ({
+      ...prev,
+      [itemId]: quantity
+    }));
   };
 
   return (
@@ -98,20 +129,29 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
             />
           </div>
 
-          {selectedItemsDetails.length > 0 && (
-            <div className="space-y-2">
+          {selectedItems.length > 0 && (
+            <div className="space-y-4">
               <Label>Selected Items</Label>
-              <div className="space-y-2">
-                {selectedItemsDetails.map(item => (
-                  <div key={item.id} className="flex justify-between p-2 bg-muted rounded">
-                    <span>{item.inventory_types?.name} - {item.sku}</span>
-                    <span>₹{item.current_price}</span>
+              {selectedItemsDetails.map(item => (
+                <div key={item.id} className="flex items-center justify-between p-2 bg-muted rounded">
+                  <span>{item.inventory_types?.name} - {item.sku}</span>
+                  <div className="flex items-center gap-4">
+                    <span>Available: {item.available_quantity}</span>
+                    <Input
+                      type="number"
+                      min="1"
+                      max={item.available_quantity}
+                      value={quantities[item.id] || 1}
+                      onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value))}
+                      className="w-24"
+                    />
+                    <span>₹{item.current_price * (quantities[item.id] || 1)}</span>
                   </div>
-                ))}
-                <div className="flex justify-between p-2 font-bold bg-primary/5 rounded">
-                  <span>Total Bill:</span>
-                  <span>₹{totalBill}</span>
                 </div>
+              ))}
+              <div className="flex justify-between p-2 font-bold bg-primary/5 rounded">
+                <span>Total Bill:</span>
+                <span>₹{totalBill}</span>
               </div>
             </div>
           )}

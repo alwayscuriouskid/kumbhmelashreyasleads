@@ -27,6 +27,7 @@ export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [formData, setFormData] = useState({
     customerName: "",
     customerEmail: "",
@@ -40,7 +41,8 @@ export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
   const calculateTotalAmount = () => {
     return selectedItems.reduce((total, itemId) => {
       const item = inventoryItems?.find(item => item.id === itemId);
-      return total + (item?.current_price || 0);
+      const quantity = quantities[itemId] || 1;
+      return total + ((item?.current_price || 0) * quantity);
     }, 0);
   };
 
@@ -71,18 +73,43 @@ export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
       return;
     }
 
-    onSubmit({
+    // Validate quantities
+    for (const itemId of selectedItems) {
+      const item = inventoryItems?.find(i => i.id === itemId);
+      const requestedQuantity = quantities[itemId] || 1;
+      
+      if (item && requestedQuantity > (item.available_quantity || 0)) {
+        toast({
+          title: "Error",
+          description: `Only ${item.available_quantity} units available for ${item.inventory_types?.name}`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    const bookingData = selectedItems.map(itemId => ({
       ...formData,
-      selectedItems,
+      inventory_item_id: itemId,
+      quantity: quantities[itemId] || 1,
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
       teamMemberName: formData.assignedTo,
-      payment_amount: calculateTotalAmount(),
-    });
+      payment_amount: (inventoryItems?.find(i => i.id === itemId)?.current_price || 0) * (quantities[itemId] || 1),
+    }));
+
+    onSubmit(bookingData);
   };
 
   const handleFormChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleQuantityChange = (itemId: string, quantity: number) => {
+    setQuantities(prev => ({
+      ...prev,
+      [itemId]: quantity
+    }));
   };
 
   return (
@@ -111,6 +138,28 @@ export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
               onItemSelect={setSelectedItems}
             />
           </div>
+
+          {selectedItems.length > 0 && (
+            <div className="space-y-4">
+              <Label>Selected Items Quantities</Label>
+              {selectedItems.map(itemId => {
+                const item = inventoryItems?.find(i => i.id === itemId);
+                return (
+                  <div key={itemId} className="flex items-center gap-4">
+                    <span className="flex-grow">{item?.inventory_types?.name} (Available: {item?.available_quantity})</span>
+                    <Input
+                      type="number"
+                      min="1"
+                      max={item?.available_quantity}
+                      value={quantities[itemId] || 1}
+                      onChange={(e) => handleQuantityChange(itemId, parseInt(e.target.value))}
+                      className="w-24"
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -150,7 +199,7 @@ export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
               <SelectTrigger>
                 <SelectValue placeholder="Select payment method" />
               </SelectTrigger>
-              <SelectContent className="z-[60]">
+              <SelectContent>
                 <SelectItem value="cash">Cash</SelectItem>
                 <SelectItem value="card">Card</SelectItem>
                 <SelectItem value="upi">UPI</SelectItem>
