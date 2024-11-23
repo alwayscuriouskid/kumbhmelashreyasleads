@@ -22,7 +22,7 @@ const PendingActionsTab = () => {
   const [selectedTeamMember, setSelectedTeamMember] = useState<string>("all");
   const [selectedActionType, setSelectedActionType] = useState<string>("all");
   const [selectedDate, setSelectedDate] = useState<Date>();
-  const { data: teamMembers } = useTeamMemberOptions();
+  const { data: teamMembers = [] } = useTeamMemberOptions();
 
   const { data: pendingActions, isLoading } = useQuery({
     queryKey: ['pending-actions', selectedTeamMember, selectedActionType, selectedDate],
@@ -101,7 +101,7 @@ const PendingActionsTab = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Team Members</SelectItem>
-            {teamMembers?.map(member => (
+            {teamMembers.map((member: { id: string; name: string }) => (
               <SelectItem key={member.id} value={member.id}>
                 {member.name}
               </SelectItem>
