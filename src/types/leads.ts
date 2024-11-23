@@ -101,6 +101,9 @@ export interface Lead {
   priceQuoted?: number;
   nextAction?: string;
   followUpOutcome?: string;
+  conversion_status?: string;
+  conversion_type?: string;
+  conversion_date?: string;
 }
 
 export const dbToFrontend = (lead: LeadDB): Lead => ({

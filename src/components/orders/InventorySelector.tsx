@@ -8,10 +8,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 interface InventorySelectorProps {
   selectedItems: string[];
   onItemSelect: (itemIds: string[]) => void;
+  quantities?: Record<string, number>;
+  onQuantityChange?: (quantities: Record<string, number>) => void;
   maxItems?: number;
 }
 
-export const InventorySelector = ({ selectedItems, onItemSelect, maxItems }: InventorySelectorProps) => {
+export const InventorySelector = ({ 
+  selectedItems, 
+  onItemSelect, 
+  quantities = {}, 
+  onQuantityChange,
+  maxItems 
+}: InventorySelectorProps) => {
   const { data: inventoryItems } = useInventoryItems();
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -37,6 +45,15 @@ export const InventorySelector = ({ selectedItems, onItemSelect, maxItems }: Inv
       } else {
         onItemSelect([...selectedItems, itemId]);
       }
+    }
+  };
+
+  const handleQuantityChange = (itemId: string, quantity: number) => {
+    if (onQuantityChange) {
+      onQuantityChange({
+        ...quantities,
+        [itemId]: quantity
+      });
     }
   };
 
@@ -112,6 +129,20 @@ export const InventorySelector = ({ selectedItems, onItemSelect, maxItems }: Inv
             <div className="text-sm text-muted-foreground">
               Zone: {item.sectors?.zones?.name}
             </div>
+            {selectedItems.includes(item.id) && onQuantityChange && (
+              <div className="mt-2">
+                <Label>Quantity</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  max={item.quantity}
+                  value={quantities[item.id] || 1}
+                  onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value))}
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-24 mt-1"
+                />
+              </div>
+            )}
           </Card>
         ))}
       </div>
