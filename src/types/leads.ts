@@ -1,3 +1,5 @@
+import { Json } from "@/integrations/supabase/types";
+
 export interface Requirement {
   hoardings?: number;
   entryGates?: number;
@@ -63,7 +65,7 @@ export interface LeadDB {
   contact_person: string;
   phone: string;
   email: string;
-  requirement: unknown; 
+  requirement: Json;
   status: string;
   remarks: string | null;
   next_follow_up: string | null;
@@ -76,6 +78,9 @@ export interface LeadDB {
   created_at: string | null;
   updated_at: string | null;
   team_member_id?: string | null;
+  conversion_status?: string | null;
+  conversion_date?: string | null;
+  conversion_type?: string | null;
 }
 
 export interface Lead {
@@ -114,7 +119,7 @@ export const dbToFrontend = (lead: LeadDB): Lead => ({
   contactPerson: lead.contact_person,
   phone: lead.phone,
   email: lead.email,
-  requirement: (lead.requirement as Requirement) || {},
+  requirement: lead.requirement as Requirement,
   status: lead.status,
   remarks: lead.remarks || '',
   nextFollowUp: lead.next_follow_up || undefined,
@@ -142,7 +147,7 @@ export const frontendToDB = (lead: Partial<Lead>): Omit<LeadDB, 'id'> => {
     contact_person: lead.contactPerson,
     phone: lead.phone,
     email: lead.email,
-    requirement: lead.requirement || {},
+    requirement: lead.requirement as Json || {},
     status: lead.status || 'pending',
     remarks: lead.remarks || null,
     next_follow_up: lead.nextFollowUp || null,
@@ -154,6 +159,10 @@ export const frontendToDB = (lead: Partial<Lead>): Omit<LeadDB, 'id'> => {
     follow_up_outcome: lead.followUpOutcome || null,
     date: lead.date || new Date().toISOString().split('T')[0],
     created_at: lead.createdAt || new Date().toISOString(),
-    updated_at: new Date().toISOString()
+    updated_at: new Date().toISOString(),
+    team_member_id: null,
+    conversion_status: null,
+    conversion_date: null,
+    conversion_type: null
   };
 };

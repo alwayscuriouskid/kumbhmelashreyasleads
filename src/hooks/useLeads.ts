@@ -112,7 +112,7 @@ export const useLeads = () => {
         
         const { data, error } = await supabase
           .from('leads')
-          .insert([dbLead])
+          .insert(dbLead)
           .select()
           .single();
 
