@@ -1,18 +1,24 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DatePicker } from "@/components/ui/date-picker";
+import { useState } from "react";
 
 const DetailedLeadMetrics = () => {
+  const [timeRange, setTimeRange] = useState("today");
+  const [startDate, setStartDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date>();
+
   const { data: metrics, isLoading } = useQuery({
-    queryKey: ['detailed-lead-metrics'],
+    queryKey: ['detailed-lead-metrics', timeRange, startDate, endDate],
     queryFn: async () => {
-      console.log("Fetching detailed lead metrics");
+      console.log("Fetching detailed lead metrics with filters:", { timeRange, startDate, endDate });
       
       // For preview, return dummy data
       return {
         totalLeads: 120,
         activeLeads: 85,
-        avgResponseTime: 3600000, // 1 hour in milliseconds
         conversionRate: 24,
         avgBudget: 650000,
         requirementTypes: {
@@ -51,20 +57,6 @@ const DetailedLeadMetrics = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm font-medium">Avg. Response Time</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {Math.round((metrics?.avgResponseTime || 0) / (1000 * 60 * 60))}h
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Average time to first response
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
           <CardTitle className="text-sm font-medium">Avg. Budget Size</CardTitle>
         </CardHeader>
         <CardContent>
@@ -78,8 +70,36 @@ const DetailedLeadMetrics = () => {
       </Card>
 
       <Card className="md:col-span-2 lg:col-span-3">
-        <CardHeader>
-          <CardTitle className="text-sm font-medium">Popular Requirements</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-sm font-medium">Requirements</CardTitle>
+          <div className="flex items-center gap-4">
+            <Select value={timeRange} onValueChange={setTimeRange}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select time range" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="yesterday">Yesterday</SelectItem>
+                <SelectItem value="thisWeek">This Week</SelectItem>
+                <SelectItem value="custom">Custom Range</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {timeRange === "custom" && (
+              <div className="flex gap-2">
+                <DatePicker
+                  selected={startDate}
+                  onSelect={setStartDate}
+                  placeholderText="Start date"
+                />
+                <DatePicker
+                  selected={endDate}
+                  onSelect={setEndDate}
+                  placeholderText="End date"
+                />
+              </div>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

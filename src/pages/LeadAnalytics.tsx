@@ -3,16 +3,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LeadMetrics from "@/components/analytics/LeadMetrics";
 import LeadStatusChart from "@/components/analytics/LeadStatusChart";
 import LeadSourceChart from "@/components/analytics/LeadSourceChart";
-import ActivityTimeline from "@/components/analytics/ActivityTimeline";
-import ActivityFilters from "@/components/analytics/ActivityFilters";
-import DailyActivityChart from "@/components/analytics/DailyActivityChart";
-import WeeklyActivityChart from "@/components/analytics/WeeklyActivityChart";
-import TeamPerformance from "@/components/analytics/TeamPerformance";
 import DetailedLeadMetrics from "@/components/analytics/DetailedLeadMetrics";
 import PendingActionsTab from "@/components/analytics/PendingActionsTab";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import ActivityFilters from "@/components/analytics/ActivityFilters";
 
 interface Filters {
   timeRange: string;
@@ -84,23 +80,11 @@ const LeadAnalytics = () => {
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <DailyActivityChart />
-              <WeeklyActivityChart />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                 <LeadStatusChart />
               </Card>
               <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                 <LeadSourceChart />
-              </Card>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <TeamPerformance />
-              <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <ActivityTimeline />
               </Card>
             </div>
           </div>
