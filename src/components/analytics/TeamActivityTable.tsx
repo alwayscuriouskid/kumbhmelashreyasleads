@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const TeamActivityTable = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
+  const [filteredActivities, setFilteredActivities] = useState<Activity[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedTeamMember, setSelectedTeamMember] = useState<string>('all');
   const [activityType, setActivityType] = useState<string>('all');
@@ -74,6 +75,7 @@ const TeamActivityTable = () => {
       console.log('Fetched activities:', activitiesData);
       const transformedActivities = activitiesData.map(transformActivity);
       setActivities(transformedActivities);
+      applyFilters(transformedActivities, selectedTeamMember, activityType, leadSearch, selectedDate);
     } catch (error) {
       console.error("Error fetching activities:", error);
       toast({
@@ -82,6 +84,49 @@ const TeamActivityTable = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const applyFilters = (
+    activities: Activity[],
+    teamMember: string,
+    type: string,
+    search: string,
+    date?: Date
+  ) => {
+    console.log('Applying filters:', { teamMember, type, search, date });
+    
+    let filtered = [...activities];
+
+    // Filter by team member
+    if (teamMember !== 'all') {
+      filtered = filtered.filter(activity => activity.teamMember === teamMember);
+    }
+
+    // Filter by activity type
+    if (type !== 'all') {
+      filtered = filtered.filter(activity => activity.type === type);
+    }
+
+    // Filter by date
+    if (date) {
+      const dateStr = date.toISOString().split('T')[0];
+      filtered = filtered.filter(activity => 
+        activity.date.toString().includes(dateStr)
+      );
+    }
+
+    // Search by lead name
+    if (search.trim()) {
+      const searchLower = search.toLowerCase().trim();
+      filtered = filtered.filter(activity => 
+        activity.leadName?.toLowerCase().includes(searchLower) ||
+        activity.description?.toLowerCase().includes(searchLower) ||
+        activity.contactPerson?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    console.log('Filtered activities:', filtered);
+    setFilteredActivities(filtered);
   };
 
   useEffect(() => {
@@ -99,7 +144,7 @@ const TeamActivityTable = () => {
         },
         async (payload) => {
           console.log('Real-time activity update received:', payload);
-          await fetchActivities(); // Refresh the entire list to get the latest data
+          await fetchActivities();
         }
       )
       .subscribe((status) => {
@@ -118,7 +163,7 @@ const TeamActivityTable = () => {
         },
         async (payload) => {
           console.log('Real-time lead update received:', payload);
-          await fetchActivities(); // Refresh to get updated lead information
+          await fetchActivities();
         }
       )
       .subscribe((status) => {
@@ -130,6 +175,11 @@ const TeamActivityTable = () => {
       supabase.removeChannel(leadsChannel);
     };
   }, []);
+
+  // Apply filters whenever filter criteria change
+  useEffect(() => {
+    applyFilters(activities, selectedTeamMember, activityType, leadSearch, selectedDate);
+  }, [selectedTeamMember, activityType, leadSearch, selectedDate, activities]);
 
   return (
     <div className="space-y-4">
@@ -151,7 +201,7 @@ const TeamActivityTable = () => {
       <Table>
         <TeamActivityTableHeader visibleColumns={visibleColumns} />
         <TableBody>
-          {activities.map((activity) => (
+          {filteredActivities.map((activity) => (
             <TeamActivityRow 
               key={activity.id}
               activity={activity}
