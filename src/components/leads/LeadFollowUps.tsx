@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Plus } from "lucide-react";
 import NewFollowUpForm from "./NewFollowUpForm";
-import ActivityTracker from "./ActivityTracker";
+import ActivityTracker from "../analytics/ActivityTracker";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,16 +32,8 @@ const LeadFollowUps = ({
 
   const updateLeadTable = async (updates: any) => {
     try {
-      if (!leadId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
-        console.error("Invalid UUID format for leadId:", leadId);
-        toast({
-          title: "Error",
-          description: "Invalid lead ID format",
-          variant: "destructive",
-        });
-        return;
-      }
-
+      console.log("Updating lead table with:", updates);
+      
       const { error } = await supabase
         .from('leads')
         .update(updates)
@@ -49,15 +41,10 @@ const LeadFollowUps = ({
 
       if (error) {
         console.error("Error updating lead:", error);
-        toast({
-          title: "Error",
-          description: "Failed to update lead information",
-          variant: "destructive",
-        });
         throw error;
       }
 
-      console.log("Lead table updated successfully:", updates);
+      console.log("Lead table updated successfully");
       onLeadUpdate?.(updates);
       
       toast({
@@ -66,34 +53,59 @@ const LeadFollowUps = ({
       });
     } catch (error) {
       console.error("Error updating lead:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update lead information",
+        variant: "destructive",
+      });
     }
   };
 
   const handleFollowUpSubmit = async (followUp: FollowUp) => {
     console.log("Submitting follow-up:", followUp);
-    onFollowUpSubmit?.(followUp);
+    
+    try {
+      // Update lead table with follow-up information
+      const updates = {
+        next_follow_up: followUp.nextFollowUpDate,
+        follow_up_outcome: followUp.outcome,
+        updated_at: new Date().toISOString()
+      };
 
-    // Update lead table with latest follow-up information
-    const updates = {
-      next_follow_up: followUp.nextFollowUpDate,
-      follow_up_outcome: followUp.outcome
-    };
-
-    await updateLeadTable(updates);
-    setShowNewForm(false);
+      await updateLeadTable(updates);
+      onFollowUpSubmit?.(followUp);
+      setShowNewForm(false);
+    } catch (error) {
+      console.error("Failed to submit follow-up:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add follow-up",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleActivityAdd = async (activity: Activity) => {
     console.log("Adding new activity:", activity);
-    onActivityAdd?.(activity);
+    
+    try {
+      // Update lead table with activity information
+      const updates = {
+        next_action: activity.nextAction,
+        follow_up_outcome: activity.outcome,
+        updated_at: new Date().toISOString()
+      };
 
-    // Update lead table with latest activity information
-    const updates = {
-      next_action: activity.nextAction,
-      follow_up_outcome: activity.outcome
-    };
-
-    await updateLeadTable(updates);
+      await updateLeadTable(updates);
+      onActivityAdd?.(activity);
+    } catch (error) {
+      console.error("Failed to add activity:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add activity",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

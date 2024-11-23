@@ -22,41 +22,12 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
   const [assignedTo, setAssignedTo] = useState("");
   const { toast } = useToast();
 
-  const isValidUUID = (uuid: string) => {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    return uuidRegex.test(uuid);
-  };
-
   const updateLeadWithFollowUpData = async (followUp: FollowUp) => {
     console.log("Updating lead with follow-up data:", followUp);
     
     try {
-      if (!leadId) {
-        throw new Error("Lead ID is required");
-      }
-
-      if (!isValidUUID(leadId)) {
-        throw new Error("Invalid lead ID format");
-      }
-
-      // First check if the lead exists
-      const { data: leadExists, error: checkError } = await supabase
-        .from('leads')
-        .select('id')
-        .eq('id', leadId)
-        .single();
-
-      if (checkError) {
-        console.error("Error checking lead:", checkError);
-        throw checkError;
-      }
-
-      if (!leadExists) {
-        throw new Error("Lead not found");
-      }
-
-      // If lead exists, proceed with update
-      const { error: updateError } = await supabase
+      // Update leads table with follow-up information
+      const { error: leadError } = await supabase
         .from('leads')
         .update({
           next_follow_up: followUp.nextFollowUpDate || null,
@@ -65,18 +36,31 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
         })
         .eq('id', leadId);
 
-      if (updateError) {
-        console.error("Error updating lead with follow-up data:", updateError);
-        throw updateError;
+      if (leadError) {
+        console.error("Error updating lead with follow-up data:", leadError);
+        throw leadError;
       }
 
-      console.log("Successfully updated lead with follow-up data");
+      // Store the follow-up in activities table as well
+      const { error: activityError } = await supabase
+        .from('activities')
+        .insert({
+          lead_id: leadId,
+          type: 'follow_up',
+          notes: followUp.notes,
+          outcome: followUp.outcome,
+          assigned_to: followUp.assignedTo,
+          next_action: `Follow up on ${followUp.nextFollowUpDate || 'N/A'}`
+        });
+
+      if (activityError) {
+        console.error("Error storing follow-up as activity:", activityError);
+        throw activityError;
+      }
+
+      console.log("Successfully updated lead and stored follow-up");
     } catch (error) {
       console.error("Failed to update lead with follow-up data:", error);
-      let errorMessage = "Failed to update lead information";
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
       throw error;
     }
   };
@@ -85,15 +69,6 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
     e.preventDefault();
     
     try {
-      if (!leadId) {
-        toast({
-          title: "Error",
-          description: "Lead ID is required",
-          variant: "destructive",
-        });
-        return;
-      }
-
       const newFollowUp: FollowUp = {
         id: `followup-${Date.now()}`,
         date: new Date().toISOString(),
@@ -105,10 +80,10 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
 
       console.log("Creating new follow-up:", newFollowUp);
       
-      // First update the lead table
+      // Update lead table and store follow-up
       await updateLeadWithFollowUpData(newFollowUp);
       
-      // Then notify parent component
+      // Notify parent component
       if (onSubmit) {
         onSubmit(newFollowUp);
         toast({

@@ -33,7 +33,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson }: ActivityTrack
       }
 
       // Then store the activity in activities table
-      const { error: activityError } = await supabase
+      const { data: activityData, error: activityError } = await supabase
         .from('activities')
         .insert({
           lead_id: leadId,
@@ -47,14 +47,17 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson }: ActivityTrack
           location: activity.location,
           call_type: activity.callType,
           contact_person: activity.contactPerson
-        });
+        })
+        .select()
+        .single();
 
       if (activityError) {
         console.error("Error storing activity:", activityError);
         throw activityError;
       }
 
-      console.log("Successfully updated lead and stored activity");
+      console.log("Successfully updated lead and stored activity:", activityData);
+      return activityData;
     } catch (error) {
       console.error("Failed to update lead with activity data:", error);
       toast({
@@ -67,15 +70,16 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson }: ActivityTrack
   };
 
   const handleActivitySubmit = async (formData: Partial<Activity>) => {
-    console.log("Submitting new activity");
+    console.log("Submitting new activity:", formData);
     
     try {
       // First update the lead table and store activity
-      await updateLeadWithActivityData(formData);
+      const activityData = await updateLeadWithActivityData(formData);
       
-      // Then notify parent component
+      // Then notify parent component with complete activity data
       const activity: Activity = {
-        id: `activity-${Date.now()}`,
+        id: activityData.id,
+        date: new Date().toISOString(),
         ...formData as Activity
       };
       
