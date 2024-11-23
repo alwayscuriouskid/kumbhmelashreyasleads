@@ -42,7 +42,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
         throw activityError;
       }
 
-      // Prepare lead updates
+      // Prepare lead updates based on activity type
       const leadUpdates = {
         next_action: activity.nextAction,
         follow_up_outcome: activity.outcome,

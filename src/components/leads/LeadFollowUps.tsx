@@ -79,7 +79,8 @@ const LeadFollowUps = ({
     nextAction: data.next_action || '',
     contactPerson: data.contact_person || '',
     location: data.location || '',
-    callType: data.call_type as 'incoming' | 'outgoing' | undefined
+    callType: data.call_type as 'incoming' | 'outgoing' | undefined,
+    nextFollowUp: data.next_follow_up
   });
 
   const validateActivityType = (type: string): Activity['type'] => {
