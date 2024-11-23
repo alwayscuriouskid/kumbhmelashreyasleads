@@ -25,7 +25,13 @@ export const StatusAnalytics = ({ zoneFilter, typeFilter }: { zoneFilter: string
       
       let query = supabase
         .from('inventory_items')
-        .select('status, count(*)', { count: 'exact' });
+        .select(`
+          status,
+          count
+        `, { 
+          count: 'exact',
+          head: false 
+        });
       
       // Apply filters if provided
       if (zoneFilter !== 'all') {
@@ -35,7 +41,7 @@ export const StatusAnalytics = ({ zoneFilter, typeFilter }: { zoneFilter: string
         query = query.eq('type_id', typeFilter);
       }
 
-      const { data: statusData, error } = await query.group_by('status');
+      const { data: statusData, error } = await query;
 
       if (error) {
         console.error('Error fetching status distribution:', error);
