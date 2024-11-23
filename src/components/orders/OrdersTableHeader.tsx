@@ -18,7 +18,9 @@ export const OrdersTableHeader = ({ visibleColumns }: OrdersTableHeaderProps) =>
       {visibleColumns.paymentConfirmation && <TableHead>Payment Confirmation</TableHead>}
       {visibleColumns.nextPaymentDate && <TableHead>Next Payment Date</TableHead>}
       {visibleColumns.nextPaymentDetails && <TableHead>Next Payment Details</TableHead>}
-      <TableHead className="sticky right-0 bg-background z-20">Actions</TableHead>
+      <TableHead className="sticky right-0 bg-background/95 backdrop-blur-sm w-[50px] text-right">
+        Actions
+      </TableHead>
     </>
   );
 };

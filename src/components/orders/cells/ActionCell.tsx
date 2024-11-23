@@ -15,24 +15,24 @@ export const ActionCell = ({
   onCancel,
 }: ActionCellProps) => {
   return (
-    <div className="flex justify-end space-x-1">
+    <div className="flex justify-end gap-0.5">
       {isEditing ? (
         <>
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={onSave}
-            className="h-8 w-8 p-0 hover:bg-transparent"
+            className="h-7 w-7 p-0"
           >
-            <Save className="h-4 w-4 text-muted-foreground hover:text-primary" />
+            <Save className="h-3.5 w-3.5" />
           </Button>
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={onCancel}
-            className="h-8 w-8 p-0 hover:bg-transparent"
+            className="h-7 w-7 p-0"
           >
-            <X className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+            <X className="h-3.5 w-3.5" />
           </Button>
         </>
       ) : (
@@ -40,9 +40,9 @@ export const ActionCell = ({
           variant="ghost" 
           size="sm" 
           onClick={onEdit}
-          className="h-8 w-8 p-0 hover:bg-transparent"
+          className="h-7 w-7 p-0"
         >
-          <Edit2 className="h-4 w-4 text-muted-foreground hover:text-primary" />
+          <Edit2 className="h-3.5 w-3.5" />
         </Button>
       )}
     </div>
