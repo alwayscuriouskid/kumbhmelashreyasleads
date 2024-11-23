@@ -130,7 +130,7 @@ export const InventoryTable = () => {
         onToggleColumn={(key) => setVisibleColumns(prev => ({ ...prev, [key]: !prev[key] }))}
       />
 
-      <div className="rounded-md border">
+      <div className="table-container">
         <Table>
           <TableHeader>
             <TableRow>

@@ -19,7 +19,7 @@ export const OrdersTable = ({
   onOrderUpdate 
 }: OrdersTableProps) => {
   return (
-    <div className="relative">
+    <div className="table-container">
       <Table>
         <TableHeader>
           <TableRow>
