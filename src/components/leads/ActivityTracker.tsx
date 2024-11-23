@@ -3,15 +3,10 @@ import { Activity } from "@/types/leads";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { TeamMemberSelect } from "@/components/shared/TeamMemberSelect";
 import { supabase } from "@/integrations/supabase/client";
 
 interface ActivityTrackerProps {
@@ -163,10 +158,9 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson }: ActivityTrack
 
             <div className="space-y-2">
               <label>Assigned To</label>
-              <Input
+              <TeamMemberSelect
                 value={assignedTo}
-                onChange={(e) => setAssignedTo(e.target.value)}
-                placeholder="Enter team member name"
+                onChange={setAssignedTo}
               />
             </div>
 

@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { FollowUp } from "@/types/leads";
 import { supabase } from "@/integrations/supabase/client";
+import { TeamMemberSelect } from "@/components/shared/TeamMemberSelect";
 
 interface NewFollowUpFormProps {
   leadId: string;
@@ -144,11 +145,9 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
 
       <div className="space-y-2">
         <Label htmlFor="assignedTo">Assigned To</Label>
-        <Input
-          id="assignedTo"
+        <TeamMemberSelect
           value={assignedTo}
-          onChange={(e) => setAssignedTo(e.target.value)}
-          placeholder="Enter team member name"
+          onChange={setAssignedTo}
         />
       </div>
 
