@@ -1,26 +1,21 @@
 import { TableColumnToggle } from "@/components/shared/TableColumnToggle";
 
-export const InventoryColumnToggle = ({
-  visibleColumns,
-  onToggleColumn,
-}: {
+interface Column {
+  key: string;
+  label: string;
+}
+
+interface InventoryColumnToggleProps {
+  columns: Column[];
   visibleColumns: Record<string, boolean>;
   onToggleColumn: (columnKey: string) => void;
-}) => {
-  const columns = [
-    { key: "type", label: "Type" },
-    { key: "zone", label: "Zone" },
-    { key: "sector", label: "Sector" },
-    { key: "currentPrice", label: "Current Price" },
-    { key: "minPrice", label: "Min Price" },
-    { key: "ltc", label: "LTC" },
-    { key: "dimensions", label: "Dimensions" },
-    { key: "totalQuantity", label: "Total Quantity" },
-    { key: "availableQuantity", label: "Available Quantity" },
-    { key: "status", label: "Status" },
-    { key: "sku", label: "SKU" },
-  ];
+}
 
+export const InventoryColumnToggle = ({
+  columns,
+  visibleColumns,
+  onToggleColumn,
+}: InventoryColumnToggleProps) => {
   return (
     <TableColumnToggle
       columns={columns}
