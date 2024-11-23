@@ -8,7 +8,7 @@ interface ActivityTrackerProps {
   leadId: string;
   onActivityAdd: (activity: Activity) => void;
   contactPerson: string;
-  onLeadUpdate?: (updates: any) => void;  // Add this prop
+  onLeadUpdate?: (updates: any) => void;
 }
 
 const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }: ActivityTrackerProps) => {
@@ -56,6 +56,8 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
         updated_at: new Date().toISOString()
       };
 
+      console.log("Updating lead with:", leadUpdates);
+
       // Then update the leads table with the latest activity information
       const { error: leadError } = await supabase
         .from('leads')
@@ -67,17 +69,26 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
         throw leadError;
       }
 
-      console.log("Successfully stored activity and updated lead:", {
-        activityData,
-        nextFollowUp
-      });
+      // Immediately fetch the updated lead data to ensure we have the latest state
+      const { data: updatedLead, error: fetchError } = await supabase
+        .from('leads')
+        .select('next_action, follow_up_outcome, next_follow_up')
+        .eq('id', leadId)
+        .single();
 
-      // Notify parent component about lead updates
+      if (fetchError) {
+        console.error("Error fetching updated lead:", fetchError);
+        throw fetchError;
+      }
+
+      console.log("Successfully updated lead:", updatedLead);
+
+      // Notify parent component about lead updates with the fresh data
       if (onLeadUpdate) {
         onLeadUpdate({
-          nextAction: activity.nextAction,
-          followUpOutcome: activity.outcome,
-          nextFollowUp
+          nextAction: updatedLead.next_action,
+          followUpOutcome: updatedLead.follow_up_outcome,
+          nextFollowUp: updatedLead.next_follow_up
         });
       }
       

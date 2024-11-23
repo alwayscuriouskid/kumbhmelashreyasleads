@@ -98,12 +98,15 @@ const LeadFollowUps = ({
     if (onActivityAdd) {
       onActivityAdd(activity);
     }
+    await fetchActivities(); // Refresh activities list
   };
 
-  const handleLeadUpdate = (updates: any) => {
+  const handleLeadUpdate = async (updates: any) => {
+    console.log("Handling lead update in LeadFollowUps:", updates);
     if (onLeadUpdate) {
       onLeadUpdate(updates);
     }
+    await fetchActivities(); // Refresh activities to reflect new updates
   };
 
   return (
