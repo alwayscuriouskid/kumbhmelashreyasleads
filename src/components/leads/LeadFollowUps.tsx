@@ -5,7 +5,6 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import FollowUpTabs from "./follow-ups/FollowUpTabs";
 import FollowUpList from "./follow-ups/FollowUpList";
-import { setupActivitySubscription, cleanupSubscription } from "@/utils/realtimeSubscriptions";
 
 interface LeadFollowUpsProps {
   leadId: string;
@@ -30,42 +29,51 @@ const LeadFollowUps = ({
   useEffect(() => {
     fetchActivities();
     
-    // Set up real-time subscription
-    const channel = setupActivitySubscription(async (payload) => {
-      if (payload.new.lead_id === leadId) {
-        console.log('Real-time activity update received:', payload);
-        await fetchActivities(); // Refresh all activities
-        await fetchAndUpdateLead(); // Fetch latest lead data
-      }
-    });
+    // Set up real-time subscription for both activities and leads
+    const activitiesChannel = supabase
+      .channel('activities-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'activities',
+          filter: `lead_id=eq.${leadId}`
+        },
+        async (payload) => {
+          console.log('Real-time activity update received:', payload);
+          await fetchActivities();
+          await fetchAndUpdateLead();
+        }
+      )
+      .subscribe((status) => {
+        console.log('Activities subscription status:', status);
+      });
 
-    // Cleanup subscription on unmount
+    const leadsChannel = supabase
+      .channel('leads-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'leads',
+          filter: `id=eq.${leadId}`
+        },
+        async () => {
+          console.log('Real-time lead update received');
+          await fetchAndUpdateLead();
+        }
+      )
+      .subscribe((status) => {
+        console.log('Leads subscription status:', status);
+      });
+
     return () => {
-      cleanupSubscription(channel);
+      supabase.removeChannel(activitiesChannel);
+      supabase.removeChannel(leadsChannel);
     };
   }, [leadId]);
-
-  const fetchAndUpdateLead = async () => {
-    try {
-      const { data: lead, error } = await supabase
-        .from('leads')
-        .select('next_action, follow_up_outcome, next_follow_up')
-        .eq('id', leadId)
-        .single();
-
-      if (error) throw error;
-
-      if (onLeadUpdate && lead) {
-        onLeadUpdate({
-          nextAction: lead.next_action,
-          followUpOutcome: lead.follow_up_outcome,
-          nextFollowUp: lead.next_follow_up
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching updated lead data:", error);
-    }
-  };
 
   const transformActivity = (data: any): Activity => ({
     id: data.id,
@@ -88,6 +96,28 @@ const LeadFollowUps = ({
     return validTypes.includes(type as Activity['type']) 
       ? (type as Activity['type']) 
       : 'note';
+  };
+
+  const fetchAndUpdateLead = async () => {
+    try {
+      const { data: lead, error } = await supabase
+        .from('leads')
+        .select('next_action, follow_up_outcome, next_follow_up')
+        .eq('id', leadId)
+        .single();
+
+      if (error) throw error;
+
+      if (onLeadUpdate && lead) {
+        onLeadUpdate({
+          nextAction: lead.next_action,
+          followUpOutcome: lead.follow_up_outcome,
+          nextFollowUp: lead.next_follow_up
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching updated lead data:", error);
+    }
   };
 
   const fetchActivities = async () => {

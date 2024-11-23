@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ActivityForm } from "./ActivityForm";
+import { useEffect } from "react";
 
 interface ActivityTrackerProps {
   leadId: string;
@@ -13,6 +14,67 @@ interface ActivityTrackerProps {
 
 const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }: ActivityTrackerProps) => {
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Set up real-time subscription for activities
+    const channel = supabase
+      .channel('activities-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'activities',
+          filter: `lead_id=eq.${leadId}`
+        },
+        async (payload) => {
+          console.log("Real-time activity update received:", payload);
+          if (payload.new) {
+            // Fetch the latest lead data to ensure we have the most up-to-date state
+            await updateLeadWithLatestData();
+          }
+        }
+      )
+      .subscribe((status) => {
+        console.log("Activity subscription status:", status);
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [leadId]);
+
+  const updateLeadWithLatestData = async () => {
+    try {
+      const { data: lead, error } = await supabase
+        .from('leads')
+        .select('next_action, follow_up_outcome, next_follow_up')
+        .eq('id', leadId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching updated lead:", error);
+        throw error;
+      }
+
+      console.log("Fetched latest lead data:", lead);
+
+      if (onLeadUpdate && lead) {
+        onLeadUpdate({
+          nextAction: lead.next_action,
+          followUpOutcome: lead.follow_up_outcome,
+          nextFollowUp: lead.next_follow_up
+        });
+      }
+    } catch (error) {
+      console.error("Failed to update lead with latest data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to sync latest activity data",
+        variant: "destructive",
+      });
+    }
+  };
 
   const updateLeadWithActivityData = async (activity: Partial<Activity>) => {
     console.log("Updating lead with activity data:", activity);
@@ -64,28 +126,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
         throw leadError;
       }
 
-      // Fetch the updated lead data to ensure we have the latest state
-      const { data: updatedLead, error: fetchError } = await supabase
-        .from('leads')
-        .select('next_action, follow_up_outcome, next_follow_up')
-        .eq('id', leadId)
-        .single();
-
-      if (fetchError) {
-        console.error("Error fetching updated lead:", fetchError);
-        throw fetchError;
-      }
-
-      console.log("Successfully updated lead:", updatedLead);
-
-      // Notify parent component about lead updates with the fresh data
-      if (onLeadUpdate) {
-        onLeadUpdate({
-          nextAction: updatedLead.next_action,
-          followUpOutcome: updatedLead.follow_up_outcome,
-          nextFollowUp: updatedLead.next_follow_up
-        });
-      }
+      await updateLeadWithLatestData();
       
       return activityData;
     } catch (error) {
