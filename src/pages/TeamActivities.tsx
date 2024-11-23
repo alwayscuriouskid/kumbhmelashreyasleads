@@ -1,5 +1,7 @@
 import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TeamActivityTable from "@/components/analytics/TeamActivityTable";
+import PendingActionsTab from "@/components/analytics/PendingActionsTab";
 
 const TeamActivities = () => {
   return (
@@ -8,9 +10,22 @@ const TeamActivities = () => {
         <h1 className="text-3xl font-bold">Team Activities</h1>
       </div>
 
-      <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <TeamActivityTable />
-      </Card>
+      <Tabs defaultValue="activities" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="activities">Activities</TabsTrigger>
+          <TabsTrigger value="pending">Pending Actions</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="activities">
+          <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <TeamActivityTable />
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="pending">
+          <PendingActionsTab />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

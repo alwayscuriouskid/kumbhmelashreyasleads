@@ -1,10 +1,8 @@
 import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LeadMetrics from "@/components/analytics/LeadMetrics";
 import LeadStatusChart from "@/components/analytics/LeadStatusChart";
 import LeadSourceChart from "@/components/analytics/LeadSourceChart";
 import DetailedLeadMetrics from "@/components/analytics/DetailedLeadMetrics";
-import PendingActionsTab from "@/components/analytics/PendingActionsTab";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -59,41 +57,28 @@ const LeadAnalytics = () => {
         <h1 className="text-3xl font-bold">Lead Analytics Dashboard</h1>
       </div>
 
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="pending">Pending Actions</TabsTrigger>
-        </TabsList>
+      <div className="space-y-4">
+        <ActivityFilters onFilterChange={handleFilterChange} />
+        
+        <div className="lg:col-span-2">
+          <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <LeadMetrics />
+          </Card>
+        </div>
 
-        <TabsContent value="overview">
-          <div className="space-y-4">
-            <ActivityFilters onFilterChange={handleFilterChange} />
-            
-            <div className="lg:col-span-2">
-              <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <LeadMetrics />
-              </Card>
-            </div>
+        <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <DetailedLeadMetrics />
+        </Card>
 
-            <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <DetailedLeadMetrics />
-            </Card>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <LeadStatusChart />
-              </Card>
-              <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <LeadSourceChart />
-              </Card>
-            </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="pending">
-          <PendingActionsTab />
-        </TabsContent>
-      </Tabs>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <LeadStatusChart />
+          </Card>
+          <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <LeadSourceChart />
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };
