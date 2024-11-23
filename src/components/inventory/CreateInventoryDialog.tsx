@@ -15,7 +15,7 @@ import { InventoryLocationInfo } from "./form/InventoryLocationInfo";
 import { InventoryPriceInfo } from "./form/InventoryPriceInfo";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { StatusSelect } from "./StatusSelect";
 
 export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) => {
   const [open, setOpen] = useState(false);
@@ -94,19 +94,10 @@ export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) 
             </div>
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
-              <Select 
-                value={formData.status} 
-                onValueChange={(value) => setFormData({ ...formData, status: value })}
-              >
-                <SelectTrigger className="w-full bg-background">
-                  <SelectValue placeholder="Select Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="available">Available</SelectItem>
-                  <SelectItem value="booked">Booked</SelectItem>
-                  <SelectItem value="sold">Sold</SelectItem>
-                </SelectContent>
-              </Select>
+              <StatusSelect 
+                value={formData.status}
+                onChange={(value) => setFormData({ ...formData, status: value })}
+              />
             </div>
           </div>
 

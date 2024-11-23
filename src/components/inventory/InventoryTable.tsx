@@ -14,6 +14,7 @@ import { EditableCell } from "./EditableCell";
 import { StatusCell } from "./StatusCell";
 import { TableActions } from "./TableActions";
 import { InventoryFilters } from "./InventoryFilters";
+import { EditableStatusCell } from "./EditableStatusCell"; // Importing the new EditableStatusCell component
 
 export const InventoryTable = () => {
   const { data: items, refetch } = useInventoryItems();
@@ -114,6 +115,14 @@ export const InventoryTable = () => {
 
     return matchesSearch && matchesType && matchesZone && matchesStatus;
   });
+
+  const renderStatusCell = (item: any) => (
+    <EditableStatusCell
+      value={item.status}
+      isEditing={editingId === item.id}
+      onChange={(value) => setEditedValues({ ...editedValues, status: value })}
+    />
+  );
 
   return (
     <div className="space-y-4">
@@ -237,14 +246,7 @@ export const InventoryTable = () => {
                 )}
                 {visibleColumns.status && (
                   <TableCell>
-                    <StatusCell
-                      status={item.status}
-                      isEditing={editingId === item.id}
-                      onChange={(value) => setEditedValues({
-                        ...editedValues,
-                        status: value
-                      })}
-                    />
+                    {renderStatusCell(item)}
                   </TableCell>
                 )}
                 <TableCell>
