@@ -69,6 +69,7 @@ const TeamActivityTable = () => {
         contactPerson: activity.contact_person
       }));
 
+      console.log('Transformed activities with lead data:', transformedActivities);
       setActivities(transformedActivities);
     } catch (error) {
       console.error('Error fetching activities:', error);
@@ -83,9 +84,9 @@ const TeamActivityTable = () => {
   useEffect(() => {
     fetchActivities();
 
-    // Subscribe to real-time updates
-    const channel = supabase
-      .channel('team-activities')
+    // Subscribe to real-time updates for both activities and leads
+    const activitiesChannel = supabase
+      .channel('activities-changes')
       .on(
         'postgres_changes',
         {
@@ -98,12 +99,27 @@ const TeamActivityTable = () => {
           fetchActivities(); // Refresh the entire list when we get an update
         }
       )
-      .subscribe((status) => {
-        console.log('Subscription status:', status);
-      });
+      .subscribe();
+
+    const leadsChannel = supabase
+      .channel('leads-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'leads'
+        },
+        (payload) => {
+          console.log('Real-time lead update received:', payload);
+          fetchActivities(); // Refresh to get updated lead information
+        }
+      )
+      .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(activitiesChannel);
+      supabase.removeChannel(leadsChannel);
     };
   }, []);
 
