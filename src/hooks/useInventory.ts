@@ -1,14 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
-import type { 
-  Zone, 
-  Sector, 
-  InventoryType, 
-  InventoryItem, 
-  Order, 
-  Booking 
-} from "@/types/inventory";
+import type { Zone, Sector, InventoryType, InventoryItem, Order, Booking } from "@/types/inventory";
 
 // Base queries for inventory data
 export const useZones = () => {
@@ -101,6 +94,76 @@ export const useInventoryItems = () => {
   });
 };
 
+export const useDeleteZone = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      console.log('Deleting zone:', id);
+      const { error } = await supabase
+        .from('zones')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["zones"] });
+      toast({
+        title: "Success",
+        description: "Zone deleted successfully",
+      });
+    },
+  });
+};
+
+export const useDeleteSector = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      console.log('Deleting sector:', id);
+      const { error } = await supabase
+        .from('sectors')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["sectors"] });
+      toast({
+        title: "Success",
+        description: "Sector deleted successfully",
+      });
+    },
+  });
+};
+
+export const useDeleteInventoryType = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      console.log('Deleting inventory type:', id);
+      const { error } = await supabase
+        .from('inventory_types')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["inventory_types"] });
+      toast({
+        title: "Success",
+        description: "Inventory type deleted successfully",
+      });
+    },
+  });
+};
+
+// New analytics specific queries
 export const useOrders = () => {
   return useQuery({
     queryKey: ["orders"],
@@ -150,66 +213,6 @@ export const useBookings = () => {
   });
 };
 
-export const useCreateOrder = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async (orderData: {
-      customer_name: string;
-      customer_email?: string;
-      customer_phone: string;
-      customer_address?: string;
-      team_member_id?: string;
-      team_member_name: string;
-      payment_method?: string;
-      notes?: string;
-      status: string;
-      total_amount: number;
-    }) => {
-      const { data, error } = await supabase
-        .from("orders")
-        .insert([orderData])
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
-      toast({
-        title: "Success",
-        description: "Order created successfully",
-      });
-    },
-  });
-};
-
-export const useCreateBooking = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async (bookingData: Omit<Booking, "id" | "created_at" | "updated_at">) => {
-      const { data, error } = await supabase
-        .from("bookings")
-        .insert([bookingData])
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["bookings"] });
-      toast({
-        title: "Success",
-        description: "Booking created successfully",
-      });
-    },
-  });
-};
-
-// New analytics specific queries
 export const useInventoryMetrics = (timeRange: string = '7days') => {
   return useQuery({
     queryKey: ['inventory-metrics', timeRange],

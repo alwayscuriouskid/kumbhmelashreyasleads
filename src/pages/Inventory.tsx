@@ -6,6 +6,9 @@ import { CreateInventoryDialog } from "@/components/inventory/CreateInventoryDia
 import { CreateTypeDialog } from "@/components/inventory/CreateTypeDialog";
 import { CreateZoneDialog } from "@/components/inventory/CreateZoneDialog";
 import { CreateSectorDialog } from "@/components/inventory/CreateSectorDialog";
+import { ManageTypeDialog } from "@/components/inventory/ManageTypeDialog";
+import { ManageZoneDialog } from "@/components/inventory/ManageZoneDialog";
+import { ManageSectorDialog } from "@/components/inventory/ManageSectorDialog";
 
 const Inventory = () => {
   const { data: items, refetch } = useInventoryItems();
@@ -16,8 +19,11 @@ const Inventory = () => {
         <h1 className="text-3xl font-bold tracking-tight">Inventory Management</h1>
         <div className="flex gap-2">
           <CreateTypeDialog onSuccess={refetch} />
+          <ManageTypeDialog />
           <CreateZoneDialog onSuccess={refetch} />
+          <ManageZoneDialog />
           <CreateSectorDialog onSuccess={refetch} />
+          <ManageSectorDialog />
           <CreateInventoryDialog onSuccess={refetch} />
         </div>
       </div>
