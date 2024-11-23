@@ -2,6 +2,9 @@ import { TableCell } from "@/components/ui/table";
 import { Lead } from "@/types/leads";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
+import { ShoppingCart, Calendar } from "lucide-react";
 
 interface LeadRowContentProps {
   lead: Lead;
@@ -20,7 +23,7 @@ const LeadRowContent = ({
   handleInputChange,
   customStatuses 
 }: LeadRowContentProps) => {
-  const defaultStatuses = ["suspect", "prospect", "analysis", "negotiation", "conclusion", "ongoing_order", "converted"];
+  const defaultStatuses = ["suspect", "prospect", "analysis", "negotiation", "conclusion", "ongoing_order"];
   const allStatuses = [...defaultStatuses, ...customStatuses];
 
   const formatStatusLabel = (status: string) => {
@@ -41,6 +44,26 @@ const LeadRowContent = ({
       converted: "bg-emerald-500/20 text-emerald-500"
     };
     return colors[status] || "bg-blue-500/20 text-blue-500";
+  };
+
+  const getConversionBadge = () => {
+    if (!lead.conversion_status) return null;
+
+    const icon = lead.conversion_type === 'order' ? <ShoppingCart className="w-3 h-3 mr-1" /> : <Calendar className="w-3 h-3 mr-1" />;
+    
+    return (
+      <div className="mt-1">
+        <Badge variant="outline" className="flex items-center gap-1 text-xs">
+          {icon}
+          Converted to {lead.conversion_type}
+          {lead.conversion_date && (
+            <span className="ml-1 text-muted-foreground">
+              ({format(new Date(lead.conversion_date), 'dd MMM yyyy')})
+            </span>
+          )}
+        </Badge>
+      </div>
+    );
   };
 
   const renderCell = (field: keyof Lead, content: React.ReactNode) => {
@@ -74,18 +97,6 @@ const LeadRowContent = ({
         onChange={(e) => handleInputChange(field, e.target.value)}
         className="w-full"
       />
-    );
-  };
-
-  const renderConversionStatus = () => {
-    if (!lead.conversion_status) return null;
-    
-    return (
-      <div className="mt-1">
-        <span className={`px-2 py-1 rounded-full text-xs bg-emerald-500/20 text-emerald-500`}>
-          Converted to {lead.conversion_type}
-        </span>
-      </div>
     );
   };
 
@@ -129,7 +140,7 @@ const LeadRowContent = ({
               <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(lead.status)}`}>
                 {formatStatusLabel(lead.status)}
               </span>
-              {renderConversionStatus()}
+              {getConversionBadge()}
             </div>
           )}
         </TableCell>

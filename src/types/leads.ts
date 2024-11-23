@@ -102,7 +102,7 @@ export interface Lead {
   nextAction?: string;
   followUpOutcome?: string;
   conversion_status?: string;
-  conversion_type?: string;
+  conversion_type?: 'order' | 'booking';
   conversion_date?: string;
 }
 
