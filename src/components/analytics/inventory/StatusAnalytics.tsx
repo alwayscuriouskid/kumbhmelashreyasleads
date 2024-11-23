@@ -23,10 +23,11 @@ export const StatusAnalytics = ({ zoneFilter, typeFilter }: { zoneFilter: string
     queryFn: async () => {
       console.log('Fetching inventory status metrics');
       
-      // Build the base query
+      // Build the base query with proper grouping
       let query = supabase
         .from('inventory_items')
-        .select('status, count', { count: 'exact', head: false });
+        .select('status, count', { count: 'exact', head: false })
+        .groupBy('status');
       
       // Apply filters if provided
       if (zoneFilter !== 'all') {
