@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useTeamMemberOptions } from "@/hooks/useTeamMemberOptions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PendingAction {
   id: string;
@@ -18,10 +19,20 @@ interface PendingAction {
   teamMemberId: string;
 }
 
-interface TeamMember {
-  id: string;
-  name: string;
-}
+const PendingActionsSkeleton = () => (
+  <div className="space-y-4">
+    {[1, 2, 3].map((i) => (
+      <div key={i} className="p-4 rounded-lg border">
+        <div className="flex items-center gap-2 mb-2">
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-6 w-20" />
+        </div>
+        <Skeleton className="h-4 w-1/2 mb-2" />
+        <Skeleton className="h-4 w-1/3" />
+      </div>
+    ))}
+  </div>
+);
 
 const PendingActionsTab = () => {
   const [selectedTeamMember, setSelectedTeamMember] = useState<string>("all");
@@ -54,7 +65,6 @@ const PendingActionsTab = () => {
         throw error;
       }
 
-      // Fetch team members separately since we can't do a direct join
       const { data: teamMembersData, error: teamMembersError } = await supabase
         .from('team_members')
         .select('id, name');
@@ -76,7 +86,6 @@ const PendingActionsTab = () => {
         teamMemberId: lead.team_member_id || ''
       }));
 
-      // Apply filters
       if (selectedTeamMember !== 'all') {
         filteredActions = filteredActions.filter(action => action.teamMemberId === selectedTeamMember);
       }
@@ -148,14 +157,16 @@ const PendingActionsTab = () => {
           <CardTitle>Pending Actions</CardTitle>
         </CardHeader>
         <CardContent>
-          {pendingActions?.length === 0 ? (
+          {isLoading ? (
+            <PendingActionsSkeleton />
+          ) : pendingActions?.length === 0 ? (
             <p className="text-muted-foreground">No pending actions found</p>
           ) : (
             <div className="space-y-4">
               {pendingActions?.map((action) => (
                 <div
                   key={action.id}
-                  className="flex items-start space-x-4 p-4 rounded-lg border"
+                  className="flex items-start space-x-4 p-4 rounded-lg border animate-fade-in"
                 >
                   <Checkbox id={action.id} />
                   <div className="flex-1">

@@ -1,9 +1,10 @@
 import { Table, TableBody } from "@/components/ui/table";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TeamActivityFilters from "./TeamActivityFilters";
 import TeamActivityTableHeader from "./TeamActivityTableHeader";
 import TeamActivityRow from "./TeamActivityRow";
 import { Activity } from "@/types/leads";
+import { supabase } from "@/integrations/supabase/client";
 
 const dummyActivities: Activity[] = [
   {
@@ -63,6 +64,7 @@ const dummyActivities: Activity[] = [
 ];
 
 const TeamActivityTable = () => {
+  const [activities, setActivities] = useState<Activity[]>(dummyActivities);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedTeamMember, setSelectedTeamMember] = useState<string>('all');
   const [activityType, setActivityType] = useState<string>('all');
@@ -79,6 +81,47 @@ const TeamActivityTable = () => {
     nextAction: true,
     activityOutcome: true
   });
+
+  useEffect(() => {
+    console.log("Setting up real-time subscription for team activities");
+    
+    const channel = supabase
+      .channel('team-activities')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'activities'
+        },
+        (payload) => {
+          console.log('Real-time activity update received:', payload);
+          
+          // Update activities based on the change type
+          if (payload.eventType === 'INSERT') {
+            setActivities(prev => [payload.new as Activity, ...prev]);
+          } else if (payload.eventType === 'UPDATE') {
+            setActivities(prev => 
+              prev.map(activity => 
+                activity.id === payload.new.id ? payload.new as Activity : activity
+              )
+            );
+          } else if (payload.eventType === 'DELETE') {
+            setActivities(prev => 
+              prev.filter(activity => activity.id !== payload.old.id)
+            );
+          }
+        }
+      )
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+      });
+
+    return () => {
+      console.log("Cleaning up team activities subscription");
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   console.log("Rendering TeamActivityTable with filters:", { 
     selectedDate, 
@@ -108,7 +151,7 @@ const TeamActivityTable = () => {
       <Table>
         <TeamActivityTableHeader visibleColumns={visibleColumns} />
         <TableBody>
-          {dummyActivities.map((activity) => (
+          {activities.map((activity) => (
             <TeamActivityRow 
               key={activity.id}
               activity={activity}
