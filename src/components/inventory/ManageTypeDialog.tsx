@@ -11,7 +11,11 @@ import { Settings2 } from "lucide-react";
 import { useInventoryTypes, useDeleteInventoryType } from "@/hooks/useInventory";
 import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
 
-export const ManageTypeDialog = () => {
+interface ManageTypeDialogProps {
+  children?: React.ReactNode;
+}
+
+export const ManageTypeDialog = ({ children }: ManageTypeDialogProps) => {
   const [open, setOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedTypeId, setSelectedTypeId] = useState<string | null>(null);
@@ -32,10 +36,12 @@ export const ManageTypeDialog = () => {
     <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" className="bg-background text-foreground">
-            <Settings2 className="mr-2 h-4 w-4" />
-            Manage Types
-          </Button>
+          {children || (
+            <Button variant="outline" className="bg-background text-foreground">
+              <Settings2 className="mr-2 h-4 w-4" />
+              Manage Types
+            </Button>
+          )}
         </DialogTrigger>
         <DialogContent className="max-w-md">
           <DialogHeader>

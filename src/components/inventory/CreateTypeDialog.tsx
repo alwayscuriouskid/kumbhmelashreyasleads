@@ -13,7 +13,12 @@ import { Plus } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-export const CreateTypeDialog = ({ onSuccess }: { onSuccess: () => void }) => {
+interface CreateTypeDialogProps {
+  onSuccess: () => void;
+  children?: React.ReactNode;
+}
+
+export const CreateTypeDialog = ({ onSuccess, children }: CreateTypeDialogProps) => {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -55,10 +60,12 @@ export const CreateTypeDialog = ({ onSuccess }: { onSuccess: () => void }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="bg-background text-foreground">
-          <Plus className="mr-2 h-4 w-4" />
-          Add Type
-        </Button>
+        {children || (
+          <Button variant="outline" className="bg-background text-foreground">
+            <Plus className="mr-2 h-4 w-4" />
+            Add Type
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="bg-background">
         <DialogHeader>

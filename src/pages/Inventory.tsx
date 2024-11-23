@@ -3,12 +3,7 @@ import { Package } from "lucide-react";
 import { useInventoryItems } from "@/hooks/useInventory";
 import { InventoryTable } from "@/components/inventory/InventoryTable";
 import { CreateInventoryDialog } from "@/components/inventory/CreateInventoryDialog";
-import { CreateTypeDialog } from "@/components/inventory/CreateTypeDialog";
-import { CreateZoneDialog } from "@/components/inventory/CreateZoneDialog";
-import { CreateSectorDialog } from "@/components/inventory/CreateSectorDialog";
-import { ManageTypeDialog } from "@/components/inventory/ManageTypeDialog";
-import { ManageZoneDialog } from "@/components/inventory/ManageZoneDialog";
-import { ManageSectorDialog } from "@/components/inventory/ManageSectorDialog";
+import { InventoryManagementButtons } from "@/components/inventory/InventoryManagementButtons";
 
 const Inventory = () => {
   const { data: items, refetch } = useInventoryItems();
@@ -17,15 +12,7 @@ const Inventory = () => {
     <div className="p-8 space-y-6 w-full max-w-[calc(100vw-280px)]">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Inventory Management</h1>
-        <div className="flex gap-2">
-          <CreateTypeDialog onSuccess={refetch} />
-          <ManageTypeDialog />
-          <CreateZoneDialog onSuccess={refetch} />
-          <ManageZoneDialog />
-          <CreateSectorDialog onSuccess={refetch} />
-          <ManageSectorDialog />
-          <CreateInventoryDialog onSuccess={refetch} />
-        </div>
+        <InventoryManagementButtons onSuccess={refetch} />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
