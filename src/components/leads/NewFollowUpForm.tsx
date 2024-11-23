@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { FollowUp } from "@/types/leads";
@@ -25,22 +24,23 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
     console.log("Updating lead with follow-up data:", followUp);
     
     try {
-      // Validate UUID format
-      if (!leadId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
-        throw new Error("Invalid UUID format for leadId");
+      if (!leadId) {
+        throw new Error("Lead ID is required");
       }
 
       // First check if the lead exists
       const { data: leadExists, error: checkError } = await supabase
         .from('leads')
         .select('id')
-        .eq('id', leadId);
+        .eq('id', leadId)
+        .single();
 
       if (checkError) {
+        console.error("Error checking lead:", checkError);
         throw checkError;
       }
 
-      if (!leadExists || leadExists.length === 0) {
+      if (!leadExists) {
         throw new Error("Lead not found");
       }
 
@@ -66,11 +66,6 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
       if (error instanceof Error) {
         errorMessage = error.message;
       }
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
       throw error;
     }
   };
@@ -78,18 +73,27 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const newFollowUp: FollowUp = {
-      id: `followup-${Date.now()}`,
-      date: new Date().toISOString(),
-      notes,
-      outcome,
-      nextFollowUpDate: nextFollowUpDate || undefined,
-      assignedTo
-    };
-
-    console.log("Creating new follow-up:", newFollowUp);
-    
     try {
+      if (!leadId) {
+        toast({
+          title: "Error",
+          description: "Lead ID is required",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const newFollowUp: FollowUp = {
+        id: `followup-${Date.now()}`,
+        date: new Date().toISOString(),
+        notes,
+        outcome,
+        nextFollowUpDate: nextFollowUpDate || undefined,
+        assignedTo
+      };
+
+      console.log("Creating new follow-up:", newFollowUp);
+      
       // First update the lead table
       await updateLeadWithFollowUpData(newFollowUp);
       
@@ -97,7 +101,7 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
       if (onSubmit) {
         onSubmit(newFollowUp);
         toast({
-          title: "Follow-up Added",
+          title: "Success",
           description: "The follow-up has been successfully added.",
         });
       }
@@ -105,7 +109,11 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
       onCancel();
     } catch (error) {
       console.error("Failed to submit follow-up:", error);
-      // Error toast is already shown in updateLeadWithFollowUpData
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to add follow-up",
+        variant: "destructive",
+      });
     }
   };
 
@@ -124,7 +132,7 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
 
       <div className="space-y-2">
         <Label htmlFor="outcome">Outcome</Label>
-        <Input
+        <Textarea
           id="outcome"
           value={outcome}
           onChange={(e) => setOutcome(e.target.value)}
@@ -135,16 +143,17 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
 
       <div className="space-y-2">
         <Label htmlFor="nextFollowUpDate">Next Follow-up Date</Label>
-        <Input
+        <input
           id="nextFollowUpDate"
           type="date"
+          className="w-full px-3 py-2 border rounded-md"
           value={nextFollowUpDate}
           onChange={(e) => setNextFollowUpDate(e.target.value)}
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="assignedTo">Assigned To</Label>
+        <Label>Assigned To</Label>
         <TeamMemberSelect
           value={assignedTo}
           onChange={setAssignedTo}
