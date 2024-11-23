@@ -20,12 +20,21 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
   const [assignedTo, setAssignedTo] = useState("");
   const { toast } = useToast();
 
+  const isValidUUID = (uuid: string) => {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(uuid);
+  };
+
   const updateLeadWithFollowUpData = async (followUp: FollowUp) => {
     console.log("Updating lead with follow-up data:", followUp);
     
     try {
       if (!leadId) {
         throw new Error("Lead ID is required");
+      }
+
+      if (!isValidUUID(leadId)) {
+        throw new Error("Invalid lead ID format");
       }
 
       // First check if the lead exists
