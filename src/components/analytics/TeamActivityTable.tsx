@@ -34,8 +34,27 @@ const TeamActivityTable = () => {
       : 'note';
   };
 
+  const transformActivity = (activity: any): Activity => ({
+    id: activity.id,
+    date: activity.created_at,
+    time: new Date(activity.created_at).toLocaleTimeString(),
+    type: validateActivityType(activity.type),
+    description: activity.notes,
+    teamMember: activity.assigned_to,
+    leadName: activity.lead?.client_name,
+    nextFollowUp: activity.lead?.next_follow_up,
+    followUpOutcome: activity.lead?.follow_up_outcome,
+    nextAction: activity.lead?.next_action,
+    activityOutcome: activity.outcome,
+    outcome: activity.outcome,
+    notes: activity.notes,
+    assignedTo: activity.assigned_to,
+    contactPerson: activity.contact_person
+  });
+
   const fetchActivities = async () => {
     try {
+      console.log('Fetching activities...');
       const { data: activitiesData, error: activitiesError } = await supabase
         .from('activities')
         .select(`
@@ -52,28 +71,11 @@ const TeamActivityTable = () => {
 
       if (activitiesError) throw activitiesError;
 
-      const transformedActivities: Activity[] = activitiesData.map(activity => ({
-        id: activity.id,
-        date: activity.created_at,
-        time: new Date(activity.created_at).toLocaleTimeString(),
-        type: validateActivityType(activity.type),
-        description: activity.notes,
-        teamMember: activity.assigned_to,
-        leadName: activity.lead?.client_name,
-        nextFollowUp: activity.lead?.next_follow_up,
-        followUpOutcome: activity.lead?.follow_up_outcome,
-        nextAction: activity.lead?.next_action,
-        activityOutcome: activity.outcome,
-        outcome: activity.outcome,
-        notes: activity.notes,
-        assignedTo: activity.assigned_to,
-        contactPerson: activity.contact_person
-      }));
-
-      console.log('Transformed activities with lead data:', transformedActivities);
+      console.log('Fetched activities:', activitiesData);
+      const transformedActivities = activitiesData.map(transformActivity);
       setActivities(transformedActivities);
     } catch (error) {
-      console.error('Error fetching activities:', error);
+      console.error("Error fetching activities:", error);
       toast({
         title: "Error",
         description: "Failed to load activities",
@@ -85,7 +87,7 @@ const TeamActivityTable = () => {
   useEffect(() => {
     fetchActivities();
 
-    // Subscribe to real-time updates for both activities and leads
+    // Subscribe to real-time updates for activities
     const activitiesChannel = supabase
       .channel('activities-changes')
       .on(
@@ -95,13 +97,16 @@ const TeamActivityTable = () => {
           schema: 'public',
           table: 'activities'
         },
-        (payload) => {
+        async (payload) => {
           console.log('Real-time activity update received:', payload);
-          fetchActivities(); // Refresh the entire list when we get an update
+          await fetchActivities(); // Refresh the entire list to get the latest data
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Activities subscription status:', status);
+      });
 
+    // Subscribe to real-time updates for leads (since we need lead data too)
     const leadsChannel = supabase
       .channel('leads-changes')
       .on(
@@ -111,12 +116,14 @@ const TeamActivityTable = () => {
           schema: 'public',
           table: 'leads'
         },
-        (payload) => {
+        async (payload) => {
           console.log('Real-time lead update received:', payload);
-          fetchActivities(); // Refresh to get updated lead information
+          await fetchActivities(); // Refresh to get updated lead information
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Leads subscription status:', status);
+      });
 
     return () => {
       supabase.removeChannel(activitiesChannel);
