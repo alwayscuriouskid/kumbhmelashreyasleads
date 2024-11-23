@@ -1,44 +1,24 @@
 import { useState, useEffect } from "react";
-import { FollowUp, Activity } from "@/types/leads";
-import { Card, CardContent } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
+import { Activity } from "@/types/leads";
 import { supabase } from "@/integrations/supabase/client";
-import FollowUpTabs from "./follow-ups/FollowUpTabs";
-import FollowUpList from "./follow-ups/FollowUpList";
+import { useToast } from "./use-toast";
 import { setupActivitySubscription, cleanupSubscription } from "@/utils/realtimeSubscriptions";
 
-interface LeadFollowUpsProps {
-  leadId: string;
-  followUps: FollowUp[];
-  onFollowUpSubmit?: (followUp: FollowUp) => void;
-  onActivityAdd?: (activity: Activity) => void;
-  contactPerson?: string;
-  onLeadUpdate?: (updates: any) => void;
-}
-
-const LeadFollowUps = ({ 
-  leadId, 
-  followUps = [], 
-  onFollowUpSubmit,
-  onActivityAdd,
-  contactPerson = "",
-  onLeadUpdate
-}: LeadFollowUpsProps) => {
+export const useActivities = (leadId: string) => {
   const [activities, setActivities] = useState<Activity[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchActivities();
     
-    // Set up real-time subscription
     const channel = setupActivitySubscription((payload) => {
       if (payload.new.lead_id === leadId) {
-        console.log('Updating activities with new data');
+        console.log('Real-time activity update received:', payload);
         setActivities(prev => [transformActivity(payload.new), ...prev]);
       }
     });
 
-    // Cleanup subscription on unmount
     return () => {
       cleanupSubscription(channel);
     };
@@ -68,6 +48,7 @@ const LeadFollowUps = ({
 
   const fetchActivities = async () => {
     try {
+      setIsLoading(true);
       const { data, error } = await supabase
         .from('activities')
         .select('*')
@@ -85,37 +66,14 @@ const LeadFollowUps = ({
         description: "Failed to load activities",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleFollowUpSubmit = async (followUp: FollowUp) => {
-    if (onFollowUpSubmit) {
-      onFollowUpSubmit(followUp);
-    }
+  return {
+    activities,
+    isLoading,
+    refreshActivities: fetchActivities
   };
-
-  const handleActivityAdd = async (activity: Activity) => {
-    if (onActivityAdd) {
-      onActivityAdd(activity);
-    }
-  };
-
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardContent className="pt-6">
-          <FollowUpTabs
-            leadId={leadId}
-            onFollowUpSubmit={handleFollowUpSubmit}
-            onActivityAdd={handleActivityAdd}
-            contactPerson={contactPerson}
-          />
-        </CardContent>
-      </Card>
-
-      <FollowUpList activities={activities} />
-    </div>
-  );
 };
-
-export default LeadFollowUps;
