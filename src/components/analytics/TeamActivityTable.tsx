@@ -67,8 +67,7 @@ const TeamActivityTable = () => {
         outcome: activity.outcome,
         notes: activity.notes,
         assignedTo: activity.assigned_to,
-        contactPerson: activity.contact_person,
-        nextFollowUpDate: activity.lead?.next_follow_up
+        contactPerson: activity.contact_person
       }));
 
       console.log('Transformed activities with lead data:', transformedActivities);
