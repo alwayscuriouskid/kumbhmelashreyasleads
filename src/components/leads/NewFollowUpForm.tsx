@@ -154,11 +154,12 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
 
       <div className="space-y-2">
         <Label>Next Follow-up Date</Label>
-        <DatePicker
-          selected={nextFollowUpDate}
-          onSelect={setNextFollowUpDate}
-          className="w-full"
-        />
+        <div className="w-full">
+          <DatePicker
+            selected={nextFollowUpDate}
+            onSelect={setNextFollowUpDate}
+          />
+        </div>
       </div>
 
       <div className="space-y-2">
