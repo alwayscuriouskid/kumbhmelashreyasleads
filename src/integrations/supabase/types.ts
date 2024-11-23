@@ -20,6 +20,7 @@ export type Database = {
           lead_id: string | null
           location: string | null
           next_action: string | null
+          next_follow_up: string | null
           notes: string | null
           outcome: string | null
           start_time: string | null
@@ -36,6 +37,7 @@ export type Database = {
           lead_id?: string | null
           location?: string | null
           next_action?: string | null
+          next_follow_up?: string | null
           notes?: string | null
           outcome?: string | null
           start_time?: string | null
@@ -52,6 +54,7 @@ export type Database = {
           lead_id?: string | null
           location?: string | null
           next_action?: string | null
+          next_follow_up?: string | null
           notes?: string | null
           outcome?: string | null
           start_time?: string | null

@@ -32,7 +32,8 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
           next_action: activity.nextAction,
           location: activity.location,
           call_type: activity.callType,
-          contact_person: activity.contactPerson
+          contact_person: activity.contactPerson,
+          next_follow_up: activity.type === 'follow_up' ? activity.nextFollowUp : null
         })
         .select()
         .single();
