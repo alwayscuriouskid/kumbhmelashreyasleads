@@ -54,7 +54,11 @@ const LeadRowExpanded = ({ lead, visibleColumns, onFollowUpSubmit }: LeadRowExpa
         `)
         .eq('lead_id', lead.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching bookings:", error);
+        throw error;
+      }
+      console.log("Fetched bookings:", data);
       return data;
     },
     enabled: !!lead.id
@@ -65,7 +69,8 @@ const LeadRowExpanded = ({ lead, visibleColumns, onFollowUpSubmit }: LeadRowExpa
       pending: "bg-yellow-500/20 text-yellow-500",
       confirmed: "bg-green-500/20 text-green-500",
       cancelled: "bg-red-500/20 text-red-500",
-      completed: "bg-blue-500/20 text-blue-500"
+      completed: "bg-blue-500/20 text-blue-500",
+      tentative: "bg-purple-500/20 text-purple-500"
     };
     return colors[status] || "bg-gray-500/20 text-gray-500";
   };

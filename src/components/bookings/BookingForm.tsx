@@ -35,6 +35,8 @@ export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Submitting booking form with lead:", selectedLeadId);
+    
     if (!selectedItems.length) {
       toast({
         title: "Error",
@@ -68,13 +70,23 @@ export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
       leadId: selectedLeadId || null,
     };
 
-    await onSubmit(bookingData);
+    try {
+      await onSubmit(bookingData);
 
-    // Convert lead if one was selected
-    if (selectedLeadId) {
-      await convertLead.mutateAsync({
-        leadId: selectedLeadId,
-        conversionType: 'booking'
+      // Convert lead if one was selected
+      if (selectedLeadId) {
+        console.log("Converting lead:", selectedLeadId);
+        await convertLead.mutateAsync({
+          leadId: selectedLeadId,
+          conversionType: 'booking'
+        });
+      }
+    } catch (error) {
+      console.error("Error submitting booking:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create booking. Please try again.",
+        variant: "destructive",
       });
     }
   };

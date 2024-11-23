@@ -19,32 +19,40 @@ interface CreateBookingDialogProps {
 export const CreateBookingDialog = ({ onSuccess }: CreateBookingDialogProps) => {
   const [open, setOpen] = useState(false);
 
-  const handleCreateBooking = async (bookings: any[]) => {
+  const handleCreateBooking = async (formData: any) => {
     try {
+      console.log("Creating booking with data:", formData);
+
       // Create bookings for each selected item with their quantities
-      const bookingPromises = bookings.map(async (booking) => {
+      const bookingPromises = formData.selectedItems.map(async (booking: any) => {
+        const bookingData = {
+          inventory_item_id: booking.inventory_item_id,
+          start_date: formData.startDate,
+          end_date: formData.endDate,
+          customer_name: formData.customerName,
+          customer_email: formData.customerEmail,
+          customer_phone: formData.customerPhone,
+          customer_address: formData.customerAddress,
+          team_member_id: formData.teamMemberId,
+          team_member_name: formData.teamMemberName,
+          payment_method: formData.paymentMethod,
+          payment_amount: formData.payment_amount,
+          notes: formData.notes,
+          status: "tentative",
+          quantity: booking.quantity,
+          lead_id: formData.leadId // Ensure lead_id is included
+        };
+
+        console.log("Creating booking with data:", bookingData);
+
         const { error: bookingError } = await supabase
           .from("bookings")
-          .insert([
-            {
-              inventory_item_id: booking.inventory_item_id,
-              start_date: booking.startDate,
-              end_date: booking.endDate,
-              customer_name: booking.customerName,
-              customer_email: booking.customerEmail,
-              customer_phone: booking.customerPhone,
-              customer_address: booking.customerAddress,
-              team_member_id: booking.teamMemberId,
-              team_member_name: booking.teamMemberName,
-              payment_method: booking.paymentMethod,
-              payment_amount: booking.payment_amount,
-              notes: booking.notes,
-              status: "tentative",
-              quantity: booking.quantity
-            },
-          ]);
+          .insert([bookingData]);
 
-        if (bookingError) throw bookingError;
+        if (bookingError) {
+          console.error("Error creating booking:", bookingError);
+          throw bookingError;
+        }
       });
 
       await Promise.all(bookingPromises);
@@ -57,6 +65,7 @@ export const CreateBookingDialog = ({ onSuccess }: CreateBookingDialogProps) => 
       setOpen(false);
       onSuccess();
     } catch (error: any) {
+      console.error("Error in handleCreateBooking:", error);
       toast({
         title: "Error",
         description: error.message,
