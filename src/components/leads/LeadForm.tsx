@@ -49,12 +49,14 @@ const LeadForm = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({
+    
+    const leadData = {
       ...formData,
-      date: formData.date || new Date().toISOString().split("T")[0],
-      createdAt: formData.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
+      requirement: formData.requirement || {},
+      date: formData.date || new Date().toISOString().split('T')[0],
+    };
+
+    onSubmit(leadData);
   };
 
   const handleActivityAdd = (activity: Activity) => {
