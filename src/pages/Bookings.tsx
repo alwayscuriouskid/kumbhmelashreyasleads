@@ -58,7 +58,7 @@ const Bookings = () => {
   });
 
   return (
-    <div className="space-y-4 w-full max-w-[calc(100vw-280px)]">
+    <div className="p-8 space-y-4 w-full max-w-[calc(100vw-280px)]">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Bookings</h1>
         <CreateBookingDialog onSuccess={refetch} />
