@@ -26,12 +26,17 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
     console.log("Updating lead with follow-up data:", followUp);
     
     try {
+      // Format the date for database storage
+      const formattedDate = followUp.nextFollowUpDate ? format(new Date(followUp.nextFollowUpDate), 'yyyy-MM-dd') : null;
+      console.log("Formatted next follow-up date:", formattedDate);
+
       // Update leads table with follow-up information
       const { error: leadError } = await supabase
         .from('leads')
         .update({
-          next_follow_up: followUp.nextFollowUpDate,
+          next_follow_up: formattedDate,
           follow_up_outcome: followUp.outcome,
+          next_action: `Follow up on ${formattedDate || 'N/A'}`,
           updated_at: new Date().toISOString()
         })
         .eq('id', leadId);
@@ -41,7 +46,7 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
         throw leadError;
       }
 
-      // Store the follow-up in activities table as well
+      // Store the follow-up in activities table
       const { error: activityError } = await supabase
         .from('activities')
         .insert({
@@ -50,7 +55,8 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
           notes: followUp.notes,
           outcome: followUp.outcome,
           assigned_to: followUp.assignedTo,
-          next_action: `Follow up on ${followUp.nextFollowUpDate || 'N/A'}`
+          next_action: `Follow up on ${formattedDate || 'N/A'}`,
+          next_follow_up: formattedDate
         });
 
       if (activityError) {
