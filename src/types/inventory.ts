@@ -28,7 +28,7 @@ export interface InventoryItem {
   sector_id: string;
   current_price: number;
   min_price: number;
-  status: 'available' | 'booked' | 'sold';
+  status: string; // Changed from 'available' | 'booked' | 'sold' to string
   created_at: string | null;
   ltc?: number;
   dimensions?: string;
@@ -87,7 +87,7 @@ export interface Booking {
   inventory_item_id: string;
   start_date: string;
   end_date: string;
-  status: 'tentative' | 'confirmed' | 'cancelled';
+  status: string;
   created_at: string;
   updated_at: string;
   team_member_name: string;
