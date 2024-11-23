@@ -31,10 +31,11 @@ const LeadFollowUps = ({
     fetchActivities();
     
     // Set up real-time subscription
-    const channel = setupActivitySubscription((payload) => {
+    const channel = setupActivitySubscription(async (payload) => {
       if (payload.new.lead_id === leadId) {
-        console.log('Updating activities with new data');
-        setActivities(prev => [transformActivity(payload.new), ...prev]);
+        console.log('Real-time activity update received:', payload);
+        await fetchActivities(); // Refresh all activities
+        await fetchAndUpdateLead(); // Fetch latest lead data
       }
     });
 
@@ -43,6 +44,28 @@ const LeadFollowUps = ({
       cleanupSubscription(channel);
     };
   }, [leadId]);
+
+  const fetchAndUpdateLead = async () => {
+    try {
+      const { data: lead, error } = await supabase
+        .from('leads')
+        .select('next_action, follow_up_outcome, next_follow_up')
+        .eq('id', leadId)
+        .single();
+
+      if (error) throw error;
+
+      if (onLeadUpdate && lead) {
+        onLeadUpdate({
+          nextAction: lead.next_action,
+          followUpOutcome: lead.follow_up_outcome,
+          nextFollowUp: lead.next_follow_up
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching updated lead data:", error);
+    }
+  };
 
   const transformActivity = (data: any): Activity => ({
     id: data.id,
@@ -89,16 +112,27 @@ const LeadFollowUps = ({
   };
 
   const handleFollowUpSubmit = async (followUp: FollowUp) => {
-    if (onFollowUpSubmit) {
-      onFollowUpSubmit(followUp);
+    try {
+      if (onFollowUpSubmit) {
+        onFollowUpSubmit(followUp);
+      }
+      await fetchActivities();
+      await fetchAndUpdateLead();
+    } catch (error) {
+      console.error("Error handling follow-up submit:", error);
     }
   };
 
   const handleActivityAdd = async (activity: Activity) => {
-    if (onActivityAdd) {
-      onActivityAdd(activity);
+    try {
+      if (onActivityAdd) {
+        onActivityAdd(activity);
+      }
+      await fetchActivities();
+      await fetchAndUpdateLead();
+    } catch (error) {
+      console.error("Error handling activity add:", error);
     }
-    await fetchActivities(); // Refresh activities list
   };
 
   const handleLeadUpdate = async (updates: any) => {
@@ -106,7 +140,8 @@ const LeadFollowUps = ({
     if (onLeadUpdate) {
       onLeadUpdate(updates);
     }
-    await fetchActivities(); // Refresh activities to reflect new updates
+    await fetchActivities();
+    await fetchAndUpdateLead();
   };
 
   return (

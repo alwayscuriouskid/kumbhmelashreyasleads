@@ -42,23 +42,17 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
         throw activityError;
       }
 
-      // Calculate next follow up date based on activity type
-      let nextFollowUp = null;
-      if (activity.type === 'follow_up') {
-        nextFollowUp = activity.nextFollowUp;
-      }
-
       // Prepare lead updates
       const leadUpdates = {
         next_action: activity.nextAction,
         follow_up_outcome: activity.outcome,
-        next_follow_up: nextFollowUp,
+        next_follow_up: activity.type === 'follow_up' ? activity.nextFollowUp : null,
         updated_at: new Date().toISOString()
       };
 
       console.log("Updating lead with:", leadUpdates);
 
-      // Then update the leads table with the latest activity information
+      // Update the leads table
       const { error: leadError } = await supabase
         .from('leads')
         .update(leadUpdates)
@@ -69,7 +63,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
         throw leadError;
       }
 
-      // Immediately fetch the updated lead data to ensure we have the latest state
+      // Fetch the updated lead data to ensure we have the latest state
       const { data: updatedLead, error: fetchError } = await supabase
         .from('leads')
         .select('next_action, follow_up_outcome, next_follow_up')
