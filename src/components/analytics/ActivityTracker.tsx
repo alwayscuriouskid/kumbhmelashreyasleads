@@ -8,9 +8,10 @@ interface ActivityTrackerProps {
   leadId: string;
   onActivityAdd: (activity: Activity) => void;
   contactPerson: string;
+  onLeadUpdate?: (updates: any) => void;  // Add this prop
 }
 
-const ActivityTracker = ({ leadId, onActivityAdd, contactPerson }: ActivityTrackerProps) => {
+const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }: ActivityTrackerProps) => {
   const { toast } = useToast();
 
   const updateLeadWithActivityData = async (activity: Partial<Activity>) => {
@@ -44,19 +45,21 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson }: ActivityTrack
       // Calculate next follow up date based on activity type
       let nextFollowUp = null;
       if (activity.type === 'follow_up') {
-        // If it's a follow-up activity, use the specified date
         nextFollowUp = activity.nextFollowUp;
       }
+
+      // Prepare lead updates
+      const leadUpdates = {
+        next_action: activity.nextAction,
+        follow_up_outcome: activity.outcome,
+        next_follow_up: nextFollowUp,
+        updated_at: new Date().toISOString()
+      };
 
       // Then update the leads table with the latest activity information
       const { error: leadError } = await supabase
         .from('leads')
-        .update({
-          next_action: activity.nextAction,
-          follow_up_outcome: activity.outcome,
-          next_follow_up: nextFollowUp,
-          updated_at: new Date().toISOString()
-        })
+        .update(leadUpdates)
         .eq('id', leadId);
 
       if (leadError) {
@@ -68,6 +71,15 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson }: ActivityTrack
         activityData,
         nextFollowUp
       });
+
+      // Notify parent component about lead updates
+      if (onLeadUpdate) {
+        onLeadUpdate({
+          nextAction: activity.nextAction,
+          followUpOutcome: activity.outcome,
+          nextFollowUp
+        });
+      }
       
       return activityData;
     } catch (error) {

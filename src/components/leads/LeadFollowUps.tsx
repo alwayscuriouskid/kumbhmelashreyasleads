@@ -60,7 +60,7 @@ const LeadFollowUps = ({
   });
 
   const validateActivityType = (type: string): Activity['type'] => {
-    const validTypes: Activity['type'][] = ['call', 'meeting', 'email', 'note', 'status_change'];
+    const validTypes: Activity['type'][] = ['call', 'meeting', 'email', 'note', 'status_change', 'follow_up'];
     return validTypes.includes(type as Activity['type']) 
       ? (type as Activity['type']) 
       : 'note';
@@ -100,6 +100,12 @@ const LeadFollowUps = ({
     }
   };
 
+  const handleLeadUpdate = (updates: any) => {
+    if (onLeadUpdate) {
+      onLeadUpdate(updates);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <Card>
@@ -109,6 +115,7 @@ const LeadFollowUps = ({
             onFollowUpSubmit={handleFollowUpSubmit}
             onActivityAdd={handleActivityAdd}
             contactPerson={contactPerson}
+            onLeadUpdate={handleLeadUpdate}
           />
         </CardContent>
       </Card>

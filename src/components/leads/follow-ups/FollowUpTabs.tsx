@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FollowUp } from "@/types/leads";
+import { FollowUp, Activity } from "@/types/leads";
 import NewFollowUpForm from "../NewFollowUpForm";
 import ActivityTracker from "../../analytics/ActivityTracker";
 
@@ -8,13 +8,15 @@ interface FollowUpTabsProps {
   onFollowUpSubmit: (followUp: FollowUp) => void;
   onActivityAdd: (activity: any) => void;
   contactPerson: string;
+  onLeadUpdate?: (updates: any) => void;
 }
 
 const FollowUpTabs = ({ 
   leadId, 
   onFollowUpSubmit, 
   onActivityAdd, 
-  contactPerson 
+  contactPerson,
+  onLeadUpdate
 }: FollowUpTabsProps) => {
   return (
     <Tabs defaultValue="followup" className="w-full">
@@ -34,6 +36,7 @@ const FollowUpTabs = ({
           leadId={leadId}
           onActivityAdd={onActivityAdd}
           contactPerson={contactPerson}
+          onLeadUpdate={onLeadUpdate}
         />
       </TabsContent>
     </Tabs>
