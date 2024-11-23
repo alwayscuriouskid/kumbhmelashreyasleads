@@ -4,10 +4,11 @@ import { OrdersAnalytics } from "@/components/analytics/inventory/OrdersAnalytic
 import { BookingsAnalytics } from "@/components/analytics/inventory/BookingsAnalytics";
 import { StatusAnalytics } from "@/components/analytics/inventory/StatusAnalytics";
 import { DetailedInventoryAnalyticsTable } from "@/components/analytics/inventory/DetailedInventoryAnalyticsTable";
-import { AnalyticsFilters } from "@/components/analytics/inventory/AnalyticsFilters";
+import { InventoryAvailabilityFilters } from "@/components/analytics/inventory/InventoryAvailabilityFilters";
 
 const InventoryAnalytics = () => {
   const [zoneFilter, setZoneFilter] = useState("all");
+  const [sectorFilter, setSectorFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
 
   return (
@@ -16,22 +17,24 @@ const InventoryAnalytics = () => {
         <h1 className="text-3xl font-bold tracking-tight">Inventory Analytics</h1>
       </div>
 
-      <AnalyticsFilters
+      <InventoryAvailabilityFilters
         zoneFilter={zoneFilter}
+        sectorFilter={sectorFilter}
         typeFilter={typeFilter}
         onZoneFilterChange={setZoneFilter}
+        onSectorFilterChange={setSectorFilter}
         onTypeFilterChange={setTypeFilter}
       />
 
-      <Tabs defaultValue="detailed" className="space-y-4">
+      <Tabs defaultValue="availability" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="detailed">Detailed Analysis</TabsTrigger>
+          <TabsTrigger value="availability">Available Inventory</TabsTrigger>
           <TabsTrigger value="status">Status Overview</TabsTrigger>
           <TabsTrigger value="orders">Orders Analysis</TabsTrigger>
           <TabsTrigger value="bookings">Bookings Analysis</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="detailed">
+        <TabsContent value="availability">
           <DetailedInventoryAnalyticsTable />
         </TabsContent>
 

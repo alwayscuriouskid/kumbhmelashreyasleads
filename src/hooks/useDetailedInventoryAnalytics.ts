@@ -12,13 +12,10 @@ export interface DetailedInventoryAnalytics {
   ltc: number | null;
   dimensions: string | null;
   quantity: number;
+  available_quantity: number;
   status: string;
   created_at: string;
   updated_at: string;
-  total_bookings: number;
-  confirmed_bookings: number;
-  times_ordered: number;
-  total_revenue: number;
 }
 
 export const useDetailedInventoryAnalytics = () => {
@@ -44,39 +41,35 @@ export const useDetailedInventoryAnalytics = () => {
           status,
           created_at,
           updated_at,
-          bookings:bookings (count),
-          confirmed_bookings:bookings!inner (count),
-          order_items (
-            count,
-            price_sum:price(sum)
-          )
+          bookings (count)
         `)
-        .eq('bookings.status', 'confirmed');
+        .eq('status', 'available');
 
       if (error) {
         console.error("Error fetching detailed inventory analytics:", error);
         throw error;
       }
 
-      return data.map(item => ({
-        item_id: item.id,
-        type_name: item.inventory_types?.name || 'Unknown',
-        zone_name: item.sectors?.zones?.name || 'Unknown',
-        sector_name: item.sectors?.name || 'Unknown',
-        sku: item.sku,
-        current_price: item.current_price,
-        min_price: item.min_price,
-        ltc: item.ltc,
-        dimensions: item.dimensions,
-        quantity: item.quantity,
-        status: item.status,
-        created_at: item.created_at,
-        updated_at: item.updated_at,
-        total_bookings: (item.bookings?.[0]?.count as number) || 0,
-        confirmed_bookings: (item.confirmed_bookings?.[0]?.count as number) || 0,
-        times_ordered: (item.order_items?.[0]?.count as number) || 0,
-        total_revenue: Number(item.order_items?.[0]?.price_sum) || 0
-      }));
+      return data.map(item => {
+        const bookedQuantity = (item.bookings?.[0]?.count as number) || 0;
+        
+        return {
+          item_id: item.id,
+          type_name: item.inventory_types?.name || 'Unknown',
+          zone_name: item.sectors?.zones?.name || 'Unknown',
+          sector_name: item.sectors?.name || 'Unknown',
+          sku: item.sku,
+          current_price: item.current_price,
+          min_price: item.min_price,
+          ltc: item.ltc,
+          dimensions: item.dimensions,
+          quantity: item.quantity,
+          available_quantity: item.quantity - bookedQuantity,
+          status: item.status,
+          created_at: item.created_at,
+          updated_at: item.updated_at
+        };
+      });
     },
   });
 };

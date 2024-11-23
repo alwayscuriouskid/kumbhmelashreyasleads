@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/table";
 import { useDetailedInventoryAnalytics } from "@/hooks/useDetailedInventoryAnalytics";
 import { formatDate } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 export const DetailedInventoryAnalyticsTable = () => {
   const { data: analytics, isLoading } = useDetailedInventoryAnalytics();
@@ -24,11 +25,11 @@ export const DetailedInventoryAnalyticsTable = () => {
             <TableHead>Type</TableHead>
             <TableHead>Location</TableHead>
             <TableHead>SKU</TableHead>
+            <TableHead>Total Quantity</TableHead>
+            <TableHead>Available Quantity</TableHead>
             <TableHead>Price Info</TableHead>
             <TableHead>Details</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Booking Stats</TableHead>
-            <TableHead>Order Stats</TableHead>
             <TableHead>Last Updated</TableHead>
           </TableRow>
         </TableHeader>
@@ -45,6 +46,8 @@ export const DetailedInventoryAnalyticsTable = () => {
                 </div>
               </TableCell>
               <TableCell>{item.sku || "N/A"}</TableCell>
+              <TableCell>{item.quantity}</TableCell>
+              <TableCell>{item.available_quantity}</TableCell>
               <TableCell>
                 <div className="space-y-1">
                   <div>Current: ${item.current_price}</div>
@@ -60,7 +63,6 @@ export const DetailedInventoryAnalyticsTable = () => {
               </TableCell>
               <TableCell>
                 <div className="space-y-1">
-                  <div>Qty: {item.quantity}</div>
                   {item.dimensions && (
                     <div className="text-sm text-muted-foreground">
                       Dim: {item.dimensions}
@@ -69,34 +71,17 @@ export const DetailedInventoryAnalyticsTable = () => {
                 </div>
               </TableCell>
               <TableCell>
-                <div
-                  className={`inline-flex px-2 py-1 rounded-full text-xs font-medium
-                    ${
-                      item.status === "available"
-                        ? "bg-green-100 text-green-800"
-                        : item.status === "booked"
-                        ? "bg-blue-100 text-blue-800"
-                        : "bg-gray-100 text-gray-800"
-                    }`}
+                <Badge
+                  variant={
+                    item.status === "available"
+                      ? "default"
+                      : item.status === "booked"
+                      ? "secondary"
+                      : "destructive"
+                  }
                 >
                   {item.status}
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="space-y-1">
-                  <div>Total: {item.total_bookings}</div>
-                  <div className="text-sm text-muted-foreground">
-                    Confirmed: {item.confirmed_bookings}
-                  </div>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="space-y-1">
-                  <div>Orders: {item.times_ordered}</div>
-                  <div className="text-sm text-muted-foreground">
-                    Revenue: ${item.total_revenue}
-                  </div>
-                </div>
+                </Badge>
               </TableCell>
               <TableCell>
                 {formatDate(new Date(item.updated_at))}
