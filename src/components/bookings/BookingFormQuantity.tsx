@@ -3,7 +3,7 @@ import { Label } from "@/components/ui/label";
 import { InventoryItem } from "@/types/inventory";
 
 interface BookingFormQuantityProps {
-  item: InventoryItem | undefined;
+  item: Omit<InventoryItem, 'status'> & { status: string } | undefined;
   itemId: string;
   quantity: number;
   onQuantityChange: (itemId: string, quantity: number) => void;
