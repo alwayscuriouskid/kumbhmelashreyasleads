@@ -26,6 +26,7 @@ export type Database = {
           payment_date: string | null
           payment_method: string | null
           payment_status: string | null
+          quantity: number
           start_date: string
           status: string
           team_member_id: string | null
@@ -48,6 +49,7 @@ export type Database = {
           payment_date?: string | null
           payment_method?: string | null
           payment_status?: string | null
+          quantity?: number
           start_date: string
           status: string
           team_member_id?: string | null
@@ -70,6 +72,7 @@ export type Database = {
           payment_date?: string | null
           payment_method?: string | null
           payment_status?: string | null
+          quantity?: number
           start_date?: string
           status?: string
           team_member_id?: string | null
@@ -386,6 +389,7 @@ export type Database = {
           inventory_item_id: string
           order_id: string
           price: number
+          quantity: number
         }
         Insert: {
           created_at?: string | null
@@ -393,6 +397,7 @@ export type Database = {
           inventory_item_id: string
           order_id: string
           price: number
+          quantity?: number
         }
         Update: {
           created_at?: string | null
@@ -400,6 +405,7 @@ export type Database = {
           inventory_item_id?: string
           order_id?: string
           price?: number
+          quantity?: number
         }
         Relationships: [
           {

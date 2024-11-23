@@ -21,7 +21,9 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
 
   const handleCreateOrder = async (formData: any) => {
     try {
-      // Create the order
+      console.log("Creating order with data:", formData);
+
+      // First create the order
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .insert([
@@ -30,9 +32,8 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
             customer_email: formData.customerEmail,
             customer_phone: formData.customerPhone,
             customer_address: formData.customerAddress,
-            team_member_id: formData.assignedTo,
+            team_member_id: formData.teamMemberId,
             payment_method: formData.paymentMethod,
-            payment_terms: formData.paymentTerms,
             notes: formData.notes,
             total_amount: formData.totalAmount,
             status: "pending",
@@ -43,12 +44,14 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
 
       if (orderError) throw orderError;
 
-      // Create order items with quantities
-      const orderItems = formData.selectedItems.map((itemId: string) => ({
+      console.log("Order created:", order);
+
+      // Then create order items with quantities
+      const orderItems = formData.selectedItems.map((item: any) => ({
         order_id: order.id,
-        inventory_item_id: itemId,
-        quantity: formData.quantities[itemId] || 1,
-        price: formData.quantities[itemId] || 1,
+        inventory_item_id: item.inventory_item_id,
+        quantity: item.quantity,
+        price: item.price,
       }));
 
       const { error: itemsError } = await supabase
@@ -57,13 +60,17 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
 
       if (itemsError) throw itemsError;
 
-      // Update inventory items status
-      const { error: updateError } = await supabase
-        .from("inventory_items")
-        .update({ status: "booked" })
-        .in("id", formData.selectedItems);
+      console.log("Order items created");
 
-      if (updateError) throw updateError;
+      // Update inventory items status
+      for (const item of formData.selectedItems) {
+        const { error: updateError } = await supabase
+          .from("inventory_items")
+          .update({ status: "sold" })
+          .eq("id", item.inventory_item_id);
+
+        if (updateError) throw updateError;
+      }
 
       toast({
         title: "Success",
@@ -73,6 +80,7 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
       setOpen(false);
       onSuccess();
     } catch (error: any) {
+      console.error("Error creating order:", error);
       toast({
         title: "Error",
         description: error.message,

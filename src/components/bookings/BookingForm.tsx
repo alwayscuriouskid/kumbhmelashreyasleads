@@ -8,6 +8,7 @@ import { InventorySelector } from "../orders/InventorySelector";
 import { DatePicker } from "@/components/ui/date-picker";
 import { useToast } from "@/components/ui/use-toast";
 import { useInventoryItems } from "@/hooks/useInventory";
+import { BookingFormQuantity } from "./BookingFormQuantity";
 import {
   Select,
   SelectContent,
@@ -40,9 +41,9 @@ export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
 
   const calculateTotalAmount = () => {
     return selectedItems.reduce((total, itemId) => {
-      const item = inventoryItems?.find(item => item.id === itemId);
+      const item = inventoryItems?.find((item) => item.id === itemId);
       const quantity = quantities[itemId] || 1;
-      return total + ((item?.current_price || 0) * quantity);
+      return total + (item?.current_price || 0) * quantity;
     }, 0);
   };
 
@@ -64,20 +65,12 @@ export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
       });
       return;
     }
-    if (!formData.assignedTo) {
-      toast({
-        title: "Error",
-        description: "Please enter the person assigned to this booking",
-        variant: "destructive",
-      });
-      return;
-    }
 
     // Validate quantities
     for (const itemId of selectedItems) {
-      const item = inventoryItems?.find(i => i.id === itemId);
+      const item = inventoryItems?.find((i) => i.id === itemId);
       const requestedQuantity = quantities[itemId] || 1;
-      
+
       if (item && requestedQuantity > (item.available_quantity || 0)) {
         toast({
           title: "Error",
@@ -88,14 +81,16 @@ export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
       }
     }
 
-    const bookingData = selectedItems.map(itemId => ({
+    const bookingData = selectedItems.map((itemId) => ({
       ...formData,
       inventory_item_id: itemId,
       quantity: quantities[itemId] || 1,
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
       teamMemberName: formData.assignedTo,
-      payment_amount: (inventoryItems?.find(i => i.id === itemId)?.current_price || 0) * (quantities[itemId] || 1),
+      payment_amount:
+        (inventoryItems?.find((i) => i.id === itemId)?.current_price || 0) *
+        (quantities[itemId] || 1),
     }));
 
     onSubmit(bookingData);
@@ -106,9 +101,9 @@ export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
   };
 
   const handleQuantityChange = (itemId: string, quantity: number) => {
-    setQuantities(prev => ({
+    setQuantities((prev) => ({
       ...prev,
-      [itemId]: quantity
+      [itemId]: quantity,
     }));
   };
 
@@ -119,10 +114,7 @@ export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
           <CardTitle>Customer Information</CardTitle>
         </CardHeader>
         <CardContent>
-          <CustomerInfoSection
-            formData={formData}
-            onChange={handleFormChange}
-          />
+          <CustomerInfoSection formData={formData} onChange={handleFormChange} />
         </CardContent>
       </Card>
 
@@ -142,22 +134,15 @@ export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
           {selectedItems.length > 0 && (
             <div className="space-y-4">
               <Label>Selected Items Quantities</Label>
-              {selectedItems.map(itemId => {
-                const item = inventoryItems?.find(i => i.id === itemId);
-                return (
-                  <div key={itemId} className="flex items-center gap-4">
-                    <span className="flex-grow">{item?.inventory_types?.name} (Available: {item?.available_quantity})</span>
-                    <Input
-                      type="number"
-                      min="1"
-                      max={item?.available_quantity}
-                      value={quantities[itemId] || 1}
-                      onChange={(e) => handleQuantityChange(itemId, parseInt(e.target.value))}
-                      className="w-24"
-                    />
-                  </div>
-                );
-              })}
+              {selectedItems.map((itemId) => (
+                <BookingFormQuantity
+                  key={itemId}
+                  item={inventoryItems?.find((i) => i.id === itemId)}
+                  itemId={itemId}
+                  quantity={quantities[itemId] || 1}
+                  onQuantityChange={handleQuantityChange}
+                />
+              ))}
             </div>
           )}
 
@@ -178,6 +163,11 @@ export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
                 placeholderText="Select end date"
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Total Amount</Label>
+            <div className="text-lg font-semibold">₹{calculateTotalAmount()}</div>
           </div>
 
           <div className="space-y-2">
@@ -206,11 +196,6 @@ export const BookingForm = ({ onSubmit, onCancel }: BookingFormProps) => {
                 <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Total Amount</Label>
-            <div className="text-lg font-semibold">₹{calculateTotalAmount()}</div>
           </div>
 
           <div className="space-y-2">
