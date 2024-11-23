@@ -32,7 +32,6 @@ const LeadFollowUps = ({
 
   const updateLeadTable = async (updates: any) => {
     try {
-      // Validate UUID format
       if (!leadId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
         console.error("Invalid UUID format for leadId:", leadId);
         toast({

@@ -2,6 +2,7 @@ import { Activity } from "@/types/leads";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
 import { PhoneCall, Calendar, Mail, MessageSquare } from "lucide-react";
+import { format } from "date-fns";
 
 interface ActivityListProps {
   activities: Activity[];
@@ -49,7 +50,7 @@ const ActivityList = ({ activities }: ActivityListProps) => {
                         {activity.callType && ` (${activity.callType})`}
                       </p>
                       <span className="text-sm text-muted-foreground">
-                        {new Date(activity.date).toLocaleDateString()}
+                        {format(new Date(activity.date), 'PPP')}
                       </span>
                     </div>
                     {(activity.startTime || activity.endTime) && (

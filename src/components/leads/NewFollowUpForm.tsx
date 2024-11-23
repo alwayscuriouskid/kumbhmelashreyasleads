@@ -6,6 +6,8 @@ import { useToast } from "@/hooks/use-toast";
 import { FollowUp } from "@/types/leads";
 import { supabase } from "@/integrations/supabase/client";
 import { TeamMemberSelect } from "@/components/shared/TeamMemberSelect";
+import { DatePicker } from "@/components/ui/date-picker";
+import { format } from "date-fns";
 
 interface NewFollowUpFormProps {
   leadId: string;
@@ -16,7 +18,7 @@ interface NewFollowUpFormProps {
 const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) => {
   const [notes, setNotes] = useState("");
   const [outcome, setOutcome] = useState("");
-  const [nextFollowUpDate, setNextFollowUpDate] = useState("");
+  const [nextFollowUpDate, setNextFollowUpDate] = useState<Date>();
   const [assignedTo, setAssignedTo] = useState("");
   const { toast } = useToast();
 
@@ -97,7 +99,7 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
         date: new Date().toISOString(),
         notes,
         outcome,
-        nextFollowUpDate: nextFollowUpDate || undefined,
+        nextFollowUpDate: nextFollowUpDate ? format(nextFollowUpDate, 'yyyy-MM-dd') : undefined,
         assignedTo
       };
 
@@ -151,13 +153,11 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="nextFollowUpDate">Next Follow-up Date</Label>
-        <input
-          id="nextFollowUpDate"
-          type="date"
-          className="w-full px-3 py-2 border rounded-md"
-          value={nextFollowUpDate}
-          onChange={(e) => setNextFollowUpDate(e.target.value)}
+        <Label>Next Follow-up Date</Label>
+        <DatePicker
+          selected={nextFollowUpDate}
+          onSelect={setNextFollowUpDate}
+          className="w-full"
         />
       </div>
 
