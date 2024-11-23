@@ -45,10 +45,7 @@ const PendingActionsTab = () => {
           client_name,
           next_action,
           next_follow_up,
-          team_members (
-            id,
-            name
-          )
+          team_member_id
         `)
         .not('next_action', 'is', null);
 
@@ -57,14 +54,26 @@ const PendingActionsTab = () => {
         throw error;
       }
 
+      // Fetch team members separately since we can't do a direct join
+      const { data: teamMembersData, error: teamMembersError } = await supabase
+        .from('team_members')
+        .select('id, name');
+
+      if (teamMembersError) {
+        console.error("Error fetching team members:", teamMembersError);
+        throw teamMembersError;
+      }
+
+      const teamMemberMap = new Map(teamMembersData.map(tm => [tm.id, tm.name]));
+
       let filteredActions = leads.map(lead => ({
         id: lead.id,
         type: lead.next_action?.toLowerCase().includes('follow') ? 'follow_up' : 'action',
         description: lead.next_action,
         dueDate: lead.next_follow_up,
         clientName: lead.client_name,
-        teamMember: lead.team_members?.name || 'Unassigned',
-        teamMemberId: lead.team_members?.id || ''
+        teamMember: teamMemberMap.get(lead.team_member_id) || 'Unassigned',
+        teamMemberId: lead.team_member_id || ''
       }));
 
       // Apply filters
@@ -106,7 +115,7 @@ const PendingActionsTab = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Team Members</SelectItem>
-            {(teamMembers as TeamMember[]).map((member) => (
+            {teamMembers.map((member: TeamMember) => (
               <SelectItem key={member.id} value={member.id}>
                 {member.name}
               </SelectItem>

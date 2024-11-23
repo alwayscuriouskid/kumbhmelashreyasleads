@@ -322,6 +322,7 @@ export type Database = {
           remarks: string | null
           requirement: Json
           status: string
+          team_member_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -343,6 +344,7 @@ export type Database = {
           remarks?: string | null
           requirement?: Json
           status?: string
+          team_member_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -364,9 +366,18 @@ export type Database = {
           remarks?: string | null
           requirement?: Json
           status?: string
+          team_member_id?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "leads_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       order_items: {
         Row: {
