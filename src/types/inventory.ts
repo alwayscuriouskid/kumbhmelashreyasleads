@@ -29,7 +29,7 @@ export interface InventoryItem {
   current_price: number;
   min_price: number;
   status: 'available' | 'booked' | 'sold';
-  created_at: string;
+  created_at: string | null;
   ltc?: number;
   dimensions?: string;
   quantity: number;

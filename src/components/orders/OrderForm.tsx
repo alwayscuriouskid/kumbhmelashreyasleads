@@ -155,7 +155,7 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
             <Label>Assigned To</Label>
             <TeamMemberSelect
               value={formData.teamMemberId}
-              onValueChange={(value) => handleFormChange("teamMemberId", value)}
+              onChange={(value) => handleFormChange("teamMemberId", value)}
             />
           </div>
 
