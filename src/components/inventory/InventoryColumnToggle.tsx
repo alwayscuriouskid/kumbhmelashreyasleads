@@ -16,9 +16,26 @@ export const InventoryColumnToggle = ({
   visibleColumns,
   onToggleColumn,
 }: InventoryColumnToggleProps) => {
+  const defaultColumns: Column[] = [
+    { key: "type", label: "Type" },
+    { key: "zone", label: "Zone" },
+    { key: "sector", label: "Sector" },
+    { key: "currentPrice", label: "Current Price" },
+    { key: "minPrice", label: "Min Price" },
+    { key: "ltc", label: "LTC" },
+    { key: "dimensions", label: "Dimensions" },
+    { key: "totalQuantity", label: "Total Quantity" },
+    { key: "availableQuantity", label: "Available" },
+    { key: "reservedQuantity", label: "Reserved" },
+    { key: "soldQuantity", label: "Sold" },
+    { key: "maintenanceQuantity", label: "In Maintenance" },
+    { key: "status", label: "Status" },
+    { key: "sku", label: "SKU" },
+  ];
+
   return (
     <TableColumnToggle
-      columns={columns}
+      columns={columns || defaultColumns}
       visibleColumns={visibleColumns}
       onToggleColumn={onToggleColumn}
     />

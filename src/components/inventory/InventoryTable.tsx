@@ -11,10 +11,10 @@ import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useInventoryItems } from "@/hooks/useInventory";
 import { EditableCell } from "./EditableCell";
-import { StatusCell } from "./StatusCell";
 import { TableActions } from "./TableActions";
 import { InventoryFilters } from "./InventoryFilters";
-import { EditableStatusCell } from "./EditableStatusCell"; // Importing the new EditableStatusCell component
+import { EditableStatusCell } from "./EditableStatusCell";
+import { InventoryQuantityColumns } from "./columns/InventoryQuantityColumns";
 
 export const InventoryTable = () => {
   const { data: items, refetch } = useInventoryItems();
@@ -34,6 +34,9 @@ export const InventoryTable = () => {
     dimensions: true,
     totalQuantity: true,
     availableQuantity: true,
+    reservedQuantity: true,
+    soldQuantity: true,
+    maintenanceQuantity: true,
     status: true,
     sku: true,
   });
@@ -116,14 +119,6 @@ export const InventoryTable = () => {
     return matchesSearch && matchesType && matchesZone && matchesStatus;
   });
 
-  const renderStatusCell = (item: any) => (
-    <EditableStatusCell
-      value={item.status}
-      isEditing={editingId === item.id}
-      onChange={(value) => setEditedValues({ ...editedValues, status: value })}
-    />
-  );
-
   return (
     <div className="space-y-4">
       <InventoryFilters
@@ -152,9 +147,12 @@ export const InventoryTable = () => {
               {visibleColumns.ltc && <TableHead>LTC</TableHead>}
               {visibleColumns.dimensions && <TableHead>Dimensions</TableHead>}
               {visibleColumns.totalQuantity && <TableHead>Total Quantity</TableHead>}
-              {visibleColumns.availableQuantity && <TableHead>Available Quantity</TableHead>}
+              {visibleColumns.availableQuantity && <TableHead>Available</TableHead>}
+              {visibleColumns.reservedQuantity && <TableHead>Reserved</TableHead>}
+              {visibleColumns.soldQuantity && <TableHead>Sold</TableHead>}
+              {visibleColumns.maintenanceQuantity && <TableHead>In Maintenance</TableHead>}
               {visibleColumns.status && <TableHead>Status</TableHead>}
-              <TableHead className="w-[100px]">Actions</TableHead>
+              <TableHead className="w-[30px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -226,27 +224,27 @@ export const InventoryTable = () => {
                     />
                   </TableCell>
                 )}
-                {visibleColumns.totalQuantity && (
+                
+                <InventoryQuantityColumns
+                  item={item}
+                  visibleColumns={visibleColumns}
+                  isEditing={editingId === item.id}
+                  onEditValue={(field, value) => setEditedValues({
+                    ...editedValues,
+                    [field]: value
+                  })}
+                />
+
+                {visibleColumns.status && (
                   <TableCell>
-                    <EditableCell
-                      value={item.quantity}
+                    <EditableStatusCell
+                      value={item.status}
                       isEditing={editingId === item.id}
                       onChange={(value) => setEditedValues({
                         ...editedValues,
-                        quantity: value
+                        status: value
                       })}
-                      type="number"
                     />
-                  </TableCell>
-                )}
-                {visibleColumns.availableQuantity && (
-                  <TableCell>
-                    {item.available_quantity || item.quantity}
-                  </TableCell>
-                )}
-                {visibleColumns.status && (
-                  <TableCell>
-                    {renderStatusCell(item)}
                   </TableCell>
                 )}
                 <TableCell>
