@@ -7,17 +7,16 @@ import NoteCard from "@/components/notes/NoteCard";
 
 const Trash = () => {
   const [trashedNotes, setTrashedNotes] = useState<Note[]>([]);
-  const { categories, tags, addCategory, updateNote, restoreNote } = useNotes();
+  const { categories, tags, addCategory, updateNote, restoreNote, fetchTrashedNotes } = useNotes();
 
   useEffect(() => {
-    loadTrashedNotes();
-  }, []);
+    const loadTrashedNotes = async () => {
+      const notes = await fetchTrashedNotes();
+      setTrashedNotes(notes);
+    };
 
-  const loadTrashedNotes = async () => {
-    const { fetchTrashedNotes } = useNotes();
-    const notes = await fetchTrashedNotes();
-    setTrashedNotes(notes);
-  };
+    loadTrashedNotes();
+  }, [fetchTrashedNotes]);
 
   const handleRestore = async (noteId: string) => {
     await restoreNote(noteId);
