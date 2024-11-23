@@ -26,9 +26,11 @@ export const DetailedInventoryAnalyticsTable = () => {
             <TableHead>Location</TableHead>
             <TableHead>SKU</TableHead>
             <TableHead>Total Quantity</TableHead>
-            <TableHead>Available Quantity</TableHead>
+            <TableHead>Available</TableHead>
+            <TableHead>Reserved</TableHead>
+            <TableHead>Sold</TableHead>
+            <TableHead>In Maintenance</TableHead>
             <TableHead>Price Info</TableHead>
-            <TableHead>Details</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Last Updated</TableHead>
           </TableRow>
@@ -49,6 +51,15 @@ export const DetailedInventoryAnalyticsTable = () => {
               <TableCell>{item.quantity}</TableCell>
               <TableCell>{item.available_quantity}</TableCell>
               <TableCell>
+                {item.quantity - item.available_quantity}
+              </TableCell>
+              <TableCell>
+                {item.sold_quantity || 0}
+              </TableCell>
+              <TableCell>
+                {item.maintenance_quantity || 0}
+              </TableCell>
+              <TableCell>
                 <div className="space-y-1">
                   <div>Current: ${item.current_price}</div>
                   <div className="text-sm text-muted-foreground">
@@ -62,22 +73,15 @@ export const DetailedInventoryAnalyticsTable = () => {
                 </div>
               </TableCell>
               <TableCell>
-                <div className="space-y-1">
-                  {item.dimensions && (
-                    <div className="text-sm text-muted-foreground">
-                      Dim: {item.dimensions}
-                    </div>
-                  )}
-                </div>
-              </TableCell>
-              <TableCell>
                 <Badge
                   variant={
                     item.status === "available"
                       ? "default"
-                      : item.status === "booked"
+                      : item.status === "reserved"
                       ? "secondary"
-                      : "destructive"
+                      : item.status === "maintenance"
+                      ? "destructive"
+                      : "outline"
                   }
                 >
                   {item.status}
