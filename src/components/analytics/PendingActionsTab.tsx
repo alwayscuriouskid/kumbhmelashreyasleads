@@ -18,6 +18,11 @@ interface PendingAction {
   teamMemberId: string;
 }
 
+interface TeamMember {
+  id: string;
+  name: string;
+}
+
 const PendingActionsTab = () => {
   const [selectedTeamMember, setSelectedTeamMember] = useState<string>("all");
   const [selectedActionType, setSelectedActionType] = useState<string>("all");
@@ -101,7 +106,7 @@ const PendingActionsTab = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Team Members</SelectItem>
-            {teamMembers.map((member: { id: string; name: string }) => (
+            {(teamMembers as TeamMember[]).map((member) => (
               <SelectItem key={member.id} value={member.id}>
                 {member.name}
               </SelectItem>
