@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LeadMetrics from "@/components/analytics/LeadMetrics";
 import LeadStatusChart from "@/components/analytics/LeadStatusChart";
 import LeadSourceChart from "@/components/analytics/LeadSourceChart";
@@ -8,7 +9,7 @@ import DailyActivityChart from "@/components/analytics/DailyActivityChart";
 import WeeklyActivityChart from "@/components/analytics/WeeklyActivityChart";
 import TeamPerformance from "@/components/analytics/TeamPerformance";
 import DetailedLeadMetrics from "@/components/analytics/DetailedLeadMetrics";
-import LeadActionNotifications from "@/components/analytics/LeadActionNotifications";
+import PendingActionsTab from "@/components/analytics/PendingActionsTab";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,14 +39,12 @@ const LeadAnalytics = () => {
         throw error;
       }
 
-      // Process the data based on filters
       const filteredLeads = leads?.filter(lead => {
         const leadDate = new Date(lead.created_at);
         if (filters.timeRange === "today") {
           const today = new Date();
           return leadDate.toDateString() === today.toDateString();
         }
-        // Add more filter conditions as needed
         return true;
       });
 
@@ -53,8 +52,6 @@ const LeadAnalytics = () => {
       return filteredLeads || [];
     }
   });
-
-  console.log("Analytics filters updated:", filters);
 
   const handleFilterChange = (newFilters: Filters) => {
     setFilters(newFilters);
@@ -66,43 +63,53 @@ const LeadAnalytics = () => {
         <h1 className="text-3xl font-bold">Lead Analytics Dashboard</h1>
       </div>
 
-      <ActivityFilters onFilterChange={handleFilterChange} />
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2">
-          <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <LeadMetrics />
-          </Card>
-        </div>
-        <div>
-          <LeadActionNotifications />
-        </div>
-      </div>
+      <Tabs defaultValue="overview" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="pending">Pending Actions</TabsTrigger>
+        </TabsList>
 
-      <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <DetailedLeadMetrics />
-      </Card>
+        <TabsContent value="overview">
+          <div className="space-y-4">
+            <ActivityFilters onFilterChange={handleFilterChange} />
+            
+            <div className="lg:col-span-2">
+              <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                <LeadMetrics />
+              </Card>
+            </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <DailyActivityChart />
-        <WeeklyActivityChart />
-      </div>
+            <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+              <DetailedLeadMetrics />
+            </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <LeadStatusChart />
-        </Card>
-        <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <LeadSourceChart />
-        </Card>
-      </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <DailyActivityChart />
+              <WeeklyActivityChart />
+            </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <TeamPerformance />
-        <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <ActivityTimeline />
-        </Card>
-      </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                <LeadStatusChart />
+              </Card>
+              <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                <LeadSourceChart />
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <TeamPerformance />
+              <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                <ActivityTimeline />
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="pending">
+          <PendingActionsTab />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
