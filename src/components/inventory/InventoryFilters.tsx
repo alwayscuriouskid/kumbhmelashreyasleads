@@ -40,7 +40,8 @@ export const InventoryFilters = ({
     { key: "minPrice", label: "Min Price" },
     { key: "ltc", label: "LTC" },
     { key: "dimensions", label: "Dimensions" },
-    { key: "quantity", label: "Quantity" },
+    { key: "totalQuantity", label: "Total Quantity" },
+    { key: "availableQuantity", label: "Available Quantity" },
     { key: "status", label: "Status" },
     { key: "sku", label: "SKU" },
   ];
