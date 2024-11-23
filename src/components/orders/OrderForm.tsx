@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CustomerInfoSection } from "./CustomerInfoSection";
 import { InventorySelector } from "./InventorySelector";
 import { useToast } from "@/components/ui/use-toast";
 import { useInventoryItems } from "@/hooks/useInventory";
+import { TeamMemberSelect } from "../shared/TeamMemberSelect";
+import { LeadSelector } from "../shared/LeadSelector";
+import { useLeadConversion } from "@/hooks/useLeadConversion";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -14,7 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { TeamMemberSelect } from "./TeamMemberSelect";
 
 interface OrderFormProps {
   onSubmit: (data: any) => void;
@@ -24,8 +25,11 @@ interface OrderFormProps {
 export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
   const { data: inventoryItems } = useInventoryItems();
   const { toast } = useToast();
+  const convertLead = useLeadConversion();
+  
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
+  const [selectedLeadId, setSelectedLeadId] = useState("");
   const [formData, setFormData] = useState({
     customerName: "",
     customerEmail: "",
@@ -33,7 +37,6 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
     customerAddress: "",
     teamMemberId: "",
     paymentMethod: "",
-    paymentTerms: "",
     notes: "",
   });
 
@@ -45,7 +48,7 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
     }, 0);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedItems.length) {
       toast({
@@ -56,21 +59,6 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
       return;
     }
 
-    // Validate quantities
-    for (const itemId of selectedItems) {
-      const item = inventoryItems?.find((i) => i.id === itemId);
-      const requestedQuantity = quantities[itemId] || 1;
-
-      if (item && requestedQuantity > (item.available_quantity || 0)) {
-        toast({
-          title: "Error",
-          description: `Only ${item.available_quantity} units available for ${item.inventory_types?.name}`,
-          variant: "destructive",
-        });
-        return;
-      }
-    }
-
     const orderData = {
       ...formData,
       selectedItems: selectedItems.map((itemId) => ({
@@ -79,20 +67,22 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
         price: inventoryItems?.find((i) => i.id === itemId)?.current_price || 0,
       })),
       totalAmount: calculateTotalAmount(),
+      leadId: selectedLeadId || null,
     };
 
-    onSubmit(orderData);
+    await onSubmit(orderData);
+
+    // Convert lead if one was selected
+    if (selectedLeadId) {
+      await convertLead.mutateAsync({
+        leadId: selectedLeadId,
+        conversionType: 'order'
+      });
+    }
   };
 
   const handleFormChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleQuantityChange = (itemId: string, quantity: number) => {
-    setQuantities((prev) => ({
-      ...prev,
-      [itemId]: quantity,
-    }));
   };
 
   return (
@@ -102,7 +92,17 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
           <CardTitle>Customer Information</CardTitle>
         </CardHeader>
         <CardContent>
-          <CustomerInfoSection formData={formData} onChange={handleFormChange} />
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Select Lead (Optional)</Label>
+              <LeadSelector
+                value={selectedLeadId}
+                onChange={setSelectedLeadId}
+                className="w-full"
+              />
+            </div>
+            <CustomerInfoSection formData={formData} onChange={handleFormChange} />
+          </div>
         </CardContent>
       </Card>
 
@@ -111,40 +111,12 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
           <CardTitle>Order Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-4">
-            <Label>Select Items</Label>
-            <InventorySelector
-              selectedItems={selectedItems}
-              onItemSelect={setSelectedItems}
-            />
-          </div>
-
-          {selectedItems.length > 0 && (
-            <div className="space-y-4">
-              <Label>Selected Items Quantities</Label>
-              {selectedItems.map((itemId) => {
-                const item = inventoryItems?.find((i) => i.id === itemId);
-                return (
-                  <div key={itemId} className="flex items-center gap-4">
-                    <span className="flex-grow">
-                      {item?.inventory_types?.name} (Available:{" "}
-                      {item?.available_quantity})
-                    </span>
-                    <Input
-                      type="number"
-                      min="1"
-                      max={item?.available_quantity}
-                      value={quantities[itemId] || 1}
-                      onChange={(e) =>
-                        handleQuantityChange(itemId, parseInt(e.target.value))
-                      }
-                      className="w-24"
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          <InventorySelector
+            selectedItems={selectedItems}
+            onItemSelect={setSelectedItems}
+            quantities={quantities}
+            onQuantityChange={setQuantities}
+          />
 
           <div className="space-y-2">
             <Label>Total Amount</Label>
@@ -176,15 +148,6 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
               </SelectContent>
             </Select>
           </div>
-
-          <div className="space-y-2">
-            <Label>Notes</Label>
-            <Input
-              value={formData.notes}
-              onChange={(e) => handleFormChange("notes", e.target.value)}
-              placeholder="Add any additional notes..."
-            />
-          </div>
         </CardContent>
       </Card>
 
@@ -192,7 +155,9 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
         <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit">Create Order</Button>
+        <Button type="submit" disabled={convertLead.isPending}>
+          Create Order
+        </Button>
       </div>
     </form>
   );

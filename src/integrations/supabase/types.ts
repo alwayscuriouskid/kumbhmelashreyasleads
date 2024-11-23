@@ -21,6 +21,7 @@ export type Database = {
           end_date: string
           id: string
           inventory_item_id: string
+          lead_id: string | null
           notes: string | null
           payment_amount: number | null
           payment_date: string | null
@@ -44,6 +45,7 @@ export type Database = {
           end_date: string
           id?: string
           inventory_item_id: string
+          lead_id?: string | null
           notes?: string | null
           payment_amount?: number | null
           payment_date?: string | null
@@ -67,6 +69,7 @@ export type Database = {
           end_date?: string
           id?: string
           inventory_item_id?: string
+          lead_id?: string | null
           notes?: string | null
           payment_amount?: number | null
           payment_date?: string | null
@@ -85,6 +88,13 @@ export type Database = {
             columns: ["inventory_item_id"]
             isOneToOne: false
             referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
             referencedColumns: ["id"]
           },
           {
@@ -310,6 +320,9 @@ export type Database = {
           budget: string | null
           client_name: string
           contact_person: string
+          conversion_date: string | null
+          conversion_status: string | null
+          conversion_type: string | null
           created_at: string | null
           date: string
           email: string
@@ -332,6 +345,9 @@ export type Database = {
           budget?: string | null
           client_name: string
           contact_person: string
+          conversion_date?: string | null
+          conversion_status?: string | null
+          conversion_type?: string | null
           created_at?: string | null
           date?: string
           email: string
@@ -354,6 +370,9 @@ export type Database = {
           budget?: string | null
           client_name?: string
           contact_person?: string
+          conversion_date?: string | null
+          conversion_status?: string | null
+          conversion_type?: string | null
           created_at?: string | null
           date?: string
           email?: string
@@ -434,6 +453,7 @@ export type Database = {
           customer_name: string | null
           customer_phone: string | null
           id: string
+          lead_id: string | null
           notes: string | null
           payment_date: string | null
           payment_method: string | null
@@ -453,6 +473,7 @@ export type Database = {
           customer_name?: string | null
           customer_phone?: string | null
           id?: string
+          lead_id?: string | null
           notes?: string | null
           payment_date?: string | null
           payment_method?: string | null
@@ -472,6 +493,7 @@ export type Database = {
           customer_name?: string | null
           customer_phone?: string | null
           id?: string
+          lead_id?: string | null
           notes?: string | null
           payment_date?: string | null
           payment_method?: string | null
@@ -483,6 +505,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "orders_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orders_team_member_id_fkey"
             columns: ["team_member_id"]

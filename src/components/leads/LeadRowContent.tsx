@@ -20,7 +20,7 @@ const LeadRowContent = ({
   handleInputChange,
   customStatuses 
 }: LeadRowContentProps) => {
-  const defaultStatuses = ["suspect", "prospect", "analysis", "negotiation", "conclusion", "ongoing_order"];
+  const defaultStatuses = ["suspect", "prospect", "analysis", "negotiation", "conclusion", "ongoing_order", "converted"];
   const allStatuses = [...defaultStatuses, ...customStatuses];
 
   const formatStatusLabel = (status: string) => {
@@ -37,7 +37,8 @@ const LeadRowContent = ({
       analysis: "bg-yellow-500/20 text-yellow-500",
       negotiation: "bg-purple-500/20 text-purple-500",
       conclusion: "bg-green-500/20 text-green-500",
-      ongoing_order: "bg-indigo-500/20 text-indigo-500"
+      ongoing_order: "bg-indigo-500/20 text-indigo-500",
+      converted: "bg-emerald-500/20 text-emerald-500"
     };
     return colors[status] || "bg-blue-500/20 text-blue-500";
   };
@@ -73,6 +74,18 @@ const LeadRowContent = ({
         onChange={(e) => handleInputChange(field, e.target.value)}
         className="w-full"
       />
+    );
+  };
+
+  const renderConversionStatus = () => {
+    if (!lead.conversion_status) return null;
+    
+    return (
+      <div className="mt-1">
+        <span className={`px-2 py-1 rounded-full text-xs bg-emerald-500/20 text-emerald-500`}>
+          Converted to {lead.conversion_type}
+        </span>
+      </div>
     );
   };
 
@@ -112,9 +125,12 @@ const LeadRowContent = ({
       {visibleColumns.status && (
         <TableCell>
           {renderCell("status", 
-            <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(lead.status)}`}>
-              {formatStatusLabel(lead.status)}
-            </span>
+            <div>
+              <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(lead.status)}`}>
+                {formatStatusLabel(lead.status)}
+              </span>
+              {renderConversionStatus()}
+            </div>
           )}
         </TableCell>
       )}
