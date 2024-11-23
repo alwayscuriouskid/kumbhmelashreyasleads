@@ -10,6 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import ActivityList from "./ActivityList";
+import { setupActivitySubscription, cleanupSubscription } from "@/utils/realtimeSubscriptions";
+import { RealtimeChannel } from "@supabase/supabase-js";
 
 interface LeadFollowUpsProps {
   leadId: string;
@@ -42,7 +44,37 @@ const LeadFollowUps = ({
 
   useEffect(() => {
     fetchActivities();
+    
+    // Set up real-time subscription
+    const channel = setupActivitySubscription((payload) => {
+      if (payload.new.lead_id === leadId) {
+        console.log('Updating activities with new data');
+        setActivities(prev => [transformActivity(payload.new), ...prev]);
+      }
+    });
+
+    // Cleanup subscription on unmount
+    return () => {
+      cleanupSubscription(channel);
+    };
   }, [leadId]);
+
+  const transformActivity = (data: any): Activity => {
+    return {
+      id: data.id,
+      type: validateActivityType(data.type),
+      date: data.created_at,
+      notes: data.notes || '',
+      outcome: data.outcome || '',
+      startTime: data.start_time,
+      endTime: data.end_time,
+      assignedTo: data.assigned_to || '',
+      nextAction: data.next_action || '',
+      contactPerson: data.contact_person || '',
+      location: data.location || '',
+      callType: data.call_type as 'incoming' | 'outgoing' | undefined
+    };
+  };
 
   const fetchActivities = async () => {
     try {
@@ -58,22 +90,7 @@ const LeadFollowUps = ({
 
       console.log("Fetched activities:", data);
       
-      // Transform and validate the data before setting state
-      const transformedActivities: Activity[] = data.map(activity => ({
-        id: activity.id,
-        type: validateActivityType(activity.type),
-        date: activity.created_at,
-        notes: activity.notes || '',
-        outcome: activity.outcome || '',
-        startTime: activity.start_time,
-        endTime: activity.end_time,
-        assignedTo: activity.assigned_to || '',
-        nextAction: activity.next_action || '',
-        contactPerson: activity.contact_person || '',
-        location: activity.location || '',
-        callType: activity.call_type as 'incoming' | 'outgoing' | undefined
-      }));
-
+      const transformedActivities = data.map(transformActivity);
       setActivities(transformedActivities);
     } catch (error) {
       console.error("Error fetching activities:", error);

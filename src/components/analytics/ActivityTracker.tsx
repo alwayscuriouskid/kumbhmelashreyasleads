@@ -73,10 +73,8 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson }: ActivityTrack
     console.log("Submitting new activity:", formData);
     
     try {
-      // First store activity and update lead
       const activityData = await updateLeadWithActivityData(formData);
       
-      // Then notify parent component with complete activity data
       const activity: Activity = {
         id: activityData.id,
         date: new Date().toISOString(),
