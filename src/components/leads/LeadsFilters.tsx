@@ -34,6 +34,23 @@ const LeadsFilters = ({
   const [customStartDate, setCustomStartDate] = useState<Date>();
   const [customEndDate, setCustomEndDate] = useState<Date>();
 
+  // Define the available lead statuses
+  const leadStatuses = [
+    "suspect",
+    "prospect",
+    "analysis",
+    "negotiation",
+    "conclusion",
+    "ongoing_order"
+  ];
+
+  const formatStatusLabel = (status: string) => {
+    return status
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
   const handleDateFilterChange = (value: string) => {
     setDateFilterType(value);
     
@@ -65,7 +82,7 @@ const LeadsFilters = ({
     setCustomStartDate(startDate);
     setCustomEndDate(endDate);
     if (startDate && endDate) {
-      setDateFilter(startDate); // You might want to handle date range differently in your main component
+      setDateFilter(startDate);
     }
   };
 
@@ -78,10 +95,11 @@ const LeadsFilters = ({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="approved">Approved</SelectItem>
-            <SelectItem value="rejected">Rejected</SelectItem>
-            <SelectItem value="followup">Follow Up</SelectItem>
+            {leadStatuses.map((status) => (
+              <SelectItem key={status} value={status}>
+                {formatStatusLabel(status)}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
 
