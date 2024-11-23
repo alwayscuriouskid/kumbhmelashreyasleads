@@ -20,6 +20,14 @@ interface LeadFollowUpsProps {
   onLeadUpdate?: (updates: any) => void;
 }
 
+// Helper function to validate activity type
+const validateActivityType = (type: string): Activity['type'] => {
+  const validTypes: Activity['type'][] = ['call', 'meeting', 'email', 'note', 'status_change'];
+  return validTypes.includes(type as Activity['type']) 
+    ? (type as Activity['type']) 
+    : 'note';
+};
+
 const LeadFollowUps = ({ 
   leadId, 
   followUps = [], 
@@ -49,20 +57,24 @@ const LeadFollowUps = ({
       }
 
       console.log("Fetched activities:", data);
-      setActivities(data.map(activity => ({
+      
+      // Transform and validate the data before setting state
+      const transformedActivities: Activity[] = data.map(activity => ({
         id: activity.id,
-        type: activity.type,
+        type: validateActivityType(activity.type),
         date: activity.created_at,
         notes: activity.notes || '',
         outcome: activity.outcome || '',
         startTime: activity.start_time,
         endTime: activity.end_time,
         assignedTo: activity.assigned_to || '',
-        nextAction: activity.next_action,
+        nextAction: activity.next_action || '',
         contactPerson: activity.contact_person || '',
-        location: activity.location,
+        location: activity.location || '',
         callType: activity.call_type as 'incoming' | 'outgoing' | undefined
-      })));
+      }));
+
+      setActivities(transformedActivities);
     } catch (error) {
       console.error("Error fetching activities:", error);
       toast({
@@ -108,7 +120,6 @@ const LeadFollowUps = ({
     console.log("Submitting follow-up:", followUp);
     
     try {
-      // Update lead table with follow-up information
       const updates = {
         next_follow_up: followUp.nextFollowUpDate,
         follow_up_outcome: followUp.outcome,
@@ -176,67 +187,7 @@ const LeadFollowUps = ({
         </Card>
       )}
 
-      <ScrollArea className="h-[400px] w-full rounded-md border">
-        <div className="space-y-3 p-2 sm:p-4">
-          {activities.length === 0 && followUps.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">No activities or follow-ups yet</p>
-          ) : (
-            <>
-              {activities.map((activity) => (
-                <Card key={activity.id} className="animate-fade-in">
-                  <CardHeader className="p-3 sm:p-4 space-y-1">
-                    <div className="flex flex-row justify-between items-start gap-2 flex-wrap">
-                      <CardTitle className="text-sm font-medium">
-                        {new Date(activity.date).toLocaleDateString()} - {activity.type}
-                      </CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-3 sm:p-4 pt-0">
-                    <p className="text-sm break-words">{activity.notes}</p>
-                    {activity.outcome && (
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Outcome: {activity.outcome}
-                      </p>
-                    )}
-                    {activity.assignedTo && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Assigned to: {activity.assignedTo}
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-              {followUps.map((followUp) => (
-                <Card key={followUp.id} className="animate-fade-in">
-                  <CardHeader className="p-3 sm:p-4 space-y-1">
-                    <div className="flex flex-row justify-between items-start gap-2 flex-wrap">
-                      <CardTitle className="text-sm font-medium">
-                        {new Date(followUp.date).toLocaleDateString()}
-                      </CardTitle>
-                      {followUp.nextFollowUpDate && (
-                        <span className="text-xs text-muted-foreground">
-                          Next: {new Date(followUp.nextFollowUpDate).toLocaleDateString()}
-                        </span>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-3 sm:p-4 pt-0">
-                    <p className="text-sm break-words">{followUp.notes}</p>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Outcome: {followUp.outcome}
-                    </p>
-                    {followUp.assignedTo && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Assigned to: {followUp.assignedTo}
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </>
-          )}
-        </div>
-      </ScrollArea>
+      <ActivityList activities={activities} />
     </div>
   );
 };
