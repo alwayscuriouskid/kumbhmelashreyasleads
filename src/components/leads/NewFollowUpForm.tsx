@@ -30,7 +30,7 @@ const NewFollowUpForm = ({ leadId, onCancel, onSubmit }: NewFollowUpFormProps) =
       const { error: leadError } = await supabase
         .from('leads')
         .update({
-          next_follow_up: followUp.nextFollowUpDate || null,
+          next_follow_up: followUp.nextFollowUpDate,
           follow_up_outcome: followUp.outcome,
           updated_at: new Date().toISOString()
         })
