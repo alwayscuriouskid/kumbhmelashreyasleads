@@ -30,7 +30,7 @@ export interface FollowUp {
 
 export interface Activity {
   id: string;
-  type: 'call' | 'meeting' | 'email' | 'note' | 'status_change';
+  type: 'call' | 'meeting' | 'email' | 'note' | 'status_change' | 'follow_up';
   date: string;
   startTime?: string;
   endTime?: string;

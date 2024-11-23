@@ -27,6 +27,13 @@ const TeamActivityTable = () => {
     activityOutcome: true
   });
 
+  const validateActivityType = (type: string): Activity['type'] => {
+    const validTypes: Activity['type'][] = ['call', 'meeting', 'email', 'note', 'status_change', 'follow_up'];
+    return validTypes.includes(type as Activity['type']) 
+      ? (type as Activity['type']) 
+      : 'note';
+  };
+
   const fetchActivities = async () => {
     try {
       const { data: activitiesData, error: activitiesError } = await supabase
@@ -44,11 +51,11 @@ const TeamActivityTable = () => {
 
       if (activitiesError) throw activitiesError;
 
-      const transformedActivities = activitiesData.map(activity => ({
+      const transformedActivities: Activity[] = activitiesData.map(activity => ({
         id: activity.id,
         date: activity.created_at,
         time: new Date(activity.created_at).toLocaleTimeString(),
-        type: activity.type,
+        type: validateActivityType(activity.type),
         description: activity.notes,
         teamMember: activity.assigned_to,
         leadName: activity.lead?.client_name,
