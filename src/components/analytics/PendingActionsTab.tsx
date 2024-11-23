@@ -8,6 +8,7 @@ import { useTeamMemberOptions } from "@/hooks/useTeamMemberOptions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TeamMember } from "@/types/team";
 
 interface PendingAction {
   id: string;
