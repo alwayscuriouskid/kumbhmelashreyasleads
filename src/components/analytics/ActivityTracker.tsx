@@ -42,10 +42,10 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson }: ActivityTrack
       }
 
       // Calculate next follow up date based on activity type
-      let nextFollowUpDate = null;
+      let nextFollowUp = null;
       if (activity.type === 'follow_up') {
         // If it's a follow-up activity, use the specified date
-        nextFollowUpDate = activity.nextFollowUpDate;
+        nextFollowUp = activity.nextFollowUp;
       }
 
       // Then update the leads table with the latest activity information
@@ -54,7 +54,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson }: ActivityTrack
         .update({
           next_action: activity.nextAction,
           follow_up_outcome: activity.outcome,
-          next_follow_up: nextFollowUpDate,
+          next_follow_up: nextFollowUp,
           updated_at: new Date().toISOString()
         })
         .eq('id', leadId);
@@ -66,7 +66,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson }: ActivityTrack
 
       console.log("Successfully stored activity and updated lead:", {
         activityData,
-        nextFollowUpDate
+        nextFollowUp
       });
       
       return activityData;
