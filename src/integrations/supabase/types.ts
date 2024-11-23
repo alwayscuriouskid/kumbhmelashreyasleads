@@ -9,6 +9,65 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      activities: {
+        Row: {
+          assigned_to: string | null
+          call_type: string | null
+          contact_person: string | null
+          created_at: string | null
+          end_time: string | null
+          id: string
+          lead_id: string | null
+          location: string | null
+          next_action: string | null
+          notes: string | null
+          outcome: string | null
+          start_time: string | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          call_type?: string | null
+          contact_person?: string | null
+          created_at?: string | null
+          end_time?: string | null
+          id?: string
+          lead_id?: string | null
+          location?: string | null
+          next_action?: string | null
+          notes?: string | null
+          outcome?: string | null
+          start_time?: string | null
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          call_type?: string | null
+          contact_person?: string | null
+          created_at?: string | null
+          end_time?: string | null
+          id?: string
+          lead_id?: string | null
+          location?: string | null
+          next_action?: string | null
+          notes?: string | null
+          outcome?: string | null
+          start_time?: string | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           booking_reference: string | null
