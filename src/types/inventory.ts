@@ -75,13 +75,20 @@ export interface Order {
 }
 
 export interface OrderItem {
-  id: string;
-  order_id: string;
+  id?: string;  // Made optional since it's not always returned
+  order_id?: string; // Made optional since it's not always returned
   inventory_item_id: string;
   quantity: number;
   price: number;
-  created_at: string;
-  inventory_items?: InventoryItem;
+  created_at?: string; // Made optional since it's not always returned
+  inventory_items?: {
+    id: string;
+    sku?: string;
+    inventory_types?: {
+      id: string;
+      name: string;
+    };
+  };
 }
 
 export interface Booking {
