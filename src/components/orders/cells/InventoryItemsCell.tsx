@@ -13,7 +13,7 @@ export const InventoryItemsCell = ({ items }: InventoryItemsProps) => {
         <div key={index} className="text-sm">
           {item.inventory_items?.inventory_types?.name} 
           {item.inventory_items?.sku ? ` - ${item.inventory_items.sku}` : ''} 
-          {` (${item.quantity || 1})`}
+          {` (${item.quantity})`}
         </div>
       ))}
     </div>

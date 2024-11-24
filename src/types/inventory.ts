@@ -28,7 +28,7 @@ export interface InventoryItem {
   sector_id: string;
   current_price: number;
   min_price: number;
-  status: string; // Changed from 'available' | 'booked' | 'sold' to string
+  status: string;
   created_at: string | null;
   ltc?: number;
   dimensions?: string;
@@ -78,6 +78,7 @@ export interface OrderItem {
   id: string;
   order_id: string;
   inventory_item_id: string;
+  quantity: number;
   price: number;
   created_at: string;
   inventory_items?: InventoryItem;
