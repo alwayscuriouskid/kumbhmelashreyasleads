@@ -35,31 +35,39 @@ export const OrdersTableRow = ({
 
   const handleSave = async () => {
     try {
-      // If status is changing to approved or rejected, handle inventory updates
+      // Handle status change and inventory updates first
       if (order.status !== editedOrder.status) {
         console.log("Status changing from", order.status, "to", editedOrder.status);
-        await updateInventoryQuantity(order.id, editedOrder.status);
+        await updateInventoryQuantity(order.id, editedOrder.status, order.status);
       }
 
-      // Update other order fields
-      const { error } = await supabase
-        .from('orders')
-        .update({
-          payment_status: editedOrder.payment_status,
-          payment_confirmation: editedOrder.payment_confirmation,
-          next_payment_date: editedOrder.next_payment_date,
-          next_payment_details: editedOrder.next_payment_details,
-          additional_details: editedOrder.additional_details,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', order.id);
+      // Then update other order fields if they've changed
+      const updates: any = {};
+      if (editedOrder.payment_status !== order.payment_status) {
+        updates.payment_status = editedOrder.payment_status;
+      }
+      if (editedOrder.payment_confirmation !== order.payment_confirmation) {
+        updates.payment_confirmation = editedOrder.payment_confirmation;
+      }
+      if (editedOrder.next_payment_date !== order.next_payment_date) {
+        updates.next_payment_date = editedOrder.next_payment_date;
+      }
+      if (editedOrder.next_payment_details !== order.next_payment_details) {
+        updates.next_payment_details = editedOrder.next_payment_details;
+      }
+      if (editedOrder.additional_details !== order.additional_details) {
+        updates.additional_details = editedOrder.additional_details;
+      }
 
-      if (error) throw error;
-      
-      toast({
-        title: "Success",
-        description: "Order updated successfully",
-      });
+      // Only update if there are changes
+      if (Object.keys(updates).length > 0) {
+        const { error } = await supabase
+          .from('orders')
+          .update(updates)
+          .eq('id', order.id);
+
+        if (error) throw error;
+      }
       
       setIsEditing(false);
       onOrderUpdate();
