@@ -152,7 +152,8 @@ const LeadRowExpanded = ({ lead, visibleColumns }: LeadRowExpandedProps) => {
 
           <LeadFollowUps 
             leadId={lead.id} 
-            followUps={lead.followUps} 
+            onActivityAdd={undefined}
+            contactPerson={lead.contactPerson}
           />
         </div>
       </TableCell>

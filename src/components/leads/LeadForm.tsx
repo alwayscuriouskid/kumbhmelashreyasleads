@@ -4,11 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
-import { Lead, Activity } from "@/types/leads";
+import { Lead } from "@/types/leads";
 import LeadFormRequirements from "./LeadFormRequirements";
 import LeadFormStatus from "./LeadFormStatus";
 import ActivityList from "./ActivityList";
-import LeadFollowUps from "./LeadFollowUps";
 import { useToast } from "@/hooks/use-toast";
 
 interface LeadFormProps {
@@ -17,7 +16,7 @@ interface LeadFormProps {
   initialData?: Partial<Lead>;
   mode?: "add" | "edit";
   customStatuses: string[];
-  onAddCustomStatus?: (status: string) => void; // Made optional with ?
+  onAddCustomStatus?: (status: string) => void;
 }
 
 const LeadForm = ({ 
@@ -40,7 +39,6 @@ const LeadForm = ({
       status: "pending",
       remarks: "",
       budget: "",
-      followUps: [],
       activities: [],
       leadRef: "",
       leadSource: "",
@@ -57,18 +55,6 @@ const LeadForm = ({
     };
 
     onSubmit(leadData);
-  };
-
-  const handleActivityAdd = (activity: Activity) => {
-    console.log("Adding activity in LeadForm:", activity);
-    setFormData(prev => ({
-      ...prev,
-      activities: [...(prev.activities || []), activity]
-    }));
-    toast({
-      title: "Activity Added",
-      description: `New ${activity.type} activity has been recorded.`,
-    });
   };
 
   const handleInputChange = (field: keyof Lead, value: any) => {
@@ -182,15 +168,9 @@ const LeadForm = ({
           }
         />
 
-        {/* Activities and Follow-ups Section */}
+        {/* Activities Section */}
         {mode === "edit" && (
           <div className="space-y-4">
-            <LeadFollowUps
-              leadId={formData.id || ""}
-              followUps={formData.followUps || []}
-              onActivityAdd={handleActivityAdd}
-              contactPerson={formData.contactPerson}
-            />
             <ActivityList activities={formData.activities || []} />
           </div>
         )}

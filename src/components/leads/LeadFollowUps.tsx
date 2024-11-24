@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FollowUp, Activity } from "@/types/leads";
+import { Activity } from "@/types/leads";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,7 +8,6 @@ import FollowUpList from "./follow-ups/FollowUpList";
 
 interface LeadFollowUpsProps {
   leadId: string;
-  followUps: FollowUp[];
   onActivityAdd?: (activity: Activity) => void;
   contactPerson?: string;
   onLeadUpdate?: (updates: any) => void;
@@ -16,7 +15,6 @@ interface LeadFollowUpsProps {
 
 const LeadFollowUps = ({
   leadId,
-  followUps = [],
   onActivityAdd,
   contactPerson = "",
   onLeadUpdate
