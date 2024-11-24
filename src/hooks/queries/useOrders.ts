@@ -11,11 +11,11 @@ export const useOrders = () => {
         .from("orders")
         .select(`
           *,
-          order_items!inner (
+          order_items (
             *,
-            inventory_items!inner (
+            inventory_items (
               *,
-              inventory_types!inner (*)
+              inventory_types (*)
             )
           )
         `);
