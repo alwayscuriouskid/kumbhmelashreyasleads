@@ -34,7 +34,7 @@ export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) 
         <SelectValue placeholder="Select lead (optional)" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="">No lead selected</SelectItem>
+        <SelectItem value="none">No lead selected</SelectItem>
         {leads?.map((lead) => (
           <SelectItem key={lead.id} value={lead.id}>
             {lead.client_name} ({lead.contact_person})
