@@ -28,7 +28,6 @@ export const InventoryColumnToggle = ({
     { key: "availableQuantity", label: "Available" },
     { key: "reservedQuantity", label: "Reserved" },
     { key: "soldQuantity", label: "Sold" },
-    { key: "maintenanceQuantity", label: "In Maintenance" },
     { key: "sku", label: "SKU" }
   ];
 

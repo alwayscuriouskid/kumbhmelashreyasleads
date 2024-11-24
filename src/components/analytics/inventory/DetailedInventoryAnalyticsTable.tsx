@@ -29,7 +29,6 @@ export const DetailedInventoryAnalyticsTable = () => {
             <TableHead>Available</TableHead>
             <TableHead>Reserved</TableHead>
             <TableHead>Sold</TableHead>
-            <TableHead>In Maintenance</TableHead>
             <TableHead>Price Info</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Last Updated</TableHead>
@@ -57,9 +56,6 @@ export const DetailedInventoryAnalyticsTable = () => {
                 {item.sold_quantity || 0}
               </TableCell>
               <TableCell>
-                {item.maintenance_quantity || 0}
-              </TableCell>
-              <TableCell>
                 <div className="space-y-1">
                   <div>Current: ${item.current_price}</div>
                   <div className="text-sm text-muted-foreground">
@@ -79,9 +75,7 @@ export const DetailedInventoryAnalyticsTable = () => {
                       ? "default"
                       : item.status === "reserved"
                       ? "secondary"
-                      : item.status === "maintenance"
-                      ? "destructive"
-                      : "outline"
+                      : "destructive"
                   }
                 >
                   {item.status}

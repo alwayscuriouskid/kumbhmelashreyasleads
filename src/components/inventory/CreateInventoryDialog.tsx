@@ -53,6 +53,7 @@ export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) 
           min_price: Number(formData.min_price),
           ltc: formData.ltc ? Number(formData.ltc) : null,
           quantity: Number(formData.quantity),
+          available_quantity: Number(formData.quantity), // Set available_quantity equal to quantity
           status: 'available' // Set default status
         }]);
 
