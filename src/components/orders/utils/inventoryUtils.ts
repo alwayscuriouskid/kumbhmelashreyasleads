@@ -6,7 +6,7 @@ export const updateInventoryQuantity = async (orderId: string, newStatus: string
     console.log('Updating inventory for order:', orderId, 'changing status from', oldStatus, 'to:', newStatus);
     
     // First verify the order exists
-    const { data: orderCheck, error: orderCheckError } = await supabase
+    const { data: orders, error: orderCheckError } = await supabase
       .from('orders')
       .select(`
         *,
@@ -19,39 +19,41 @@ export const updateInventoryQuantity = async (orderId: string, newStatus: string
           )
         )
       `)
-      .eq('id', orderId)
-      .single();
+      .eq('id', orderId);
 
     if (orderCheckError) {
       console.error('Error checking order:', orderCheckError);
       throw orderCheckError;
     }
     
-    if (!orderCheck) {
+    if (!orders || orders.length === 0) {
       console.error('Order not found:', orderId);
       throw new Error(`Order ${orderId} not found`);
     }
 
+    const orderCheck = orders[0];
+
     // Update order status first
-    const { data: updatedOrder, error: orderError } = await supabase
+    const { data: updatedOrders, error: orderError } = await supabase
       .from('orders')
       .update({ 
         status: newStatus,
         updated_at: new Date().toISOString()
       })
       .eq('id', orderId)
-      .select()
-      .single();
+      .select();
 
     if (orderError) {
       console.error('Error updating order:', orderError);
       throw orderError;
     }
 
-    if (!updatedOrder) {
+    if (!updatedOrders || updatedOrders.length === 0) {
       console.error('Failed to update order:', orderId);
       throw new Error('Failed to update order');
     }
+
+    const updatedOrder = updatedOrders[0];
 
     // Update inventory quantities based on status change
     const orderItems = orderCheck.order_items;
