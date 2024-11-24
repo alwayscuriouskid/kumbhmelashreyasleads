@@ -23,10 +23,10 @@ export const useTeamActivities = () => {
     description: activity.notes,
     teamMember: activity.assigned_to,
     leadName: activity.lead?.client_name || 'Unknown Lead',
-    nextFollowUp: activity.lead?.next_follow_up,
-    followUpOutcome: activity.lead?.follow_up_outcome,
-    nextAction: activity.lead?.next_action,
+    activityType: activity.type,
     activityOutcome: activity.outcome,
+    activityNextAction: activity.next_action,
+    activityNextActionDate: activity.next_action_date,
     outcome: activity.outcome,
     notes: activity.notes,
     assignedTo: activity.assigned_to,
@@ -43,9 +43,10 @@ export const useTeamActivities = () => {
           lead:leads (
             id,
             client_name,
-            next_follow_up,
-            follow_up_outcome,
-            next_action
+            activity_type,
+            activity_outcome,
+            activity_next_action,
+            activity_next_action_date
           )
         `)
         .order('created_at', { ascending: false });

@@ -1,5 +1,4 @@
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Activity } from "@/types/leads";
 import { format } from "date-fns";
 
@@ -9,16 +8,6 @@ interface TeamActivityRowProps {
 }
 
 const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => {
-  const getStatusBadge = (status: string) => {
-    const colors: Record<string, string> = {
-      pending: "bg-yellow-500/20 text-yellow-500",
-      approved: "bg-green-500/20 text-green-500",
-      rejected: "bg-red-500/20 text-red-500",
-      followup: "bg-blue-500/20 text-blue-500"
-    };
-    return colors[status] || "bg-gray-500/20 text-gray-500";
-  };
-
   return (
     <TableRow>
       {visibleColumns.time && <TableCell>{activity.time}</TableCell>}
@@ -41,8 +30,8 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
       }
       {visibleColumns.activityNextActionDate && 
         <TableCell>
-          {activity.next_action_date ? 
-            format(new Date(activity.next_action_date), 'dd MMM yyyy') : 
+          {activity.activityNextActionDate ? 
+            format(new Date(activity.activityNextActionDate), 'dd MMM yyyy') : 
             "-"
           }
         </TableCell>

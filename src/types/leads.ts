@@ -34,18 +34,15 @@ export interface Activity {
   contactPerson: string;
   location?: string;
   callType?: 'incoming' | 'outgoing';
-  // Add back needed properties for team activity views
+  // Add new fields for team activity views
   time?: string;
   description?: string;
   teamMember?: string;
   leadName?: string;
-  nextFollowUp?: string;
-  followUpOutcome?: string;
+  activityType?: string;
   activityOutcome?: string;
-  statusChange?: {
-    from: string;
-    to: string;
-  };
+  activityNextAction?: string;
+  activityNextActionDate?: string;
 }
 
 export interface LeadDB {
@@ -160,4 +157,4 @@ export const frontendToDB = (lead: Partial<Lead>): Omit<LeadDB, 'id'> => {
     activity_next_action: lead.activityNextAction || null,
     activity_next_action_date: lead.activityNextActionDate || null
   };
-};
+});
