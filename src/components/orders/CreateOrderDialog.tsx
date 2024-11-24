@@ -37,6 +37,10 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
             notes: formData.notes,
             total_amount: formData.totalAmount,
             status: "pending",
+            payment_confirmation: formData.paymentConfirmation,
+            next_payment_date: formData.nextPaymentDate,
+            next_payment_details: formData.nextPaymentDetails,
+            additional_details: formData.additionalDetails
           },
         ])
         .select()
@@ -46,7 +50,7 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
 
       console.log("Order created:", order);
 
-      // Then create order items with quantities
+      // Then create order items and update inventory
       const orderItems = formData.selectedItems.map((item: any) => ({
         order_id: order.id,
         inventory_item_id: item.inventory_item_id,
@@ -60,13 +64,17 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
 
       if (itemsError) throw itemsError;
 
-      console.log("Order items created");
-
-      // Update inventory items status
+      // Update inventory items quantities
       for (const item of formData.selectedItems) {
         const { error: updateError } = await supabase
           .from("inventory_items")
-          .update({ status: "sold" })
+          .update({ 
+            quantity: supabase.raw(`quantity - ${item.quantity}`),
+            status: supabase.raw(`CASE 
+              WHEN quantity - ${item.quantity} <= 0 THEN 'sold'
+              ELSE status 
+              END`)
+          })
           .eq("id", item.inventory_item_id);
 
         if (updateError) throw updateError;

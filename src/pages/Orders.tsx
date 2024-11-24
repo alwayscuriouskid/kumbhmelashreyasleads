@@ -28,6 +28,7 @@ const Orders = () => {
     paymentConfirmation: true,
     nextPaymentDate: true,
     nextPaymentDetails: true,
+    additionalDetails: true,
   });
 
   const columns = [
@@ -42,6 +43,7 @@ const Orders = () => {
     { key: "paymentConfirmation", label: "Payment Confirmation" },
     { key: "nextPaymentDate", label: "Next Payment Date" },
     { key: "nextPaymentDetails", label: "Next Payment Details" },
+    { key: "additionalDetails", label: "Additional Details" },
   ];
 
   const handleDateFilterChange = (type: string, date: Date | undefined) => {

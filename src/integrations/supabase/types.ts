@@ -558,6 +558,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          additional_details: string | null
           commission_amount: number | null
           commission_percentage: number | null
           created_at: string | null
@@ -578,6 +579,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          additional_details?: string | null
           commission_amount?: number | null
           commission_percentage?: number | null
           created_at?: string | null
@@ -598,6 +600,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          additional_details?: string | null
           commission_amount?: number | null
           commission_percentage?: number | null
           created_at?: string | null

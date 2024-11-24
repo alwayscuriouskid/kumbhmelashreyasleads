@@ -9,6 +9,7 @@ import { Order } from "@/types/inventory";
 import { PaymentConfirmationCell } from "./cells/PaymentConfirmationCell";
 import { NextPaymentDateCell } from "./cells/NextPaymentDateCell";
 import { ActionCell } from "./cells/ActionCell";
+import { EditableStatusCell } from "./cells/EditableStatusCell";
 
 interface OrdersTableRowProps {
   order: Order;
@@ -35,7 +36,13 @@ export const OrdersTableRow = ({
     try {
       const { error } = await supabase
         .from('orders')
-        .update(editedValues)
+        .update({
+          ...editedValues,
+          payment_confirmation: editedValues.payment_confirmation,
+          next_payment_date: editedValues.next_payment_date,
+          next_payment_details: editedValues.next_payment_details,
+          additional_details: editedValues.additional_details
+        })
         .eq('id', order.id);
 
       if (error) throw error;
@@ -181,6 +188,15 @@ export const OrdersTableRow = ({
             value={isEditing ? editedValues.next_payment_details || '' : order.next_payment_details || ''}
             isEditing={isEditing}
             onChange={(value) => handleChange('next_payment_details', value)}
+          />
+        </TableCell>
+      )}
+      {visibleColumns.additionalDetails && (
+        <TableCell>
+          <EditableCell
+            value={isEditing ? editedValues.additional_details || '' : order.additional_details || ''}
+            isEditing={isEditing}
+            onChange={(value) => handleChange('additional_details', value)}
           />
         </TableCell>
       )}
