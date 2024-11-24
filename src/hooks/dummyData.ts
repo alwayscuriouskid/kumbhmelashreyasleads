@@ -30,7 +30,10 @@ export const dummyLeads: Lead[] = [
         notes: "Client showed interest in our services",
         assignedTo: "John Smith",
         contactPerson: "Raj Kumar",
-        description: "Follow-up call about proposal"
+        description: "Follow-up call about proposal",
+        teamMember: "John Smith",
+        leadName: "ABC Corp",
+        time: "10:00 AM"
       }
     ],
     createdAt: new Date().toISOString(),
@@ -65,7 +68,10 @@ export const dummyLeads: Lead[] = [
         notes: "Client requested detailed pricing",
         assignedTo: "Sarah Johnson",
         contactPerson: "Priya Singh",
-        description: "Initial requirements gathering"
+        description: "Initial requirements gathering",
+        teamMember: "Sarah Johnson",
+        leadName: "XYZ Ltd",
+        time: "2:30 PM"
       }
     ],
     createdAt: new Date().toISOString(),

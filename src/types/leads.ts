@@ -34,6 +34,18 @@ export interface Activity {
   contactPerson: string;
   location?: string;
   callType?: 'incoming' | 'outgoing';
+  // Add back needed properties
+  time?: string;
+  description?: string;
+  teamMember?: string;
+  leadName?: string;
+  nextFollowUp?: string;
+  followUpOutcome?: string;
+  activityOutcome?: string;
+  statusChange?: {
+    from: string;
+    to: string;
+  };
 }
 
 export interface LeadDB {
