@@ -6,6 +6,7 @@ interface ActionCellProps {
   onEdit: () => void;
   onSave: () => void;
   onCancel: () => void;
+  disabled?: boolean;
 }
 
 export const ActionCell = ({
@@ -13,6 +14,7 @@ export const ActionCell = ({
   onEdit,
   onSave,
   onCancel,
+  disabled,
 }: ActionCellProps) => {
   return (
     <div className="flex justify-end gap-0.5">
@@ -23,6 +25,7 @@ export const ActionCell = ({
             size="sm" 
             onClick={onSave}
             className="h-7 w-7 p-0"
+            disabled={disabled}
           >
             <Save className="h-3.5 w-3.5" />
           </Button>
@@ -31,6 +34,7 @@ export const ActionCell = ({
             size="sm" 
             onClick={onCancel}
             className="h-7 w-7 p-0"
+            disabled={disabled}
           >
             <X className="h-3.5 w-3.5" />
           </Button>
