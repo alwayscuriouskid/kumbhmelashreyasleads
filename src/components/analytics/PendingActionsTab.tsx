@@ -18,18 +18,12 @@ const PendingActionsTab = () => {
     selectedDate
   );
 
-  const actionTypes = [
-    { value: 'all', label: 'All Types' },
-    { value: 'follow_up', label: 'Follow Up' },
-    { value: 'action', label: 'Action' }
-  ];
-
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-4 mb-6">
+      <div className="flex flex-wrap gap-4 p-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border rounded-lg">
         <Select value={selectedTeamMember} onValueChange={setSelectedTeamMember}>
           <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Select team member" />
+            <SelectValue placeholder="Team member" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Team Members</SelectItem>
@@ -43,21 +37,21 @@ const PendingActionsTab = () => {
 
         <Select value={selectedActionType} onValueChange={setSelectedActionType}>
           <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Select action type" />
+            <SelectValue placeholder="Action type" />
           </SelectTrigger>
           <SelectContent>
-            {actionTypes.map(type => (
-              <SelectItem key={type.value} value={type.value}>
-                {type.label}
-              </SelectItem>
-            ))}
+            <SelectItem value="all">All Types</SelectItem>
+            <SelectItem value="call">Calls</SelectItem>
+            <SelectItem value="meeting">Meetings</SelectItem>
+            <SelectItem value="email">Emails</SelectItem>
+            <SelectItem value="follow_up">Follow-ups</SelectItem>
           </SelectContent>
         </Select>
 
         <DatePicker
           selected={selectedDate}
           onSelect={setSelectedDate}
-          placeholderText="Filter by date"
+          placeholderText="Due date"
         />
       </div>
 

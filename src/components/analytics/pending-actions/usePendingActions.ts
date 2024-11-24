@@ -15,52 +15,55 @@ export const usePendingActions = (
         date: selectedDate
       });
 
-      const { data: leads, error } = await supabase
-        .from('leads')
+      let query = supabase
+        .from('activities')
         .select(`
           id,
-          client_name,
-          activity_next_action,
-          activity_next_action_date,
-          activity_outcome,
-          team_member_id,
-          team_members (
-            name
+          type,
+          notes,
+          next_action,
+          next_action_date,
+          assigned_to,
+          contact_person,
+          lead:leads (
+            id,
+            client_name
           )
         `)
-        .not('activity_next_action', 'is', null);
-
-      if (error) throw error;
-
-      let filteredActions = leads.map(lead => ({
-        id: lead.id,
-        type: lead.activity_next_action?.toLowerCase().includes('follow') ? 'follow_up' : 'action',
-        description: lead.activity_next_action,
-        dueDate: lead.activity_next_action_date,
-        clientName: lead.client_name,
-        teamMember: lead.team_members?.name || 'Unassigned',
-        teamMemberId: lead.team_member_id || ''
-      }));
+        .not('next_action', 'is', null)
+        .not('next_action', 'eq', '');
 
       if (selectedTeamMember !== 'all') {
-        filteredActions = filteredActions.filter(action => action.teamMemberId === selectedTeamMember);
+        query = query.eq('assigned_to', selectedTeamMember);
       }
 
       if (selectedActionType !== 'all') {
-        filteredActions = filteredActions.filter(action => action.type === selectedActionType);
+        query = query.eq('type', selectedActionType);
       }
 
       if (selectedDate) {
-        filteredActions = filteredActions.filter(action => {
-          if (!action.dueDate) return false;
-          const actionDate = new Date(action.dueDate);
-          return actionDate.toDateString() === selectedDate.toDateString();
-        });
+        const dateStr = selectedDate.toISOString().split('T')[0];
+        query = query.eq('next_action_date', dateStr);
       }
 
-      console.log("Filtered pending actions:", filteredActions);
-      return filteredActions;
-    },
-    refetchInterval: 30000, // Refetch every 30 seconds
+      const { data, error } = await query;
+
+      if (error) {
+        console.error("Error fetching pending actions:", error);
+        throw error;
+      }
+
+      console.log("Fetched pending actions:", data);
+
+      return data.map(action => ({
+        id: action.id,
+        type: action.type,
+        description: action.next_action,
+        dueDate: action.next_action_date,
+        clientName: action.lead?.client_name || 'Unknown Client',
+        teamMember: action.assigned_to || 'Unassigned',
+        teamMemberId: action.assigned_to || ''
+      }));
+    }
   });
 };
