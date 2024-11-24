@@ -9,7 +9,6 @@ import FollowUpList from "./follow-ups/FollowUpList";
 interface LeadFollowUpsProps {
   leadId: string;
   followUps: FollowUp[];
-  onFollowUpSubmit?: (followUp: FollowUp) => void;
   onActivityAdd?: (activity: Activity) => void;
   contactPerson?: string;
   onLeadUpdate?: (updates: any) => void;
@@ -18,7 +17,6 @@ interface LeadFollowUpsProps {
 const LeadFollowUps = ({ 
   leadId, 
   followUps = [], 
-  onFollowUpSubmit,
   onActivityAdd,
   contactPerson = "",
   onLeadUpdate
@@ -142,18 +140,6 @@ const LeadFollowUps = ({
     }
   };
 
-  const handleFollowUpSubmit = async (followUp: FollowUp) => {
-    try {
-      if (onFollowUpSubmit) {
-        onFollowUpSubmit(followUp);
-      }
-      await fetchActivities();
-      await fetchAndUpdateLead();
-    } catch (error) {
-      console.error("Error handling follow-up submit:", error);
-    }
-  };
-
   const handleActivityAdd = async (activity: Activity) => {
     try {
       if (onActivityAdd) {
@@ -181,7 +167,6 @@ const LeadFollowUps = ({
         <CardContent className="pt-6">
           <FollowUpTabs
             leadId={leadId}
-            onFollowUpSubmit={handleFollowUpSubmit}
             onActivityAdd={handleActivityAdd}
             contactPerson={contactPerson}
             onLeadUpdate={handleLeadUpdate}

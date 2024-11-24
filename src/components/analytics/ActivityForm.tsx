@@ -41,7 +41,6 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
       assignedTo,
       contactPerson,
       location,
-      isFollowup: activityType === "follow_up",
       next_action_date: nextActionDate?.toISOString(),
       ...(activityType === "call" ? { callType } : {}),
     };
