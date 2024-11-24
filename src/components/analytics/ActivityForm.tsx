@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TeamMemberSelect } from "@/components/shared/TeamMemberSelect";
+import { DatePicker } from "@/components/ui/date-picker";
 
 interface ActivityFormProps {
   onSubmit: (formData: Partial<Activity>) => void;
@@ -19,6 +20,7 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
   const [endTime, setEndTime] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
   const [nextAction, setNextAction] = useState("");
+  const [nextActionDate, setNextActionDate] = useState<Date>();
   const [location, setLocation] = useState("");
   const [callType, setCallType] = useState<"incoming" | "outgoing">("outgoing");
 
@@ -36,9 +38,11 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
       outcome,
       notes,
       nextAction,
+      nextActionDate: nextActionDate?.toISOString(),
       assignedTo,
       contactPerson,
       location,
+      isFollowup: activityType === "followup",
       ...(activityType === "call" ? { callType } : {}),
     };
 
@@ -50,6 +54,7 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
     setStartTime("");
     setEndTime("");
     setNextAction("");
+    setNextActionDate(undefined);
     setLocation("");
   };
 
@@ -67,6 +72,7 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
               <SelectItem value="meeting">Meeting</SelectItem>
               <SelectItem value="email">Email</SelectItem>
               <SelectItem value="note">Note</SelectItem>
+              <SelectItem value="followup">Follow-up</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -147,6 +153,15 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
           value={nextAction}
           onChange={(e) => setNextAction(e.target.value)}
           placeholder="Enter next action required"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label>Next Action Date</label>
+        <DatePicker
+          selected={nextActionDate}
+          onSelect={setNextActionDate}
+          placeholderText="Select next action date"
         />
       </div>
 

@@ -17,9 +17,11 @@ export type Database = {
           created_at: string | null
           end_time: string | null
           id: string
+          is_followup: boolean | null
           lead_id: string | null
           location: string | null
           next_action: string | null
+          next_action_date: string | null
           next_follow_up: string | null
           notes: string | null
           outcome: string | null
@@ -34,9 +36,11 @@ export type Database = {
           created_at?: string | null
           end_time?: string | null
           id?: string
+          is_followup?: boolean | null
           lead_id?: string | null
           location?: string | null
           next_action?: string | null
+          next_action_date?: string | null
           next_follow_up?: string | null
           notes?: string | null
           outcome?: string | null
@@ -51,9 +55,11 @@ export type Database = {
           created_at?: string | null
           end_time?: string | null
           id?: string
+          is_followup?: boolean | null
           lead_id?: string | null
           location?: string | null
           next_action?: string | null
+          next_action_date?: string | null
           next_follow_up?: string | null
           notes?: string | null
           outcome?: string | null
