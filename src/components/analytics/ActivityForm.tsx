@@ -38,11 +38,11 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
       outcome,
       notes,
       nextAction,
-      nextActionDate: nextActionDate?.toISOString(),
       assignedTo,
       contactPerson,
       location,
-      isFollowup: activityType === "followup",
+      isFollowup: activityType === "follow_up",
+      next_action_date: nextActionDate?.toISOString(),
       ...(activityType === "call" ? { callType } : {}),
     };
 
@@ -72,7 +72,7 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
               <SelectItem value="meeting">Meeting</SelectItem>
               <SelectItem value="email">Email</SelectItem>
               <SelectItem value="note">Note</SelectItem>
-              <SelectItem value="followup">Follow-up</SelectItem>
+              <SelectItem value="follow_up">Follow-up</SelectItem>
             </SelectContent>
           </Select>
         </div>
