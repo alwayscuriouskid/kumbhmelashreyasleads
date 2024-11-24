@@ -1,15 +1,15 @@
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { EditableCell } from "@/components/inventory/EditableCell";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Order } from "@/types/inventory";
 import { PaymentConfirmationCell } from "./cells/PaymentConfirmationCell";
 import { NextPaymentDateCell } from "./cells/NextPaymentDateCell";
 import { ActionCell } from "./cells/ActionCell";
 import { InventoryItemsCell } from "./cells/InventoryItemsCell";
+import { OrderStatusCell } from "./cells/OrderStatusCell";
+import { PaymentStatusCell } from "./cells/PaymentStatusCell";
 
 interface OrdersTableRowProps {
   order: Order;
@@ -25,20 +25,20 @@ export const OrdersTableRow = ({
   onOrderUpdate 
 }: OrdersTableRowProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedValues, setEditedValues] = useState<Partial<Order>>({});
+  const [editedOrder, setEditedOrder] = useState<Order>(order);
 
   const handleEdit = () => {
     setIsEditing(true);
-    setEditedValues(order);
+    setEditedOrder(order);
   };
 
   const handleSave = async () => {
     try {
-      console.log("Saving order updates:", editedValues);
+      console.log("Saving order updates:", editedOrder);
       
       // Only send the fields that have been edited
       const updateData = {
-        ...editedValues,
+        ...editedOrder,
         updated_at: new Date().toISOString()
       };
 
@@ -71,12 +71,12 @@ export const OrdersTableRow = ({
 
   const handleCancel = () => {
     setIsEditing(false);
-    setEditedValues({});
+    setEditedOrder(order);
   };
 
   const handleChange = (field: keyof Order, value: any) => {
     console.log(`Updating ${field} to:`, value);
-    setEditedValues(prev => ({
+    setEditedOrder(prev => ({
       ...prev,
       [field]: value
     }));
@@ -93,7 +93,7 @@ export const OrdersTableRow = ({
       {visibleColumns.customer && (
         <TableCell>
           <EditableCell
-            value={isEditing ? editedValues.customer_name || '' : order.customer_name || ''}
+            value={isEditing ? editedOrder.customer_name || '' : order.customer_name || ''}
             isEditing={isEditing}
             onChange={(value) => handleChange('customer_name', value)}
           />
@@ -109,54 +109,20 @@ export const OrdersTableRow = ({
       )}
       {visibleColumns.paymentStatus && (
         <TableCell>
-          {isEditing ? (
-            <Select 
-              value={editedValues.payment_status || order.payment_status} 
-              onValueChange={(value) => handleChange('payment_status', value)}
-            >
-              <SelectTrigger className="w-[140px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="partially_pending">Partially Pending</SelectItem>
-                <SelectItem value="finished">Finished</SelectItem>
-              </SelectContent>
-            </Select>
-          ) : (
-            <Badge variant={
-              order.payment_status === "finished" 
-                ? "default" 
-                : order.payment_status === "partially_pending" 
-                ? "secondary" 
-                : "destructive"
-            }>
-              {order.payment_status}
-            </Badge>
-          )}
+          <PaymentStatusCell
+            value={isEditing ? editedOrder.payment_status || 'pending' : order.payment_status || 'pending'}
+            isEditing={isEditing}
+            onChange={(value) => handleChange('payment_status', value)}
+          />
         </TableCell>
       )}
       {visibleColumns.orderStatus && (
         <TableCell>
-          {isEditing ? (
-            <Select 
-              value={editedValues.status || order.status} 
-              onValueChange={(value) => handleChange('status', value)}
-            >
-              <SelectTrigger className="w-[140px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
-              </SelectContent>
-            </Select>
-          ) : (
-            <Badge variant={order.status === "approved" ? "default" : "secondary"}>
-              {order.status}
-            </Badge>
-          )}
+          <OrderStatusCell
+            value={isEditing ? editedOrder.status : order.status}
+            isEditing={isEditing}
+            onChange={(value) => handleChange('status', value)}
+          />
         </TableCell>
       )}
       {visibleColumns.inventoryItems && (
@@ -168,7 +134,7 @@ export const OrdersTableRow = ({
         <TableCell>
           <PaymentConfirmationCell
             isEditing={isEditing}
-            value={editedValues.payment_confirmation || order.payment_confirmation || ''}
+            value={editedOrder.payment_confirmation || order.payment_confirmation || ''}
             onChange={(value) => handleChange('payment_confirmation', value)}
           />
         </TableCell>
@@ -177,7 +143,7 @@ export const OrdersTableRow = ({
         <TableCell>
           <NextPaymentDateCell
             isEditing={isEditing}
-            value={editedValues.next_payment_date || order.next_payment_date}
+            value={editedOrder.next_payment_date || order.next_payment_date}
             onChange={(value) => handleChange('next_payment_date', value)}
           />
         </TableCell>
@@ -185,7 +151,7 @@ export const OrdersTableRow = ({
       {visibleColumns.nextPaymentDetails && (
         <TableCell>
           <EditableCell
-            value={isEditing ? editedValues.next_payment_details || '' : order.next_payment_details || ''}
+            value={isEditing ? editedOrder.next_payment_details || '' : order.next_payment_details || ''}
             isEditing={isEditing}
             onChange={(value) => handleChange('next_payment_details', value)}
           />
@@ -194,7 +160,7 @@ export const OrdersTableRow = ({
       {visibleColumns.additionalDetails && (
         <TableCell>
           <EditableCell
-            value={isEditing ? editedValues.additional_details || '' : order.additional_details || ''}
+            value={isEditing ? editedOrder.additional_details || '' : order.additional_details || ''}
             isEditing={isEditing}
             onChange={(value) => handleChange('additional_details', value)}
           />
