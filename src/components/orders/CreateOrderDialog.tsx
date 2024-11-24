@@ -40,7 +40,8 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
             payment_confirmation: formData.paymentConfirmation,
             next_payment_date: formData.nextPaymentDate,
             next_payment_details: formData.nextPaymentDetails,
-            additional_details: formData.additionalDetails
+            additional_details: formData.additionalDetails,
+            lead_id: formData.leadId || null // Ensure lead_id is properly set
           },
         ])
         .select()

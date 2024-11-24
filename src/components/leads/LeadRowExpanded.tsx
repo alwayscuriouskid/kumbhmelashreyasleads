@@ -14,7 +14,9 @@ interface LeadRowExpandedProps {
 }
 
 const LeadRowExpanded = ({ lead, visibleColumns }: LeadRowExpandedProps) => {
-  const { data: orders } = useQuery({
+  console.log('Rendering LeadRowExpanded for lead:', lead.id);
+
+  const { data: orders, isLoading: ordersLoading } = useQuery({
     queryKey: ['lead-orders', lead.id],
     queryFn: async () => {
       console.log('Fetching orders for lead:', lead.id);
@@ -32,13 +34,18 @@ const LeadRowExpanded = ({ lead, visibleColumns }: LeadRowExpandedProps) => {
         `)
         .eq('lead_id', lead.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching orders:", error);
+        throw error;
+      }
+      console.log("Fetched orders:", data);
       return data;
     },
-    enabled: !!lead.id
+    enabled: !!lead.id,
+    refetchInterval: 5000 // Refetch every 5 seconds to keep data fresh
   });
 
-  const { data: bookings } = useQuery({
+  const { data: bookings, isLoading: bookingsLoading } = useQuery({
     queryKey: ['lead-bookings', lead.id],
     queryFn: async () => {
       console.log('Fetching bookings for lead:', lead.id);
@@ -60,7 +67,8 @@ const LeadRowExpanded = ({ lead, visibleColumns }: LeadRowExpandedProps) => {
       console.log("Fetched bookings:", data);
       return data;
     },
-    enabled: !!lead.id
+    enabled: !!lead.id,
+    refetchInterval: 5000 // Refetch every 5 seconds to keep data fresh
   });
 
   const getStatusBadge = (status: string) => {
@@ -85,7 +93,9 @@ const LeadRowExpanded = ({ lead, visibleColumns }: LeadRowExpandedProps) => {
                 <CardTitle className="text-lg">Related Orders</CardTitle>
               </CardHeader>
               <CardContent>
-                {orders?.length ? (
+                {ordersLoading ? (
+                  <div className="text-sm text-muted-foreground">Loading orders...</div>
+                ) : orders?.length ? (
                   <div className="space-y-4">
                     {orders.map((order) => (
                       <div key={order.id} className="space-y-2">
@@ -119,7 +129,9 @@ const LeadRowExpanded = ({ lead, visibleColumns }: LeadRowExpandedProps) => {
                 <CardTitle className="text-lg">Related Bookings</CardTitle>
               </CardHeader>
               <CardContent>
-                {bookings?.length ? (
+                {bookingsLoading ? (
+                  <div className="text-sm text-muted-foreground">Loading bookings...</div>
+                ) : bookings?.length ? (
                   <div className="space-y-4">
                     {bookings.map((booking) => (
                       <div key={booking.id} className="space-y-2">
