@@ -15,8 +15,9 @@ export const NextPaymentDateCell = ({
   if (isEditing) {
     return (
       <DatePicker
-        value={value ? new Date(value) : undefined}
-        onChange={(date) => onChange(date?.toISOString() || null)}
+        selected={value ? new Date(value) : undefined}
+        onSelect={(date) => onChange(date?.toISOString() || null)}
+        placeholderText="Select date"
         className="w-[160px]"
       />
     );

@@ -1,13 +1,7 @@
+import { OrderItem } from "@/types/inventory";
+
 interface InventoryItemsProps {
-  items: Array<{
-    inventory_items?: {
-      sku?: string;
-      inventory_types?: {
-        name: string;
-      };
-    };
-    quantity: number;
-  }>;
+  items: OrderItem[];
 }
 
 export const InventoryItemsCell = ({ items }: InventoryItemsProps) => {
@@ -19,7 +13,7 @@ export const InventoryItemsCell = ({ items }: InventoryItemsProps) => {
         <div key={index} className="text-sm">
           {item.inventory_items?.inventory_types?.name} 
           {item.inventory_items?.sku ? ` - ${item.inventory_items.sku}` : ''} 
-          {` (${item.quantity})`}
+          {` (${item.quantity || 1})`}
         </div>
       ))}
     </div>

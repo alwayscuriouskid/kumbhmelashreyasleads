@@ -187,7 +187,7 @@ export const OrdersTableRow = ({
           />
         </TableCell>
       )}
-      <TableCell>
+      <TableCell className="w-[100px]">
         <ActionCell
           isEditing={isEditing}
           onEdit={handleEdit}
