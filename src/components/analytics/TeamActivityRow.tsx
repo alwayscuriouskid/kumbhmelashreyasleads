@@ -1,6 +1,7 @@
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Activity } from "@/types/leads";
+import { format } from "date-fns";
 
 interface TeamActivityRowProps {
   activity: Activity;
@@ -24,37 +25,27 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
       {visibleColumns.type && 
         <TableCell className="capitalize">{activity.type.replace('_', ' ')}</TableCell>
       }
-      {visibleColumns.description && <TableCell>{activity.description}</TableCell>}
+      {visibleColumns.notes && <TableCell>{activity.notes}</TableCell>}
       {visibleColumns.teamMember && 
         <TableCell className="capitalize">{activity.teamMember}</TableCell>
       }
       {visibleColumns.leadName && <TableCell>{activity.leadName}</TableCell>}
-      {visibleColumns.statusChange && (
-        <TableCell>
-          {activity.statusChange && (
-            <div className="flex items-center gap-2">
-              <Badge className={getStatusBadge(activity.statusChange.from)}>
-                {activity.statusChange.from}
-              </Badge>
-              →
-              <Badge className={getStatusBadge(activity.statusChange.to)}>
-                {activity.statusChange.to}
-              </Badge>
-            </div>
-          )}
-        </TableCell>
-      )}
-      {visibleColumns.nextFollowUp && 
-        <TableCell>{activity.nextFollowUp || "-"}</TableCell>
-      }
-      {visibleColumns.followUpOutcome && 
-        <TableCell>{activity.followUpOutcome || "-"}</TableCell>
-      }
-      {visibleColumns.nextAction && 
-        <TableCell>{activity.nextAction || "-"}</TableCell>
+      {visibleColumns.activityType && 
+        <TableCell>{activity.activityType || "-"}</TableCell>
       }
       {visibleColumns.activityOutcome && 
         <TableCell>{activity.activityOutcome || "-"}</TableCell>
+      }
+      {visibleColumns.activityNextAction && 
+        <TableCell>{activity.activityNextAction || "-"}</TableCell>
+      }
+      {visibleColumns.activityNextActionDate && 
+        <TableCell>
+          {activity.next_action_date ? 
+            format(new Date(activity.next_action_date), 'dd MMM yyyy') : 
+            "-"
+          }
+        </TableCell>
       }
     </TableRow>
   );

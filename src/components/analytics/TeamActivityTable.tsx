@@ -35,21 +35,12 @@ const TeamActivityTable = () => {
           return new Date(a.date).getTime() - new Date(b.date).getTime();
         case "date_desc":
           return new Date(b.date).getTime() - new Date(a.date).getTime();
-        case "follow_up_asc":
-          if (!a.nextFollowUp) return 1;
-          if (!b.nextFollowUp) return -1;
-          return new Date(a.nextFollowUp).getTime() - new Date(b.nextFollowUp).getTime();
-        case "follow_up_desc":
-          if (!a.nextFollowUp) return 1;
-          if (!b.nextFollowUp) return -1;
-          return new Date(b.nextFollowUp).getTime() - new Date(a.nextFollowUp).getTime();
         default:
           return 0;
       }
     });
   };
 
-  // Apply filters and sorting whenever filter criteria, activities, or sort option changes
   useEffect(() => {
     console.log("Applying filters and sorting with sortBy:", sortBy);
     const filtered = applyFilters(activities);

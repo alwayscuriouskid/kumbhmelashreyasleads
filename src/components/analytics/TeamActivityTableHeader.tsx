@@ -10,14 +10,13 @@ const TeamActivityTableHeader = ({ visibleColumns }: TeamActivityTableHeaderProp
       <TableRow>
         {visibleColumns.time && <TableHead>Time</TableHead>}
         {visibleColumns.type && <TableHead>Type</TableHead>}
-        {visibleColumns.description && <TableHead>Description</TableHead>}
+        {visibleColumns.notes && <TableHead>Notes</TableHead>}
         {visibleColumns.teamMember && <TableHead>Team Member</TableHead>}
         {visibleColumns.leadName && <TableHead>Lead</TableHead>}
-        {visibleColumns.statusChange && <TableHead>Status Change</TableHead>}
-        {visibleColumns.nextFollowUp && <TableHead>Next Follow-up</TableHead>}
-        {visibleColumns.followUpOutcome && <TableHead>Follow-up Outcome</TableHead>}
-        {visibleColumns.nextAction && <TableHead>Next Action</TableHead>}
+        {visibleColumns.activityType && <TableHead>Activity Type</TableHead>}
         {visibleColumns.activityOutcome && <TableHead>Activity Outcome</TableHead>}
+        {visibleColumns.activityNextAction && <TableHead>Next Action</TableHead>}
+        {visibleColumns.activityNextActionDate && <TableHead>Next Action Date</TableHead>}
       </TableRow>
     </TableHeader>
   );

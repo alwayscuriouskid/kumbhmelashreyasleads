@@ -40,19 +40,16 @@ const TeamActivityFilters = ({
   const [customEndDate, setCustomEndDate] = useState<Date>();
   const { data: teamMembers } = useTeamMemberOptions();
 
-  console.log("Rendering TeamActivityFilters with sort option:", sortBy);
-
   const columns = [
     { key: "time", label: "Time" },
     { key: "type", label: "Type" },
-    { key: "description", label: "Description" },
+    { key: "notes", label: "Notes" },
     { key: "teamMember", label: "Team Member" },
     { key: "leadName", label: "Lead" },
-    { key: "statusChange", label: "Status Change" },
-    { key: "nextFollowUp", label: "Next Follow-up" },
-    { key: "followUpOutcome", label: "Follow-up Outcome" },
-    { key: "nextAction", label: "Next Action" },
+    { key: "activityType", label: "Activity Type" },
     { key: "activityOutcome", label: "Activity Outcome" },
+    { key: "activityNextAction", label: "Next Action" },
+    { key: "activityNextActionDate", label: "Next Action Date" },
   ];
 
   const handleDateFilterChange = (value: string) => {
@@ -127,8 +124,6 @@ const TeamActivityFilters = ({
           <SelectContent>
             <SelectItem value="date_desc">Date (Newest First)</SelectItem>
             <SelectItem value="date_asc">Date (Oldest First)</SelectItem>
-            <SelectItem value="follow_up_desc">Follow-up Date (Latest First)</SelectItem>
-            <SelectItem value="follow_up_asc">Follow-up Date (Earliest First)</SelectItem>
           </SelectContent>
         </Select>
 

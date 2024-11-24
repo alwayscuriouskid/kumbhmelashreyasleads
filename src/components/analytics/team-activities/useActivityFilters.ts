@@ -1,5 +1,5 @@
 import { Activity } from "@/types/leads";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export const useActivityFilters = (activities: Activity[]) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
@@ -9,14 +9,13 @@ export const useActivityFilters = (activities: Activity[]) => {
   const [visibleColumns, setVisibleColumns] = useState({
     time: true,
     type: true,
-    description: true,
+    notes: true,
     teamMember: true,
     leadName: true,
-    statusChange: true,
-    nextFollowUp: true,
-    followUpOutcome: true,
-    nextAction: true,
-    activityOutcome: true
+    activityType: true,
+    activityOutcome: true,
+    activityNextAction: true,
+    activityNextActionDate: true
   });
 
   const applyFilters = (activities: Activity[]) => {
@@ -24,17 +23,14 @@ export const useActivityFilters = (activities: Activity[]) => {
     
     let filtered = [...activities];
 
-    // Filter by team member
     if (selectedTeamMember !== 'all') {
       filtered = filtered.filter(activity => activity.teamMember === selectedTeamMember);
     }
 
-    // Filter by activity type
     if (activityType !== 'all') {
       filtered = filtered.filter(activity => activity.type === activityType);
     }
 
-    // Filter by date
     if (selectedDate) {
       const dateStr = selectedDate.toISOString().split('T')[0];
       filtered = filtered.filter(activity => 
@@ -42,12 +38,11 @@ export const useActivityFilters = (activities: Activity[]) => {
       );
     }
 
-    // Search by lead name, description, or contact person
     if (leadSearch.trim()) {
       const searchLower = leadSearch.toLowerCase().trim();
       filtered = filtered.filter(activity => 
         (activity.leadName?.toLowerCase().includes(searchLower)) ||
-        (activity.description?.toLowerCase().includes(searchLower)) ||
+        (activity.notes?.toLowerCase().includes(searchLower)) ||
         (activity.contactPerson?.toLowerCase().includes(searchLower))
       );
     }
