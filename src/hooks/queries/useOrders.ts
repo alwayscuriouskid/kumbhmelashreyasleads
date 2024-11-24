@@ -11,11 +11,11 @@ export const useOrders = () => {
         .from("orders")
         .select(`
           *,
-          order_items!order_items_order_id_fkey (
+          order_items (
             *,
-            inventory_items!order_items_inventory_item_id_fkey (
+            inventory_items (
               *,
-              inventory_types!inventory_items_type_id_fkey (
+              inventory_types (
                 id,
                 name
               )

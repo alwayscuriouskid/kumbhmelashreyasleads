@@ -50,7 +50,12 @@ export const OrdersTableRow = ({
       const { error } = await supabase
         .from('orders')
         .update({
-          ...editedOrder,
+          status: editedOrder.status,
+          payment_status: editedOrder.payment_status,
+          payment_confirmation: editedOrder.payment_confirmation,
+          next_payment_date: editedOrder.next_payment_date,
+          next_payment_details: editedOrder.next_payment_details,
+          additional_details: editedOrder.additional_details,
           updated_at: new Date().toISOString()
         })
         .eq('id', order.id);
