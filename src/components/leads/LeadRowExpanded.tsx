@@ -16,7 +16,7 @@ interface LeadRowExpandedProps {
 const LeadRowExpanded = ({ lead, visibleColumns }: LeadRowExpandedProps) => {
   console.log('Rendering LeadRowExpanded for lead:', lead.id);
 
-  const { data: orders, isLoading: ordersLoading } = useQuery({
+  const { data: orders = [], isLoading: ordersLoading } = useQuery({
     queryKey: ['lead-orders', lead.id],
     queryFn: async () => {
       console.log('Fetching orders for lead:', lead.id);
@@ -28,7 +28,7 @@ const LeadRowExpanded = ({ lead, visibleColumns }: LeadRowExpandedProps) => {
             *,
             inventory_items (
               *,
-              inventory_types (name)
+              inventory_types (*)
             )
           )
         `)
@@ -39,14 +39,15 @@ const LeadRowExpanded = ({ lead, visibleColumns }: LeadRowExpandedProps) => {
         console.error("Error fetching orders:", error);
         throw error;
       }
-      console.log("Fetched orders for lead:", data);
-      return data;
+
+      console.log("Fetched orders for lead:", lead.id, "Data:", data);
+      return data || [];
     },
     enabled: !!lead.id,
-    refetchInterval: 5000 // Refetch every 5 seconds to keep data fresh
+    refetchInterval: 5000
   });
 
-  const { data: bookings, isLoading: bookingsLoading } = useQuery({
+  const { data: bookings = [], isLoading: bookingsLoading } = useQuery({
     queryKey: ['lead-bookings', lead.id],
     queryFn: async () => {
       console.log('Fetching bookings for lead:', lead.id);
@@ -56,7 +57,7 @@ const LeadRowExpanded = ({ lead, visibleColumns }: LeadRowExpandedProps) => {
           *,
           inventory_item:inventory_items (
             *,
-            inventory_type:inventory_types (name)
+            inventory_type:inventory_types (*)
           )
         `)
         .eq('lead_id', lead.id)
@@ -66,8 +67,8 @@ const LeadRowExpanded = ({ lead, visibleColumns }: LeadRowExpandedProps) => {
         console.error("Error fetching bookings:", error);
         throw error;
       }
-      console.log("Fetched bookings for lead:", data);
-      return data;
+      console.log("Fetched bookings for lead:", lead.id, "Data:", data);
+      return data || [];
     },
     enabled: !!lead.id,
     refetchInterval: 5000
@@ -81,7 +82,7 @@ const LeadRowExpanded = ({ lead, visibleColumns }: LeadRowExpandedProps) => {
       completed: "bg-blue-500/20 text-blue-500",
       tentative: "bg-purple-500/20 text-purple-500"
     };
-    return colors[status] || "bg-gray-500/20 text-gray-500";
+    return colors[status.toLowerCase()] || "bg-gray-500/20 text-gray-500";
   };
 
   return (
@@ -97,7 +98,7 @@ const LeadRowExpanded = ({ lead, visibleColumns }: LeadRowExpandedProps) => {
               <CardContent>
                 {ordersLoading ? (
                   <div className="text-sm text-muted-foreground">Loading orders...</div>
-                ) : orders?.length ? (
+                ) : orders && orders.length > 0 ? (
                   <div className="space-y-4">
                     {orders.map((order) => (
                       <div key={order.id} className="space-y-2">
@@ -138,7 +139,7 @@ const LeadRowExpanded = ({ lead, visibleColumns }: LeadRowExpandedProps) => {
               <CardContent>
                 {bookingsLoading ? (
                   <div className="text-sm text-muted-foreground">Loading bookings...</div>
-                ) : bookings?.length ? (
+                ) : bookings && bookings.length > 0 ? (
                   <div className="space-y-4">
                     {bookings.map((booking) => (
                       <div key={booking.id} className="space-y-2">
