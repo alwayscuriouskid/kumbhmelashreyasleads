@@ -36,12 +36,18 @@ export const OrdersTableRow = ({
     try {
       console.log("Saving order updates:", editedValues);
       
+      // Only send the fields that have been edited
+      const updateData = {
+        ...editedValues,
+        updated_at: new Date().toISOString()
+      };
+
+      // Remove order_items from the update data as it's a relation, not a column
+      delete updateData.order_items;
+
       const { error } = await supabase
         .from('orders')
-        .update({
-          ...editedValues,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('id', order.id);
 
       if (error) throw error;

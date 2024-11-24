@@ -6,16 +6,22 @@ export const useOrders = () => {
   return useQuery({
     queryKey: ["orders"],
     queryFn: async () => {
-      console.log('Fetching orders with items');
+      console.log('Fetching orders');
       const { data, error } = await supabase
         .from("orders")
         .select(`
           *,
           order_items (
-            *,
+            quantity,
+            price,
+            inventory_item_id,
             inventory_items (
-              *,
-              inventory_types (*)
+              id,
+              sku,
+              inventory_types (
+                id,
+                name
+              )
             )
           )
         `);
