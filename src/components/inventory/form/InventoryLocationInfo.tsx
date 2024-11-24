@@ -12,11 +12,16 @@ interface InventoryLocationInfoProps {
 
 export const InventoryLocationInfo = ({ formData, setFormData }: InventoryLocationInfoProps) => {
   const { data: zones } = useZones();
-  const { data: sectors } = useSectors();
+  const { data: sectors, refetch: refetchSectors } = useSectors();
   const [selectedZone, setSelectedZone] = useState<string>("");
 
   // Filter sectors based on selected zone
   const filteredSectors = sectors?.filter(sector => sector.zone_id === selectedZone);
+
+  // Refetch sectors when component mounts to ensure we have latest data
+  useEffect(() => {
+    refetchSectors();
+  }, []);
 
   // Reset sector when zone changes
   useEffect(() => {

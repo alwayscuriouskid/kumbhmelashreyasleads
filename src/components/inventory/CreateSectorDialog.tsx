@@ -32,21 +32,35 @@ export const CreateSectorDialog = ({ onSuccess, children }: CreateSectorDialogPr
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!formData.zone_id || !formData.name) {
+      toast({
+        title: "Error",
+        description: "Zone and Name are required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      const { error } = await supabase
+      console.log("Creating new sector:", formData);
+      const { data, error } = await supabase
         .from('sectors')
-        .insert([formData]);
+        .insert([formData])
+        .select('*, zones(*)');
 
       if (error) throw error;
 
+      console.log("Created sector:", data);
       toast({
         title: "Success",
         description: "Sector created successfully",
       });
       
       setOpen(false);
+      setFormData({ name: "", description: "", zone_id: "" }); // Reset form
       onSuccess();
     } catch (error: any) {
+      console.error("Error creating sector:", error);
       toast({
         title: "Error",
         description: error.message,
