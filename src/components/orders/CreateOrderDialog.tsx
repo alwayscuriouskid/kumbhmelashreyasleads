@@ -64,18 +64,17 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
 
       if (itemsError) throw itemsError;
 
-      // Update inventory items quantities
+      // Update inventory items quantities using a more SQL-like approach
       for (const item of formData.selectedItems) {
         const { error: updateError } = await supabase
           .from("inventory_items")
           .update({ 
-            quantity: supabase.raw(`quantity - ${item.quantity}`),
-            status: supabase.raw(`CASE 
-              WHEN quantity - ${item.quantity} <= 0 THEN 'sold'
-              ELSE status 
-              END`)
+            quantity: item.quantity,
+            status: item.quantity <= 0 ? 'sold' : 'available'
           })
-          .eq("id", item.inventory_item_id);
+          .eq("id", item.inventory_item_id)
+          .select('quantity')
+          .single();
 
         if (updateError) throw updateError;
       }

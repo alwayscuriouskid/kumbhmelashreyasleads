@@ -70,6 +70,7 @@ export interface Order {
   payment_confirmation?: string;
   next_payment_date?: string;
   next_payment_details?: string;
+  additional_details?: string;
   order_items?: OrderItem[];
 }
 
