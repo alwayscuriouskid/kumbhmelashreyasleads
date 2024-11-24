@@ -5,7 +5,7 @@ export const updateInventoryQuantity = async (orderId: string, newStatus: string
   try {
     console.log('Updating inventory for order:', orderId, 'changing status from', oldStatus, 'to:', newStatus);
     
-    // Start by getting the order items
+    // First verify the order exists and get its items
     const { data: orderItems, error: itemsError } = await supabase
       .from('order_items')
       .select(`
@@ -21,21 +21,21 @@ export const updateInventoryQuantity = async (orderId: string, newStatus: string
     if (itemsError) throw itemsError;
     if (!orderItems?.length) throw new Error('No order items found');
 
-    // Begin transaction by updating order status first
-    const { error: orderError, data } = await supabase
+    // Update order status
+    const { data: updatedOrder, error: orderError } = await supabase
       .from('orders')
       .update({ 
         status: newStatus,
         updated_at: new Date().toISOString()
       })
       .eq('id', orderId)
-      .select()
+      .select('*')
       .maybeSingle();
 
     if (orderError) throw orderError;
-    if (!data) throw new Error('Failed to update order status');
+    if (!updatedOrder) throw new Error('Order not found or could not be updated');
 
-    // Then update inventory quantities based on status change
+    // Update inventory quantities based on status change
     for (const item of orderItems) {
       const currentQuantity = item.inventory_items?.quantity || 0;
       const currentAvailable = item.inventory_items?.available_quantity || 0;
@@ -88,7 +88,7 @@ export const updateInventoryQuantity = async (orderId: string, newStatus: string
       description: `Order status updated to ${newStatus} and inventory updated successfully`,
     });
 
-    return data;
+    return updatedOrder;
 
   } catch (error: any) {
     console.error('Error updating inventory:', error);
