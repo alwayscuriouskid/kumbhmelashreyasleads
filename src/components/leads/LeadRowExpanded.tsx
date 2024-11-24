@@ -26,19 +26,20 @@ const LeadRowExpanded = ({ lead, visibleColumns }: LeadRowExpandedProps) => {
           *,
           order_items (
             *,
-            inventory_item:inventory_items (
+            inventory_items (
               *,
-              inventory_type:inventory_types (name)
+              inventory_types (name)
             )
           )
         `)
-        .eq('lead_id', lead.id);
+        .eq('lead_id', lead.id)
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error("Error fetching orders:", error);
         throw error;
       }
-      console.log("Fetched orders:", data);
+      console.log("Fetched orders for lead:", data);
       return data;
     },
     enabled: !!lead.id,
@@ -58,17 +59,18 @@ const LeadRowExpanded = ({ lead, visibleColumns }: LeadRowExpandedProps) => {
             inventory_type:inventory_types (name)
           )
         `)
-        .eq('lead_id', lead.id);
+        .eq('lead_id', lead.id)
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error("Error fetching bookings:", error);
         throw error;
       }
-      console.log("Fetched bookings:", data);
+      console.log("Fetched bookings for lead:", data);
       return data;
     },
     enabled: !!lead.id,
-    refetchInterval: 5000 // Refetch every 5 seconds to keep data fresh
+    refetchInterval: 5000
   });
 
   const getStatusBadge = (status: string) => {
@@ -110,8 +112,13 @@ const LeadRowExpanded = ({ lead, visibleColumns }: LeadRowExpandedProps) => {
                             {order.status}
                           </Badge>
                         </div>
-                        <div className="text-sm">
-                          Amount: ₹{order.total_amount}
+                        <div className="text-sm space-y-1">
+                          <div>Amount: ₹{order.total_amount}</div>
+                          {order.order_items?.map((item, index) => (
+                            <div key={index} className="text-xs text-muted-foreground">
+                              {item.inventory_items?.inventory_types?.name} x{item.quantity}
+                            </div>
+                          ))}
                         </div>
                         <Separator className="my-2" />
                       </div>
