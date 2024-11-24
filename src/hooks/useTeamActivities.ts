@@ -83,7 +83,9 @@ export const useTeamActivities = (
         teamMember: item.assigned_to || 'System',
         leadName: item.lead?.client_name,
         activityNextActionDate: item.next_action_date,
-        activityOutcome: item.outcome
+        activityOutcome: item.outcome,
+        activityType: item.lead?.activity_type,
+        activityNextAction: item.lead?.activity_next_action
       }));
     }
   });
