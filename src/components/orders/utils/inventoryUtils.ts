@@ -3,10 +3,10 @@ import { toast } from "@/components/ui/use-toast";
 
 export const updateInventoryQuantity = async (orderId: string, newStatus: string, oldStatus: string) => {
   try {
-    console.log('Updating inventory for order:', orderId, 'changing status from', oldStatus, 'to:', newStatus);
+    console.log('Updating inventory for order:', orderId, 'status change from', oldStatus, 'to:', newStatus);
     
-    // First verify the order exists
-    const { data: orders, error: orderCheckError } = await supabase
+    // 1. Get the order and its items
+    const { data: orders, error: orderError } = await supabase
       .from('orders')
       .select(`
         *,
@@ -21,112 +21,81 @@ export const updateInventoryQuantity = async (orderId: string, newStatus: string
       `)
       .eq('id', orderId);
 
-    if (orderCheckError) {
-      console.error('Error checking order:', orderCheckError);
-      throw orderCheckError;
-    }
-    
-    if (!orders || orders.length === 0) {
-      console.error('Order not found:', orderId);
-      throw new Error(`Order ${orderId} not found`);
+    if (orderError || !orders || orders.length === 0) {
+      console.error('Error fetching order:', orderError);
+      throw new Error('Order not found or error fetching order');
     }
 
-    const orderCheck = orders[0];
+    const order = orders[0];
+    console.log('Found order:', order);
 
-    // Update order status first
-    const { data: updatedOrders, error: orderError } = await supabase
+    // 2. Update order status
+    const { error: updateOrderError } = await supabase
       .from('orders')
       .update({ 
         status: newStatus,
         updated_at: new Date().toISOString()
       })
-      .eq('id', orderId)
-      .select();
+      .eq('id', orderId);
 
-    if (orderError) {
-      console.error('Error updating order:', orderError);
-      throw orderError;
+    if (updateOrderError) {
+      console.error('Error updating order status:', updateOrderError);
+      throw updateOrderError;
     }
 
-    if (!updatedOrders || updatedOrders.length === 0) {
-      console.error('Failed to update order:', orderId);
-      throw new Error('Failed to update order');
-    }
-
-    const updatedOrder = updatedOrders[0];
-
-    // Update inventory quantities based on status change
-    const orderItems = orderCheck.order_items;
-    if (!orderItems?.length) {
-      console.log('No order items to update for order:', orderId);
-      return updatedOrder;
-    }
-
-    for (const item of orderItems) {
-      if (!item.inventory_items) {
-        console.warn('No inventory item found for order item:', item.inventory_item_id);
-        continue;
-      }
-
-      const currentQuantity = item.inventory_items.quantity || 0;
-      const currentAvailable = item.inventory_items.available_quantity || 0;
-      const orderQuantity = item.quantity;
+    // 3. If order is being approved, update inventory
+    if (newStatus === 'approved' && oldStatus !== 'approved') {
+      console.log('Order approved - updating inventory quantities');
       
-      // Calculate new available quantity based on status transition
-      let newAvailable = currentAvailable;
-      
-      if (oldStatus !== 'approved' && newStatus === 'approved') {
-        // Order is being approved - decrease available quantity
-        newAvailable = currentAvailable - orderQuantity;
-      } else if (oldStatus === 'approved' && newStatus !== 'approved') {
-        // Order is being un-approved - restore quantity
-        newAvailable = currentAvailable + orderQuantity;
-      }
+      for (const item of order.order_items || []) {
+        console.log('Updating inventory item:', item.inventory_item_id);
+        
+        // Get current inventory state
+        const { data: currentInventory, error: inventoryError } = await supabase
+          .from('inventory_items')
+          .select('quantity, available_quantity')
+          .eq('id', item.inventory_item_id)
+          .single();
 
-      console.log(`Updating inventory item ${item.inventory_item_id}:`, {
-        currentQuantity,
-        currentAvailable,
-        orderQuantity,
-        newAvailable,
-        oldStatus,
-        newStatus
-      });
+        if (inventoryError) {
+          console.error('Error fetching inventory item:', inventoryError);
+          throw inventoryError;
+        }
 
-      const { error: updateError } = await supabase
-        .from('inventory_items')
-        .update({ 
-          available_quantity: newAvailable,
-          status: newAvailable <= 0 ? 'sold' : 'available'
-        })
-        .eq('id', item.inventory_item_id);
+        const newQuantity = (currentInventory.quantity || 0) - item.quantity;
+        const newAvailable = (currentInventory.available_quantity || 0) - item.quantity;
 
-      if (updateError) {
-        console.error('Error updating inventory item:', updateError);
-        // If inventory update fails, attempt to rollback order status
-        await supabase
-          .from('orders')
+        // Update inventory
+        const { error: updateError } = await supabase
+          .from('inventory_items')
           .update({ 
-            status: oldStatus,
-            updated_at: new Date().toISOString()
+            quantity: newQuantity,
+            available_quantity: newAvailable,
+            status: newQuantity <= 0 ? 'sold' : 'available'
           })
-          .eq('id', orderId);
-          
-        throw updateError;
+          .eq('id', item.inventory_item_id);
+
+        if (updateError) {
+          console.error('Error updating inventory:', updateError);
+          throw updateError;
+        }
+
+        console.log('Successfully updated inventory item:', item.inventory_item_id);
       }
     }
 
     toast({
       title: "Success",
-      description: `Order status updated to ${newStatus} and inventory updated successfully`,
+      description: `Order ${newStatus} and inventory updated successfully`,
     });
 
-    return updatedOrder;
+    return order;
 
   } catch (error: any) {
-    console.error('Error updating inventory:', error);
+    console.error('Error in updateInventoryQuantity:', error);
     toast({
       title: "Error",
-      description: error.message,
+      description: error.message || "Failed to update order and inventory",
       variant: "destructive",
     });
     throw error;
