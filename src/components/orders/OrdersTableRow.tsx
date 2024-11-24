@@ -33,6 +33,49 @@ export const OrdersTableRow = ({
     setEditedOrder(order);
   };
 
+  const updateInventoryQuantity = async (orderId: string, status: string) => {
+    try {
+      // Get order items for this order
+      const { data: orderItems, error: itemsError } = await supabase
+        .from('order_items')
+        .select('*, inventory_items!inner(*)')
+        .eq('order_id', orderId);
+
+      if (itemsError) throw itemsError;
+
+      // For each order item, update inventory quantity
+      for (const item of orderItems || []) {
+        const currentQuantity = item.inventory_items.quantity;
+        const orderQuantity = item.quantity;
+        
+        // Calculate new quantity based on status
+        const newQuantity = status === 'approved' 
+          ? currentQuantity - orderQuantity 
+          : currentQuantity + orderQuantity;
+
+        console.log(`Updating inventory item ${item.inventory_item_id}:`, {
+          currentQuantity,
+          orderQuantity,
+          newQuantity,
+          status
+        });
+
+        const { error: updateError } = await supabase
+          .from('inventory_items')
+          .update({ 
+            quantity: newQuantity,
+            status: newQuantity <= 0 ? 'sold' : 'available'
+          })
+          .eq('id', item.inventory_item_id);
+
+        if (updateError) throw updateError;
+      }
+    } catch (error) {
+      console.error('Error updating inventory:', error);
+      throw error;
+    }
+  };
+
   const handleSave = async () => {
     try {
       console.log("Saving order updates:", editedOrder);
@@ -44,6 +87,15 @@ export const OrdersTableRow = ({
 
       delete updateData.order_items;
 
+      // If status is changing to approved or rejected, handle inventory updates
+      if (localOrder.status !== updateData.status) {
+        if (updateData.status === 'approved') {
+          await updateInventoryQuantity(order.id, 'approved');
+        } else if (localOrder.status === 'approved' && updateData.status === 'rejected') {
+          await updateInventoryQuantity(order.id, 'rejected');
+        }
+      }
+
       const { error } = await supabase
         .from('orders')
         .update(updateData)
@@ -51,7 +103,6 @@ export const OrdersTableRow = ({
 
       if (error) throw error;
 
-      // Update local state immediately after successful update
       setLocalOrder(editedOrder);
       
       toast({
@@ -168,7 +219,7 @@ export const OrdersTableRow = ({
           />
         </TableCell>
       )}
-      <TableCell className="w-[100px]">
+      <TableCell>
         <ActionCell
           isEditing={isEditing}
           onEdit={handleEdit}
