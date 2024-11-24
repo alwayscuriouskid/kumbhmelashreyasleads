@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { FollowUp, Activity } from "@/types/leads";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -14,9 +14,9 @@ interface LeadFollowUpsProps {
   onLeadUpdate?: (updates: any) => void;
 }
 
-const LeadFollowUps = ({ 
-  leadId, 
-  followUps = [], 
+const LeadFollowUps = ({
+  leadId,
+  followUps = [],
   onActivityAdd,
   contactPerson = "",
   onLeadUpdate
@@ -100,7 +100,7 @@ const LeadFollowUps = ({
     try {
       const { data: lead, error } = await supabase
         .from('leads')
-        .select('next_action, follow_up_outcome, next_follow_up')
+        .select('activity_next_action, activity_outcome, activity_next_action_date')
         .eq('id', leadId)
         .single();
 
@@ -108,9 +108,9 @@ const LeadFollowUps = ({
 
       if (onLeadUpdate && lead) {
         onLeadUpdate({
-          nextAction: lead.next_action,
-          followUpOutcome: lead.follow_up_outcome,
-          nextFollowUp: lead.next_follow_up
+          activityNextAction: lead.activity_next_action,
+          activityOutcome: lead.activity_outcome,
+          activityNextActionDate: lead.activity_next_action_date
         });
       }
     } catch (error) {

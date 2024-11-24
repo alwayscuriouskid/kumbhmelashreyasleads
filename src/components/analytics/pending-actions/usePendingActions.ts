@@ -20,23 +20,23 @@ export const usePendingActions = (
         .select(`
           id,
           client_name,
-          next_action,
-          next_follow_up,
-          follow_up_outcome,
+          activity_next_action,
+          activity_next_action_date,
+          activity_outcome,
           team_member_id,
           team_members (
             name
           )
         `)
-        .not('next_action', 'is', null);
+        .not('activity_next_action', 'is', null);
 
       if (error) throw error;
 
       let filteredActions = leads.map(lead => ({
         id: lead.id,
-        type: lead.next_action?.toLowerCase().includes('follow') ? 'follow_up' : 'action',
-        description: lead.next_action,
-        dueDate: lead.next_follow_up,
+        type: lead.activity_next_action?.toLowerCase().includes('follow') ? 'follow_up' : 'action',
+        description: lead.activity_next_action,
+        dueDate: lead.activity_next_action_date,
         clientName: lead.client_name,
         teamMember: lead.team_members?.name || 'Unassigned',
         teamMemberId: lead.team_member_id || ''

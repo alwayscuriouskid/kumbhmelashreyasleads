@@ -25,9 +25,9 @@ export const useTeamActivities = (
           id,
           client_name,
           contact_person,
-          next_follow_up,
-          next_action,
-          follow_up_outcome,
+          activity_next_action_date,
+          activity_next_action,
+          activity_outcome,
           status,
           created_at,
           updated_at
@@ -57,17 +57,17 @@ export const useTeamActivities = (
         type: 'status_change',
         date: item.created_at,
         time: format(new Date(item.created_at), 'HH:mm'),
-        outcome: item.follow_up_outcome || '',
+        outcome: item.activity_outcome || '',
         notes: '',
-        nextAction: item.next_action || '',
+        nextAction: item.activity_next_action || '',
         assignedTo: '',
         contactPerson: item.contact_person,
         description: `Lead activity for ${item.client_name}`,
         teamMember: 'System',
         leadName: item.client_name,
-        nextFollowUp: item.next_follow_up,
-        followUpOutcome: item.follow_up_outcome,
-        activityOutcome: item.follow_up_outcome
+        nextFollowUp: item.activity_next_action_date,
+        followUpOutcome: item.activity_outcome,
+        activityOutcome: item.activity_outcome
       }));
     }
   });

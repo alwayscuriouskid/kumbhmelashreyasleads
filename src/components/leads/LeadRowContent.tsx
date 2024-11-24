@@ -149,7 +149,7 @@ const LeadRowContent = ({
         <TableCell>{renderCell("remarks", lead.remarks)}</TableCell>
       )}
       {visibleColumns.nextFollowUp && (
-        <TableCell>{renderCell("nextFollowUp", lead.nextFollowUp || "-")}</TableCell>
+        <TableCell>{renderCell("activityNextActionDate", lead.activityNextActionDate || "-")}</TableCell>
       )}
       {visibleColumns.budget && (
         <TableCell>{renderCell("budget", lead.budget || "-")}</TableCell>
@@ -164,10 +164,10 @@ const LeadRowContent = ({
         <TableCell>{renderCell("priceQuoted", lead.priceQuoted?.toString() || "-")}</TableCell>
       )}
       {visibleColumns.nextAction && (
-        <TableCell>{renderCell("nextAction", lead.nextAction || "-")}</TableCell>
+        <TableCell>{renderCell("activityNextAction", lead.activityNextAction || "-")}</TableCell>
       )}
       {visibleColumns.followUpOutcome && (
-        <TableCell>{renderCell("followUpOutcome", lead.followUpOutcome || "-")}</TableCell>
+        <TableCell>{renderCell("activityOutcome", lead.activityOutcome || "-")}</TableCell>
       )}
     </>
   );
