@@ -4,7 +4,7 @@ import TeamActivityTableHeader from "./TeamActivityTableHeader";
 import TeamActivityRow from "./TeamActivityRow";
 import { useTeamActivities } from "@/hooks/useTeamActivities";
 import { useActivityFilters } from "./team-activities/useActivityFilters";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Activity } from "@/types/leads";
 
 const TeamActivityTable = () => {
@@ -52,13 +52,13 @@ const TeamActivityTable = () => {
   };
 
   // Update filtered activities when data changes
-  useState(() => {
+  useEffect(() => {
     if (activities) {
       const filtered = applyFilters(activities);
       const sorted = sortActivities(filtered);
       setFilteredActivities(sorted);
     }
-  }, [activities, selectedTeamMember, activityType, leadSearch, selectedDate, nextActionDateFilter, sortBy]);
+  }, [activities, selectedTeamMember, activityType, leadSearch, selectedDate, nextActionDateFilter, sortBy, applyFilters]);
 
   return (
     <div className="space-y-4">
