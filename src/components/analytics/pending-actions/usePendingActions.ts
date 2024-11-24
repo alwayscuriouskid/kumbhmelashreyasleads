@@ -21,6 +21,7 @@ export const usePendingActions = (
           id,
           type,
           notes,
+          outcome,
           next_action,
           next_action_date,
           assigned_to,
@@ -62,7 +63,9 @@ export const usePendingActions = (
         dueDate: action.next_action_date,
         clientName: action.lead?.client_name || 'Unknown Client',
         teamMember: action.assigned_to || 'Unassigned',
-        teamMemberId: action.assigned_to || ''
+        teamMemberId: action.assigned_to || '',
+        outcome: action.outcome,
+        notes: action.notes
       }));
     }
   });
