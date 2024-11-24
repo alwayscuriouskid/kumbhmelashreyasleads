@@ -71,34 +71,11 @@ const LeadFollowUps = ({
     };
   }, [leadId]);
 
-  const transformActivity = (data: any): Activity => ({
-    id: data.id,
-    type: validateActivityType(data.type),
-    date: data.created_at,
-    notes: data.notes || '',
-    outcome: data.outcome || '',
-    startTime: data.start_time,
-    endTime: data.end_time,
-    assignedTo: data.assigned_to || '',
-    nextAction: data.next_action || '',
-    contactPerson: data.contact_person || '',
-    location: data.location || '',
-    callType: data.call_type as 'incoming' | 'outgoing' | undefined,
-    nextFollowUp: data.next_follow_up
-  });
-
-  const validateActivityType = (type: string): Activity['type'] => {
-    const validTypes: Activity['type'][] = ['call', 'meeting', 'email', 'note', 'status_change', 'follow_up'];
-    return validTypes.includes(type as Activity['type']) 
-      ? (type as Activity['type']) 
-      : 'note';
-  };
-
   const fetchAndUpdateLead = async () => {
     try {
       const { data: lead, error } = await supabase
         .from('leads')
-        .select('activity_next_action, activity_outcome, activity_next_action_date')
+        .select('activity_type, activity_outcome, activity_next_action, activity_next_action_date')
         .eq('id', leadId)
         .single();
 
@@ -106,8 +83,9 @@ const LeadFollowUps = ({
 
       if (onLeadUpdate && lead) {
         onLeadUpdate({
-          activityNextAction: lead.activity_next_action,
+          activityType: lead.activity_type,
           activityOutcome: lead.activity_outcome,
+          activityNextAction: lead.activity_next_action,
           activityNextActionDate: lead.activity_next_action_date
         });
       }
@@ -138,25 +116,27 @@ const LeadFollowUps = ({
     }
   };
 
-  const handleActivityAdd = async (activity: Activity) => {
-    try {
-      if (onActivityAdd) {
-        onActivityAdd(activity);
-      }
-      await fetchActivities();
-      await fetchAndUpdateLead();
-    } catch (error) {
-      console.error("Error handling activity add:", error);
-    }
-  };
+  const transformActivity = (data: any): Activity => ({
+    id: data.id,
+    type: validateActivityType(data.type),
+    date: data.created_at,
+    notes: data.notes || '',
+    outcome: data.outcome || '',
+    startTime: data.start_time,
+    endTime: data.end_time,
+    assignedTo: data.assigned_to || '',
+    nextAction: data.next_action || '',
+    contactPerson: data.contact_person || '',
+    location: data.location || '',
+    callType: data.call_type as 'incoming' | 'outgoing' | undefined,
+    next_action_date: data.next_action_date
+  });
 
-  const handleLeadUpdate = async (updates: any) => {
-    console.log("Handling lead update in LeadFollowUps:", updates);
-    if (onLeadUpdate) {
-      onLeadUpdate(updates);
-    }
-    await fetchActivities();
-    await fetchAndUpdateLead();
+  const validateActivityType = (type: string): Activity['type'] => {
+    const validTypes: Activity['type'][] = ['call', 'meeting', 'email', 'note', 'status_change', 'follow_up'];
+    return validTypes.includes(type as Activity['type']) 
+      ? (type as Activity['type']) 
+      : 'note';
   };
 
   return (
@@ -165,9 +145,9 @@ const LeadFollowUps = ({
         <CardContent className="pt-6">
           <FollowUpTabs
             leadId={leadId}
-            onActivityAdd={handleActivityAdd}
+            onActivityAdd={onActivityAdd}
             contactPerson={contactPerson}
-            onLeadUpdate={handleLeadUpdate}
+            onLeadUpdate={onLeadUpdate}
           />
         </CardContent>
       </Card>
