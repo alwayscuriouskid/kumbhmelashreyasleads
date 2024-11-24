@@ -22,15 +22,18 @@ export const updateInventoryQuantity = async (orderId: string, newStatus: string
     if (!orderItems?.length) throw new Error('No order items found');
 
     // Begin transaction by updating order status first
-    const { error: orderError } = await supabase
+    const { error: orderError, data: updatedOrder } = await supabase
       .from('orders')
       .update({ 
         status: newStatus,
         updated_at: new Date().toISOString()
       })
-      .eq('id', orderId);
+      .eq('id', orderId)
+      .select()
+      .single();
 
     if (orderError) throw orderError;
+    if (!updatedOrder) throw new Error('Failed to update order status');
 
     // Then update inventory quantities based on status change
     for (const item of orderItems) {
@@ -44,8 +47,8 @@ export const updateInventoryQuantity = async (orderId: string, newStatus: string
       if (oldStatus !== 'approved' && newStatus === 'approved') {
         // Order is being approved - decrease available quantity
         newAvailable = currentAvailable - orderQuantity;
-      } else if (oldStatus === 'approved' && newStatus === 'rejected') {
-        // Order is being rejected after being approved - restore quantity
+      } else if (oldStatus === 'approved' && newStatus !== 'approved') {
+        // Order is being un-approved - restore quantity
         newAvailable = currentAvailable + orderQuantity;
       }
 
@@ -82,8 +85,10 @@ export const updateInventoryQuantity = async (orderId: string, newStatus: string
 
     toast({
       title: "Success",
-      description: `Order ${newStatus} and inventory updated successfully`,
+      description: `Order status updated to ${newStatus} and inventory updated successfully`,
     });
+
+    return updatedOrder;
 
   } catch (error: any) {
     console.error('Error updating inventory:', error);

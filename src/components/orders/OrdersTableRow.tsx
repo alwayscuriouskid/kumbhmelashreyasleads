@@ -27,6 +27,7 @@ export const OrdersTableRow = ({
 }: OrdersTableRowProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedOrder, setEditedOrder] = useState<Order>(order);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -35,10 +36,13 @@ export const OrdersTableRow = ({
 
   const handleSave = async () => {
     try {
+      setIsUpdating(true);
+      
       // Handle status change and inventory updates first
       if (order.status !== editedOrder.status) {
         console.log("Status changing from", order.status, "to", editedOrder.status);
-        await updateInventoryQuantity(order.id, editedOrder.status, order.status);
+        const updatedOrder = await updateInventoryQuantity(order.id, editedOrder.status, order.status);
+        if (!updatedOrder) throw new Error('Failed to update order status');
       }
 
       // Then update other order fields if they've changed
@@ -59,7 +63,7 @@ export const OrdersTableRow = ({
         updates.additional_details = editedOrder.additional_details;
       }
 
-      // Only update if there are changes
+      // Only update if there are changes other than status
       if (Object.keys(updates).length > 0) {
         const { error } = await supabase
           .from('orders')
@@ -78,6 +82,8 @@ export const OrdersTableRow = ({
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -184,6 +190,7 @@ export const OrdersTableRow = ({
           onEdit={handleEdit}
           onSave={handleSave}
           onCancel={handleCancel}
+          disabled={isUpdating}
         />
       </TableCell>
     </TableRow>
