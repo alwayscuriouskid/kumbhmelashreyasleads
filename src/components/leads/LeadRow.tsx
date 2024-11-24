@@ -55,16 +55,6 @@ const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProp
     console.log(`Updated ${field} to:`, value);
   };
 
-  const handleFollowUpSubmit = (newFollowUp: any) => {
-    const updatedLead = {
-      ...editedLead,
-      followUps: [...(editedLead.followUps || []), newFollowUp],
-    };
-    onUpdate?.(updatedLead);
-    setEditedLead(updatedLead);
-    console.log("Added new follow-up:", newFollowUp);
-  };
-
   return (
     <>
       <TableRow className="group hover:bg-muted/50">
@@ -120,7 +110,6 @@ const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProp
         <LeadRowExpanded 
           lead={editedLead}
           visibleColumns={visibleColumns}
-          onFollowUpSubmit={handleFollowUpSubmit}
         />
       )}
     </>
