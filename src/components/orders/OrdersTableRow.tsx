@@ -26,6 +26,7 @@ export const OrdersTableRow = ({
 }: OrdersTableRowProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedOrder, setEditedOrder] = useState<Order>(order);
+  const [localOrder, setLocalOrder] = useState<Order>(order);
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -36,13 +37,11 @@ export const OrdersTableRow = ({
     try {
       console.log("Saving order updates:", editedOrder);
       
-      // Only send the fields that have been edited
       const updateData = {
         ...editedOrder,
         updated_at: new Date().toISOString()
       };
 
-      // Remove order_items from the update data as it's a relation, not a column
       delete updateData.order_items;
 
       const { error } = await supabase
@@ -52,6 +51,9 @@ export const OrdersTableRow = ({
 
       if (error) throw error;
 
+      // Update local state immediately after successful update
+      setLocalOrder(editedOrder);
+      
       toast({
         title: "Success",
         description: "Order updated successfully",
@@ -71,7 +73,7 @@ export const OrdersTableRow = ({
 
   const handleCancel = () => {
     setIsEditing(false);
-    setEditedOrder(order);
+    setEditedOrder(localOrder);
   };
 
   const handleChange = (field: keyof Order, value: any) => {
@@ -93,7 +95,7 @@ export const OrdersTableRow = ({
       {visibleColumns.customer && (
         <TableCell>
           <EditableCell
-            value={isEditing ? editedOrder.customer_name || '' : order.customer_name || ''}
+            value={isEditing ? editedOrder.customer_name || '' : localOrder.customer_name || ''}
             isEditing={isEditing}
             onChange={(value) => handleChange('customer_name', value)}
           />
@@ -101,16 +103,16 @@ export const OrdersTableRow = ({
       )}
       {visibleColumns.teamMember && (
         <TableCell>
-          {teamMembers?.find(member => member.id === order.team_member_id)?.name}
+          {teamMembers?.find(member => member.id === localOrder.team_member_id)?.name}
         </TableCell>
       )}
       {visibleColumns.totalAmount && (
-        <TableCell>₹{order.total_amount}</TableCell>
+        <TableCell>₹{localOrder.total_amount}</TableCell>
       )}
       {visibleColumns.paymentStatus && (
         <TableCell>
           <PaymentStatusCell
-            value={isEditing ? editedOrder.payment_status || 'pending' : order.payment_status || 'pending'}
+            value={isEditing ? editedOrder.payment_status || 'pending' : localOrder.payment_status || 'pending'}
             isEditing={isEditing}
             onChange={(value) => handleChange('payment_status', value)}
           />
@@ -119,7 +121,7 @@ export const OrdersTableRow = ({
       {visibleColumns.orderStatus && (
         <TableCell>
           <OrderStatusCell
-            value={isEditing ? editedOrder.status : order.status}
+            value={isEditing ? editedOrder.status : localOrder.status}
             isEditing={isEditing}
             onChange={(value) => handleChange('status', value)}
           />
@@ -127,14 +129,14 @@ export const OrdersTableRow = ({
       )}
       {visibleColumns.inventoryItems && (
         <TableCell>
-          <InventoryItemsCell items={order.order_items || []} />
+          <InventoryItemsCell items={localOrder.order_items || []} />
         </TableCell>
       )}
       {visibleColumns.paymentConfirmation && (
         <TableCell>
           <PaymentConfirmationCell
             isEditing={isEditing}
-            value={editedOrder.payment_confirmation || order.payment_confirmation || ''}
+            value={editedOrder.payment_confirmation || localOrder.payment_confirmation || ''}
             onChange={(value) => handleChange('payment_confirmation', value)}
           />
         </TableCell>
@@ -143,7 +145,7 @@ export const OrdersTableRow = ({
         <TableCell>
           <NextPaymentDateCell
             isEditing={isEditing}
-            value={editedOrder.next_payment_date || order.next_payment_date}
+            value={editedOrder.next_payment_date || localOrder.next_payment_date}
             onChange={(value) => handleChange('next_payment_date', value)}
           />
         </TableCell>
@@ -151,7 +153,7 @@ export const OrdersTableRow = ({
       {visibleColumns.nextPaymentDetails && (
         <TableCell>
           <EditableCell
-            value={isEditing ? editedOrder.next_payment_details || '' : order.next_payment_details || ''}
+            value={isEditing ? editedOrder.next_payment_details || '' : localOrder.next_payment_details || ''}
             isEditing={isEditing}
             onChange={(value) => handleChange('next_payment_details', value)}
           />
@@ -160,7 +162,7 @@ export const OrdersTableRow = ({
       {visibleColumns.additionalDetails && (
         <TableCell>
           <EditableCell
-            value={isEditing ? editedOrder.additional_details || '' : order.additional_details || ''}
+            value={isEditing ? editedOrder.additional_details || '' : localOrder.additional_details || ''}
             isEditing={isEditing}
             onChange={(value) => handleChange('additional_details', value)}
           />
