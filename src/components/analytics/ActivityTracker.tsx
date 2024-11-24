@@ -46,7 +46,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
     try {
       const { data: lead, error } = await supabase
         .from('leads')
-        .select('next_action, follow_up_outcome, next_follow_up')
+        .select('activity_type, activity_outcome, activity_next_action, activity_next_action_date')
         .eq('id', leadId)
         .single();
 
@@ -56,9 +56,10 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
 
       if (onLeadUpdate && lead) {
         onLeadUpdate({
-          nextAction: lead.next_action,
-          followUpOutcome: lead.follow_up_outcome,
-          nextFollowUp: lead.next_follow_up
+          activityType: lead.activity_type,
+          activityOutcome: lead.activity_outcome,
+          activityNextAction: lead.activity_next_action,
+          activityNextActionDate: lead.activity_next_action_date
         });
       }
     } catch (error) {
@@ -90,7 +91,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
           location: activity.location,
           call_type: activity.callType,
           contact_person: activity.contactPerson,
-          next_follow_up: activity.type === 'follow_up' ? activity.nextFollowUp : null
+          next_action_date: activity.next_action_date
         })
         .select()
         .single();
@@ -99,9 +100,10 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
 
       // Update leads table with latest activity data
       const leadUpdates = {
-        next_action: activity.nextAction,
-        follow_up_outcome: activity.outcome,
-        next_follow_up: activity.type === 'follow_up' ? activity.nextFollowUp : null,
+        activity_type: activity.type,
+        activity_outcome: activity.outcome,
+        activity_next_action: activity.nextAction,
+        activity_next_action_date: activity.next_action_date,
         updated_at: new Date().toISOString()
       };
 

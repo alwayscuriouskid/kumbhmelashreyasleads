@@ -385,6 +385,10 @@ export type Database = {
       }
       leads: {
         Row: {
+          activity_next_action: string | null
+          activity_next_action_date: string | null
+          activity_outcome: string | null
+          activity_type: string | null
           budget: string | null
           client_name: string
           contact_person: string
@@ -394,13 +398,10 @@ export type Database = {
           created_at: string | null
           date: string
           email: string
-          follow_up_outcome: string | null
           id: string
           lead_ref: string | null
           lead_source: string | null
           location: string
-          next_action: string | null
-          next_follow_up: string | null
           phone: string
           price_quoted: number | null
           remarks: string | null
@@ -410,6 +411,10 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          activity_next_action?: string | null
+          activity_next_action_date?: string | null
+          activity_outcome?: string | null
+          activity_type?: string | null
           budget?: string | null
           client_name: string
           contact_person: string
@@ -419,13 +424,10 @@ export type Database = {
           created_at?: string | null
           date?: string
           email: string
-          follow_up_outcome?: string | null
           id?: string
           lead_ref?: string | null
           lead_source?: string | null
           location: string
-          next_action?: string | null
-          next_follow_up?: string | null
           phone: string
           price_quoted?: number | null
           remarks?: string | null
@@ -435,6 +437,10 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          activity_next_action?: string | null
+          activity_next_action_date?: string | null
+          activity_outcome?: string | null
+          activity_type?: string | null
           budget?: string | null
           client_name?: string
           contact_person?: string
@@ -444,13 +450,10 @@ export type Database = {
           created_at?: string | null
           date?: string
           email?: string
-          follow_up_outcome?: string | null
           id?: string
           lead_ref?: string | null
           lead_source?: string | null
           location?: string
-          next_action?: string | null
-          next_follow_up?: string | null
           phone?: string
           price_quoted?: number | null
           remarks?: string | null

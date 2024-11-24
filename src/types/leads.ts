@@ -69,19 +69,20 @@ export interface LeadDB {
   requirement: Json;
   status: string;
   remarks: string | null;
-  next_follow_up: string | null;
   budget: string | null;
   lead_ref: string | null;
   lead_source: string | null;
   price_quoted: number | null;
-  next_action: string | null;
-  follow_up_outcome: string | null;
   created_at: string | null;
   updated_at: string | null;
   team_member_id?: string | null;
   conversion_status?: string | null;
   conversion_date?: string | null;
   conversion_type?: string | null;
+  activity_type?: string | null;
+  activity_outcome?: string | null;
+  activity_next_action?: string | null;
+  activity_next_action_date?: string | null;
 }
 
 export interface Lead {
@@ -95,7 +96,6 @@ export interface Lead {
   requirement: Requirement;
   status: string;
   remarks: string;
-  nextFollowUp?: string;
   budget?: string;
   followUps: FollowUp[];
   leadRef?: string;
@@ -105,11 +105,13 @@ export interface Lead {
   updatedAt: string;
   score?: number;
   priceQuoted?: number;
-  nextAction?: string;
-  followUpOutcome?: string;
   conversion_status?: string;
   conversion_type?: 'order' | 'booking';
   conversion_date?: string;
+  activityType?: string;
+  activityOutcome?: string;
+  activityNextAction?: string;
+  activityNextActionDate?: string;
 }
 
 export const dbToFrontend = (lead: LeadDB): Lead => ({
@@ -123,7 +125,6 @@ export const dbToFrontend = (lead: LeadDB): Lead => ({
   requirement: lead.requirement as Requirement,
   status: lead.status,
   remarks: lead.remarks || '',
-  nextFollowUp: lead.next_follow_up || undefined,
   budget: lead.budget || undefined,
   followUps: [],
   leadRef: lead.lead_ref || undefined,
@@ -132,8 +133,13 @@ export const dbToFrontend = (lead: LeadDB): Lead => ({
   createdAt: lead.created_at || new Date().toISOString(),
   updatedAt: lead.updated_at || new Date().toISOString(),
   priceQuoted: lead.price_quoted || undefined,
-  nextAction: lead.next_action || undefined,
-  followUpOutcome: lead.follow_up_outcome || undefined
+  activityType: lead.activity_type || undefined,
+  activityOutcome: lead.activity_outcome || undefined,
+  activityNextAction: lead.activity_next_action || undefined,
+  activityNextActionDate: lead.activity_next_action_date || undefined,
+  conversion_status: lead.conversion_status,
+  conversion_type: lead.conversion_type as 'order' | 'booking' | undefined,
+  conversion_date: lead.conversion_date
 });
 
 export const frontendToDB = (lead: Partial<Lead>): Omit<LeadDB, 'id'> => {
@@ -151,19 +157,20 @@ export const frontendToDB = (lead: Partial<Lead>): Omit<LeadDB, 'id'> => {
     requirement: lead.requirement as Json || {},
     status: lead.status || 'pending',
     remarks: lead.remarks || null,
-    next_follow_up: lead.nextFollowUp || null,
     budget: lead.budget || null,
     lead_ref: lead.leadRef || null,
     lead_source: lead.leadSource || null,
     price_quoted: lead.priceQuoted || null,
-    next_action: lead.nextAction || null,
-    follow_up_outcome: lead.followUpOutcome || null,
     date: lead.date || new Date().toISOString().split('T')[0],
     created_at: lead.createdAt || new Date().toISOString(),
     updated_at: new Date().toISOString(),
     team_member_id: null,
-    conversion_status: null,
-    conversion_date: null,
-    conversion_type: null
+    conversion_status: lead.conversion_status || null,
+    conversion_date: lead.conversion_date || null,
+    conversion_type: lead.conversion_type || null,
+    activity_type: lead.activityType || null,
+    activity_outcome: lead.activityOutcome || null,
+    activity_next_action: lead.activityNextAction || null,
+    activity_next_action_date: lead.activityNextActionDate || null
   };
 };
