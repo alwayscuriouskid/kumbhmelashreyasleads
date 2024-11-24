@@ -1,7 +1,7 @@
 import { Activity } from "@/types/leads";
 import { useState } from "react";
 
-export const useActivityFilters = (activities: Activity[]) => {
+export const useActivityFilters = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedTeamMember, setSelectedTeamMember] = useState<string>('all');
   const [activityType, setActivityType] = useState<string>('all');

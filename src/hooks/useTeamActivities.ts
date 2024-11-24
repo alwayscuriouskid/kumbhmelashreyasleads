@@ -69,7 +69,7 @@ export const useTeamActivities = (
 
       return data.map((item): Activity => ({
         id: item.id,
-        type: item.type,
+        type: item.type as Activity['type'],
         date: item.created_at,
         time: format(new Date(item.created_at), 'HH:mm'),
         notes: item.notes || '',

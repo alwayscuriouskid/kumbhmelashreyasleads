@@ -2,18 +2,17 @@ import { Table, TableBody } from "@/components/ui/table";
 import TeamActivityFilters from "./TeamActivityFilters";
 import TeamActivityTableHeader from "./TeamActivityTableHeader";
 import TeamActivityRow from "./TeamActivityRow";
-import { useTeamActivities } from "./team-activities/useTeamActivities";
+import { useTeamActivities } from "@/hooks/useTeamActivities";
 import { useActivityFilters } from "./team-activities/useActivityFilters";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { Activity } from "@/types/leads";
 
 const TeamActivityTable = () => {
   const [sortBy, setSortBy] = useState("date_desc");
   const [nextActionDateFilter, setNextActionDateFilter] = useState<Date>();
+  const [filteredActivities, setFilteredActivities] = useState<Activity[]>([]);
   
   const { 
-    activities,
-    filteredActivities,
-    setFilteredActivities,
     selectedDate,
     setSelectedDate,
     selectedTeamMember,
@@ -27,7 +26,7 @@ const TeamActivityTable = () => {
     applyFilters
   } = useActivityFilters();
 
-  const { data: fetchedActivities } = useTeamActivities(
+  const { data: activities } = useTeamActivities(
     selectedTeamMember,
     activityType,
     leadSearch,
@@ -35,7 +34,7 @@ const TeamActivityTable = () => {
     nextActionDateFilter
   );
 
-  const sortActivities = (activities: any[]) => {
+  const sortActivities = (activities: Activity[]) => {
     return [...activities].sort((a, b) => {
       switch (sortBy) {
         case "date_asc":
@@ -52,13 +51,14 @@ const TeamActivityTable = () => {
     });
   };
 
-  useEffect(() => {
-    if (fetchedActivities) {
-      const filtered = applyFilters(fetchedActivities);
+  // Update filtered activities when data changes
+  useState(() => {
+    if (activities) {
+      const filtered = applyFilters(activities);
       const sorted = sortActivities(filtered);
       setFilteredActivities(sorted);
     }
-  }, [fetchedActivities, selectedTeamMember, activityType, leadSearch, selectedDate, nextActionDateFilter, sortBy]);
+  }, [activities, selectedTeamMember, activityType, leadSearch, selectedDate, nextActionDateFilter, sortBy]);
 
   return (
     <div className="space-y-4">
