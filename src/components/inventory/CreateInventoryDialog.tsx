@@ -33,14 +33,27 @@ export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate required fields
+    if (!formData.type_id || !formData.sector_id) {
+      toast({
+        title: "Error",
+        description: "Type and Sector are required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
+      console.log('Submitting inventory item:', formData);
+      
       const { error } = await supabase
         .from('inventory_items')
         .insert([{
           ...formData,
           current_price: Number(formData.current_price),
           min_price: Number(formData.min_price),
-          ltc: Number(formData.ltc),
+          ltc: formData.ltc ? Number(formData.ltc) : null,
           quantity: Number(formData.quantity)
         }]);
 
@@ -54,6 +67,7 @@ export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) 
       setOpen(false);
       onSuccess();
     } catch (error: any) {
+      console.error('Error creating inventory item:', error);
       toast({
         title: "Error",
         description: error.message,

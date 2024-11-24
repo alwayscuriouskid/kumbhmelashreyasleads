@@ -4,29 +4,36 @@ import { useZones, useSectors } from "@/hooks/useInventory";
 import { useState, useEffect } from "react";
 
 interface InventoryLocationInfoProps {
-  formData: any;
+  formData: {
+    sector_id: string;
+  };
   setFormData: (data: any) => void;
 }
 
 export const InventoryLocationInfo = ({ formData, setFormData }: InventoryLocationInfoProps) => {
   const { data: zones } = useZones();
   const { data: sectors } = useSectors();
-  const [selectedZone, setSelectedZone] = useState("");
-  const [filteredSectors, setFilteredSectors] = useState(sectors || []);
+  const [selectedZone, setSelectedZone] = useState<string>("");
 
+  // Filter sectors based on selected zone
+  const filteredSectors = sectors?.filter(sector => sector.zone_id === selectedZone);
+
+  // Reset sector when zone changes
   useEffect(() => {
-    if (selectedZone && sectors) {
-      setFilteredSectors(sectors.filter(sector => sector.zone_id === selectedZone));
-      setFormData(prev => ({ ...prev, sector_id: "" }));
+    if (selectedZone && (!formData.sector_id || !filteredSectors?.some(s => s.id === formData.sector_id))) {
+      setFormData({ ...formData, sector_id: "" });
     }
-  }, [selectedZone, sectors, setFormData]);
+  }, [selectedZone]);
 
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="zone">Zone</Label>
-        <Select value={selectedZone} onValueChange={setSelectedZone}>
-          <SelectTrigger className="w-full bg-background">
+        <Label>Zone</Label>
+        <Select 
+          value={selectedZone} 
+          onValueChange={setSelectedZone}
+        >
+          <SelectTrigger className="bg-background">
             <SelectValue placeholder="Select Zone" />
           </SelectTrigger>
           <SelectContent>
@@ -38,18 +45,19 @@ export const InventoryLocationInfo = ({ formData, setFormData }: InventoryLocati
           </SelectContent>
         </Select>
       </div>
+
       <div className="space-y-2">
-        <Label htmlFor="sector">Sector</Label>
+        <Label>Sector</Label>
         <Select 
           value={formData.sector_id} 
           onValueChange={(value) => setFormData({ ...formData, sector_id: value })}
           disabled={!selectedZone}
         >
-          <SelectTrigger className="w-full bg-background">
+          <SelectTrigger className="bg-background">
             <SelectValue placeholder="Select Sector" />
           </SelectTrigger>
           <SelectContent>
-            {filteredSectors.map((sector) => (
+            {filteredSectors?.map((sector) => (
               <SelectItem key={sector.id} value={sector.id}>
                 {sector.name}
               </SelectItem>
