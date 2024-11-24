@@ -7,39 +7,55 @@ export const useTeamActivities = (
   selectedTeamMember: string,
   activityType: string,
   leadSearch: string,
-  selectedDate?: Date
+  selectedDate?: Date,
+  nextActionDateFilter?: Date
 ) => {
   return useQuery({
-    queryKey: ["team-activities", selectedTeamMember, activityType, leadSearch, selectedDate],
+    queryKey: ["team-activities", selectedTeamMember, activityType, leadSearch, selectedDate, nextActionDateFilter],
     queryFn: async () => {
       console.log("Fetching activities with filters:", { 
         selectedTeamMember, 
         activityType,
         leadSearch,
-        selectedDate 
+        selectedDate,
+        nextActionDateFilter 
       });
 
-      const query = supabase
-        .from('leads')
+      let query = supabase
+        .from('activities')
         .select(`
-          id,
-          client_name,
-          contact_person,
-          activity_next_action_date,
-          activity_next_action,
-          activity_outcome,
-          status,
-          created_at,
-          updated_at
+          *,
+          lead:leads (
+            id,
+            client_name,
+            activity_type,
+            activity_outcome,
+            activity_next_action,
+            activity_next_action_date
+          )
         `);
 
-      if (leadSearch) {
-        query.ilike('client_name', `%${leadSearch}%`);
+      if (selectedTeamMember !== 'all') {
+        query = query.eq('assigned_to', selectedTeamMember);
+      }
+
+      if (activityType !== 'all') {
+        query = query.eq('type', activityType);
       }
 
       if (selectedDate) {
-        query.gte('created_at', format(selectedDate, 'yyyy-MM-dd'))
-          .lt('created_at', format(new Date(selectedDate.getTime() + 86400000), 'yyyy-MM-dd'));
+        const dateStr = format(selectedDate, 'yyyy-MM-dd');
+        query = query.gte('created_at', `${dateStr}T00:00:00`)
+                    .lt('created_at', `${dateStr}T23:59:59`);
+      }
+
+      if (nextActionDateFilter) {
+        const dateStr = format(nextActionDateFilter, 'yyyy-MM-dd');
+        query = query.eq('next_action_date', dateStr);
+      }
+
+      if (leadSearch) {
+        query = query.textSearch('lead.client_name', leadSearch);
       }
 
       const { data, error } = await query;
@@ -49,24 +65,25 @@ export const useTeamActivities = (
         throw error;
       }
 
-      console.log("Fetched lead activities:", data);
+      console.log("Fetched activities:", data);
 
-      // Map the lead data to match our Activity type
-      return (data || []).map((item): Activity => ({
+      return data.map((item): Activity => ({
         id: item.id,
-        type: 'status_change',
+        type: item.type,
         date: item.created_at,
         time: format(new Date(item.created_at), 'HH:mm'),
-        outcome: item.activity_outcome || '',
-        notes: '',
-        nextAction: item.activity_next_action || '',
-        assignedTo: '',
-        contactPerson: item.contact_person,
-        description: `Lead activity for ${item.client_name}`,
-        teamMember: 'System',
-        leadName: item.client_name,
-        activityNextActionDate: item.activity_next_action_date,
-        activityOutcome: item.activity_outcome
+        notes: item.notes || '',
+        outcome: item.outcome || '',
+        startTime: item.start_time,
+        endTime: item.end_time,
+        assignedTo: item.assigned_to || '',
+        nextAction: item.next_action || '',
+        contactPerson: item.contact_person || '',
+        description: `Lead activity for ${item.lead?.client_name}`,
+        teamMember: item.assigned_to || 'System',
+        leadName: item.lead?.client_name,
+        activityNextActionDate: item.next_action_date,
+        activityOutcome: item.outcome
       }));
     }
   });

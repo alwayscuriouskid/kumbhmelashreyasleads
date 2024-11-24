@@ -8,13 +8,12 @@ import { useEffect, useState } from "react";
 
 const TeamActivityTable = () => {
   const [sortBy, setSortBy] = useState("date_desc");
+  const [nextActionDateFilter, setNextActionDateFilter] = useState<Date>();
+  
   const { 
     activities,
     filteredActivities,
-    setFilteredActivities
-  } = useTeamActivities();
-
-  const {
+    setFilteredActivities,
     selectedDate,
     setSelectedDate,
     selectedTeamMember,
@@ -26,7 +25,15 @@ const TeamActivityTable = () => {
     visibleColumns,
     setVisibleColumns,
     applyFilters
-  } = useActivityFilters(activities);
+  } = useActivityFilters();
+
+  const { data: fetchedActivities } = useTeamActivities(
+    selectedTeamMember,
+    activityType,
+    leadSearch,
+    selectedDate,
+    nextActionDateFilter
+  );
 
   const sortActivities = (activities: any[]) => {
     return [...activities].sort((a, b) => {
@@ -35,6 +42,10 @@ const TeamActivityTable = () => {
           return new Date(a.date).getTime() - new Date(b.date).getTime();
         case "date_desc":
           return new Date(b.date).getTime() - new Date(a.date).getTime();
+        case "next_action_asc":
+          return new Date(a.activityNextActionDate || 0).getTime() - new Date(b.activityNextActionDate || 0).getTime();
+        case "next_action_desc":
+          return new Date(b.activityNextActionDate || 0).getTime() - new Date(a.activityNextActionDate || 0).getTime();
         default:
           return 0;
       }
@@ -42,11 +53,12 @@ const TeamActivityTable = () => {
   };
 
   useEffect(() => {
-    console.log("Applying filters and sorting with sortBy:", sortBy);
-    const filtered = applyFilters(activities);
-    const sorted = sortActivities(filtered);
-    setFilteredActivities(sorted);
-  }, [selectedTeamMember, activityType, leadSearch, selectedDate, activities, sortBy]);
+    if (fetchedActivities) {
+      const filtered = applyFilters(fetchedActivities);
+      const sorted = sortActivities(filtered);
+      setFilteredActivities(sorted);
+    }
+  }, [fetchedActivities, selectedTeamMember, activityType, leadSearch, selectedDate, nextActionDateFilter, sortBy]);
 
   return (
     <div className="space-y-4">
@@ -65,6 +77,8 @@ const TeamActivityTable = () => {
         }
         sortBy={sortBy}
         onSortChange={setSortBy}
+        nextActionDateFilter={nextActionDateFilter}
+        onNextActionDateSelect={setNextActionDateFilter}
       />
 
       <Table>

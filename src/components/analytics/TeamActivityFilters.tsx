@@ -19,6 +19,8 @@ interface TeamActivityFiltersProps {
   onToggleColumn: (columnKey: string) => void;
   sortBy: string;
   onSortChange: (value: string) => void;
+  nextActionDateFilter: Date | undefined;
+  onNextActionDateSelect: (date: Date | undefined) => void;
 }
 
 const TeamActivityFilters = ({
@@ -34,23 +36,11 @@ const TeamActivityFilters = ({
   onToggleColumn,
   sortBy,
   onSortChange,
+  nextActionDateFilter,
+  onNextActionDateSelect,
 }: TeamActivityFiltersProps) => {
   const [dateFilterType, setDateFilterType] = useState("all");
-  const [customStartDate, setCustomStartDate] = useState<Date>();
-  const [customEndDate, setCustomEndDate] = useState<Date>();
   const { data: teamMembers } = useTeamMemberOptions();
-
-  const columns = [
-    { key: "time", label: "Time" },
-    { key: "type", label: "Type" },
-    { key: "notes", label: "Notes" },
-    { key: "teamMember", label: "Team Member" },
-    { key: "leadName", label: "Lead" },
-    { key: "activityType", label: "Activity Type" },
-    { key: "activityOutcome", label: "Activity Outcome" },
-    { key: "activityNextAction", label: "Next Action" },
-    { key: "activityNextActionDate", label: "Next Action Date" },
-  ];
 
   const handleDateFilterChange = (value: string) => {
     setDateFilterType(value);
@@ -77,14 +67,6 @@ const TeamActivityFilters = ({
     }
 
     onDateSelect(newDate);
-  };
-
-  const handleCustomDateRange = (startDate: Date | undefined, endDate: Date | undefined) => {
-    setCustomStartDate(startDate);
-    setCustomEndDate(endDate);
-    if (startDate && endDate) {
-      onDateSelect(startDate);
-    }
   };
 
   return (
@@ -124,36 +106,43 @@ const TeamActivityFilters = ({
           <SelectContent>
             <SelectItem value="date_desc">Date (Newest First)</SelectItem>
             <SelectItem value="date_asc">Date (Oldest First)</SelectItem>
+            <SelectItem value="next_action_desc">Next Action (Latest First)</SelectItem>
+            <SelectItem value="next_action_asc">Next Action (Earliest First)</SelectItem>
           </SelectContent>
         </Select>
 
-        <Select value={dateFilterType} onValueChange={handleDateFilterChange}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select date filter" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Dates</SelectItem>
-            <SelectItem value="today">Today</SelectItem>
-            <SelectItem value="yesterday">Yesterday</SelectItem>
-            <SelectItem value="thisWeek">This Week</SelectItem>
-            <SelectItem value="custom">Custom Range</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Activity Date</label>
+          <Select value={dateFilterType} onValueChange={handleDateFilterChange}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by date" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Dates</SelectItem>
+              <SelectItem value="today">Today</SelectItem>
+              <SelectItem value="yesterday">Yesterday</SelectItem>
+              <SelectItem value="thisWeek">This Week</SelectItem>
+              <SelectItem value="custom">Custom Date</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          {dateFilterType === "custom" && (
+            <DatePicker
+              selected={selectedDate}
+              onSelect={onDateSelect}
+              placeholderText="Select date"
+            />
+          )}
+        </div>
 
-        {dateFilterType === "custom" && (
-          <div className="flex gap-2">
-            <DatePicker
-              selected={customStartDate}
-              onSelect={(date) => handleCustomDateRange(date, customEndDate)}
-              placeholderText="Start date"
-            />
-            <DatePicker
-              selected={customEndDate}
-              onSelect={(date) => handleCustomDateRange(customStartDate, date)}
-              placeholderText="End date"
-            />
-          </div>
-        )}
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Next Action Date</label>
+          <DatePicker
+            selected={nextActionDateFilter}
+            onSelect={onNextActionDateSelect}
+            placeholderText="Filter by next action date"
+          />
+        </div>
 
         <Input
           placeholder="Search by lead name..."
@@ -164,7 +153,17 @@ const TeamActivityFilters = ({
       </div>
 
       <TableColumnToggle
-        columns={columns}
+        columns={[
+          { key: "time", label: "Time" },
+          { key: "type", label: "Type" },
+          { key: "notes", label: "Notes" },
+          { key: "teamMember", label: "Team Member" },
+          { key: "leadName", label: "Lead" },
+          { key: "activityType", label: "Activity Type" },
+          { key: "activityOutcome", label: "Activity Outcome" },
+          { key: "activityNextAction", label: "Next Action" },
+          { key: "activityNextActionDate", label: "Next Action Date" },
+        ]}
         visibleColumns={visibleColumns}
         onToggleColumn={onToggleColumn}
       />
