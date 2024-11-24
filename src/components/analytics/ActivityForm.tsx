@@ -27,6 +27,20 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log("Form submission - Collecting form data:", {
+      activityType,
+      notes,
+      outcome,
+      startTime,
+      endTime,
+      assignedTo,
+      nextAction,
+      nextActionDate,
+      location,
+      callType,
+      contactPerson
+    });
+
     const formData: Partial<Activity> = {
       type: activityType,
       date: new Date().toISOString(),
@@ -45,7 +59,7 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
       ...(activityType === "call" ? { callType } : {}),
     };
 
-    console.log("Submitting activity form with data:", formData);
+    console.log("Submitting activity form with processed data:", formData);
     onSubmit(formData);
 
     // Reset form
@@ -56,6 +70,7 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
     setNextAction("");
     setNextActionDate(undefined);
     setLocation("");
+    console.log("Form reset completed");
   };
 
   return (
@@ -63,7 +78,13 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <label>Activity Type</label>
-          <Select value={activityType} onValueChange={(value: Activity["type"]) => setActivityType(value)}>
+          <Select 
+            value={activityType} 
+            onValueChange={(value: Activity["type"]) => {
+              console.log("Activity type changed:", value);
+              setActivityType(value);
+            }}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select activity type" />
             </SelectTrigger>
@@ -80,7 +101,13 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
         {activityType === "call" && (
           <div className="space-y-2">
             <label>Call Type</label>
-            <Select value={callType} onValueChange={(value: "incoming" | "outgoing") => setCallType(value)}>
+            <Select 
+              value={callType} 
+              onValueChange={(value: "incoming" | "outgoing") => {
+                console.log("Call type changed:", value);
+                setCallType(value);
+              }}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select call type" />
               </SelectTrigger>
@@ -97,7 +124,10 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
           <Input
             type="time"
             value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
+            onChange={(e) => {
+              console.log("Start time changed:", e.target.value);
+              setStartTime(e.target.value);
+            }}
           />
         </div>
 
@@ -106,7 +136,10 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
           <Input
             type="time"
             value={endTime}
-            onChange={(e) => setEndTime(e.target.value)}
+            onChange={(e) => {
+              console.log("End time changed:", e.target.value);
+              setEndTime(e.target.value);
+            }}
           />
         </div>
 
@@ -114,7 +147,10 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
           <label>Assigned To</label>
           <TeamMemberSelect
             value={assignedTo}
-            onChange={setAssignedTo}
+            onChange={(value) => {
+              console.log("Team member assigned:", value);
+              setAssignedTo(value);
+            }}
           />
         </div>
 
@@ -122,7 +158,10 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
           <label>Location</label>
           <Input
             value={location}
-            onChange={(e) => setLocation(e.target.value)}
+            onChange={(e) => {
+              console.log("Location changed:", e.target.value);
+              setLocation(e.target.value);
+            }}
             placeholder="Enter location (if applicable)"
           />
         </div>
@@ -132,7 +171,10 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
         <label>Notes</label>
         <Textarea
           value={notes}
-          onChange={(e) => setNotes(e.target.value)}
+          onChange={(e) => {
+            console.log("Notes changed:", e.target.value);
+            setNotes(e.target.value);
+          }}
           placeholder="Enter activity notes..."
           className="min-h-[100px]"
         />
@@ -142,7 +184,10 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
         <label>Outcome</label>
         <Input
           value={outcome}
-          onChange={(e) => setOutcome(e.target.value)}
+          onChange={(e) => {
+            console.log("Outcome changed:", e.target.value);
+            setOutcome(e.target.value);
+          }}
           placeholder="Enter activity outcome"
         />
       </div>
@@ -151,7 +196,10 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
         <label>Next Action</label>
         <Input
           value={nextAction}
-          onChange={(e) => setNextAction(e.target.value)}
+          onChange={(e) => {
+            console.log("Next action changed:", e.target.value);
+            setNextAction(e.target.value);
+          }}
           placeholder="Enter next action required"
         />
       </div>
@@ -160,7 +208,10 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
         <label>Next Action Date</label>
         <DatePicker
           selected={nextActionDate}
-          onSelect={setNextActionDate}
+          onSelect={(date) => {
+            console.log("Next action date selected:", date);
+            setNextActionDate(date);
+          }}
           placeholderText="Select next action date"
         />
       </div>
