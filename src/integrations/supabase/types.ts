@@ -568,7 +568,10 @@ export type Database = {
           customer_phone: string | null
           id: string
           lead_id: string | null
+          next_payment_date: string | null
+          next_payment_details: string | null
           notes: string | null
+          payment_confirmation: string | null
           payment_date: string | null
           payment_method: string | null
           payment_status: string | null
@@ -589,7 +592,10 @@ export type Database = {
           customer_phone?: string | null
           id?: string
           lead_id?: string | null
+          next_payment_date?: string | null
+          next_payment_details?: string | null
           notes?: string | null
+          payment_confirmation?: string | null
           payment_date?: string | null
           payment_method?: string | null
           payment_status?: string | null
@@ -610,7 +616,10 @@ export type Database = {
           customer_phone?: string | null
           id?: string
           lead_id?: string | null
+          next_payment_date?: string | null
+          next_payment_details?: string | null
           notes?: string | null
+          payment_confirmation?: string | null
           payment_date?: string | null
           payment_method?: string | null
           payment_status?: string | null

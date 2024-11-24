@@ -34,9 +34,14 @@ export const OrdersTableRow = ({
 
   const handleSave = async () => {
     try {
+      console.log("Saving order updates:", editedValues);
+      
       const { error } = await supabase
         .from('orders')
-        .update(editedValues)
+        .update({
+          ...editedValues,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', order.id);
 
       if (error) throw error;
@@ -49,6 +54,7 @@ export const OrdersTableRow = ({
       setIsEditing(false);
       onOrderUpdate();
     } catch (error: any) {
+      console.error("Error updating order:", error);
       toast({
         title: "Error",
         description: error.message,
@@ -63,6 +69,7 @@ export const OrdersTableRow = ({
   };
 
   const handleChange = (field: keyof Order, value: any) => {
+    console.log(`Updating ${field} to:`, value);
     setEditedValues(prev => ({
       ...prev,
       [field]: value
