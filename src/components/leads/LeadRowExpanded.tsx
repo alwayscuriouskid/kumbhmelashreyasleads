@@ -24,11 +24,11 @@ const LeadRowExpanded = ({ lead, visibleColumns }: LeadRowExpandedProps) => {
         .from('orders')
         .select(`
           *,
-          order_items (
+          order_items!inner (
             *,
-            inventory_items (
+            inventory_items!inner (
               *,
-              inventory_types (*)
+              inventory_types!inner (*)
             )
           )
         `)
@@ -55,9 +55,9 @@ const LeadRowExpanded = ({ lead, visibleColumns }: LeadRowExpandedProps) => {
         .from('bookings')
         .select(`
           *,
-          inventory_item:inventory_items (
+          inventory_item:inventory_items!inner (
             *,
-            inventory_type:inventory_types (*)
+            inventory_type:inventory_types!inner (*)
           )
         `)
         .eq('lead_id', lead.id)
