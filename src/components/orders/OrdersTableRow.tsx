@@ -35,22 +35,16 @@ export const OrdersTableRow = ({
 
   const handleSave = async () => {
     try {
-      console.log("Saving order updates:", editedOrder);
-      
       // If status is changing to approved or rejected, handle inventory updates
       if (order.status !== editedOrder.status) {
         console.log("Status changing from", order.status, "to", editedOrder.status);
-        if (editedOrder.status === 'approved') {
-          await updateInventoryQuantity(order.id, 'approved');
-        } else if (order.status === 'approved' && editedOrder.status === 'rejected') {
-          await updateInventoryQuantity(order.id, 'rejected');
-        }
+        await updateInventoryQuantity(order.id, editedOrder.status);
       }
 
+      // Update other order fields
       const { error } = await supabase
         .from('orders')
         .update({
-          status: editedOrder.status,
           payment_status: editedOrder.payment_status,
           payment_confirmation: editedOrder.payment_confirmation,
           next_payment_date: editedOrder.next_payment_date,
