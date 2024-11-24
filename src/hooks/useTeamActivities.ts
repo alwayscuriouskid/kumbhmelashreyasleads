@@ -65,8 +65,7 @@ export const useTeamActivities = (
         description: `Lead activity for ${item.client_name}`,
         teamMember: 'System',
         leadName: item.client_name,
-        nextFollowUp: item.activity_next_action_date,
-        followUpOutcome: item.activity_outcome,
+        activityNextActionDate: item.activity_next_action_date,
         activityOutcome: item.activity_outcome
       }));
     }
