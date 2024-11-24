@@ -6,17 +6,17 @@ export const useOrders = () => {
   return useQuery({
     queryKey: ["orders"],
     queryFn: async () => {
-      console.log('Fetching orders with items');
-      const { data: orders, error } = await supabase
+      console.log('Fetching orders');
+      const { data, error } = await supabase
         .from("orders")
         .select(`
           *,
-          order_items!order_items_order_id_fkey (
+          order_items (
             id,
             quantity,
             price,
             inventory_item_id,
-            inventory_items!order_items_inventory_item_id_fkey (
+            inventory_items (
               id,
               sku,
               inventory_types (
@@ -31,8 +31,8 @@ export const useOrders = () => {
         console.error('Error fetching orders:', error);
         throw error;
       }
-      console.log('Fetched orders:', orders);
-      return orders as Order[];
+      console.log('Fetched orders:', data);
+      return data as Order[];
     },
   });
 };
