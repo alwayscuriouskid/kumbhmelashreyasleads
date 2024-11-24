@@ -34,7 +34,7 @@ export interface Activity {
   contactPerson: string;
   location?: string;
   callType?: 'incoming' | 'outgoing';
-  // Add back needed properties
+  // Add back needed properties for team activity views
   time?: string;
   description?: string;
   teamMember?: string;

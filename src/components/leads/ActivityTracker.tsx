@@ -17,14 +17,21 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson }: ActivityTrack
     console.log("Updating lead with activity data:", activity);
     
     try {
-      // First update the leads table
+      // Map activity fields to lead table fields
+      const leadUpdate = {
+        activity_type: activity.type,
+        activity_outcome: activity.outcome,
+        activity_next_action: activity.nextAction,
+        activity_next_action_date: activity.next_action_date,
+        updated_at: new Date().toISOString()
+      };
+
+      console.log("Updating lead with mapped data:", leadUpdate);
+
+      // Update the leads table with mapped activity data
       const { error: leadError } = await supabase
         .from('leads')
-        .update({
-          next_action: activity.nextAction,
-          follow_up_outcome: activity.outcome,
-          updated_at: new Date().toISOString()
-        })
+        .update(leadUpdate)
         .eq('id', leadId);
 
       if (leadError) {
@@ -32,7 +39,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson }: ActivityTrack
         throw leadError;
       }
 
-      // Then store the activity in activities table
+      // Store the activity in activities table
       const { error: activityError } = await supabase
         .from('activities')
         .insert({
@@ -44,6 +51,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson }: ActivityTrack
           end_time: activity.endTime,
           assigned_to: activity.assignedTo,
           next_action: activity.nextAction,
+          next_action_date: activity.next_action_date,
           location: activity.location,
           call_type: activity.callType,
           contact_person: activity.contactPerson
