@@ -21,7 +21,6 @@ export const dummyLeads: Lead[] = [
     activityNextActionDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     activityNextAction: "Schedule meeting",
     activityOutcome: "Positive initial contact",
-    followUps: [],
     activities: [
       {
         id: "a1",
@@ -57,7 +56,6 @@ export const dummyLeads: Lead[] = [
     activityNextActionDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     activityNextAction: "Follow up on proposal",
     activityOutcome: "Reviewing proposal",
-    followUps: [],
     activities: [
       {
         id: "a2",

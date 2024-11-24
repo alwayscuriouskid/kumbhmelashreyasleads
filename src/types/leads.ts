@@ -19,15 +19,6 @@ export interface Requirement {
   [key: string]: number | string | undefined;
 }
 
-export interface FollowUp {
-  id: string;
-  date: string;
-  notes: string;
-  outcome: string;
-  nextFollowUpDate?: string;
-  assignedTo?: string;
-}
-
 export interface Activity {
   id: string;
   type: 'call' | 'meeting' | 'email' | 'note' | 'status_change' | 'follow_up';
@@ -38,7 +29,7 @@ export interface Activity {
   outcome: string;
   notes: string;
   nextAction?: string;
-  next_action_date?: string; // Added this field
+  next_action_date?: string;
   assignedTo: string;
   contactPerson: string;
   location?: string;
@@ -97,7 +88,6 @@ export interface Lead {
   status: string;
   remarks: string;
   budget?: string;
-  followUps: FollowUp[];
   leadRef?: string;
   leadSource?: string;
   activities: Activity[];
@@ -126,7 +116,6 @@ export const dbToFrontend = (lead: LeadDB): Lead => ({
   status: lead.status,
   remarks: lead.remarks || '',
   budget: lead.budget || undefined,
-  followUps: [],
   leadRef: lead.lead_ref || undefined,
   leadSource: lead.lead_source || undefined,
   activities: [],
