@@ -15,7 +15,6 @@ import { InventoryLocationInfo } from "./form/InventoryLocationInfo";
 import { InventoryPriceInfo } from "./form/InventoryPriceInfo";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { StatusSelect } from "./StatusSelect";
 
 export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) => {
   const [open, setOpen] = useState(false);
@@ -27,7 +26,6 @@ export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) 
     ltc: "",
     dimensions: "",
     quantity: "1",
-    status: "available",
     sku: "",
   });
 
@@ -54,7 +52,8 @@ export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) 
           current_price: Number(formData.current_price),
           min_price: Number(formData.min_price),
           ltc: formData.ltc ? Number(formData.ltc) : null,
-          quantity: Number(formData.quantity)
+          quantity: Number(formData.quantity),
+          status: 'available' // Set default status
         }]);
 
       if (error) throw error;
@@ -93,26 +92,17 @@ export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) 
           <InventoryLocationInfo formData={formData} setFormData={setFormData} />
           <InventoryPriceInfo formData={formData} setFormData={setFormData} />
           
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="quantity">Quantity</Label>
-              <Input
-                id="quantity"
-                type="number"
-                min="1"
-                value={formData.quantity}
-                onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                required
-                className="bg-background"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <StatusSelect 
-                value={formData.status}
-                onChange={(value) => setFormData({ ...formData, status: value })}
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="quantity">Quantity</Label>
+            <Input
+              id="quantity"
+              type="number"
+              min="1"
+              value={formData.quantity}
+              onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+              required
+              className="bg-background"
+            />
           </div>
 
           <Button type="submit" className="w-full">
