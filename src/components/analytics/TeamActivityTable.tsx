@@ -6,6 +6,7 @@ import { useTeamActivities } from "@/hooks/useTeamActivities";
 import { useActivityFilters } from "./team-activities/useActivityFilters";
 import { useState, useEffect } from "react";
 import { Activity } from "@/types/leads";
+import { supabase } from "@/integrations/supabase/client";
 
 const TeamActivityTable = () => {
   const [sortBy, setSortBy] = useState("date_desc");
