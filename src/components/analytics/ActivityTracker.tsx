@@ -16,7 +16,8 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
   const { toast } = useToast();
 
   useEffect(() => {
-    // Set up real-time subscription for activities
+    console.log("Setting up real-time subscriptions for lead:", leadId);
+    
     const channel = supabase
       .channel('activities-changes')
       .on(
@@ -30,14 +31,11 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
         async (payload) => {
           console.log("Real-time activity update received:", payload);
           if (payload.new) {
-            // Fetch the latest lead data to ensure we have the most up-to-date state
             await updateLeadWithLatestData();
           }
         }
       )
-      .subscribe((status) => {
-        console.log("Activity subscription status:", status);
-      });
+      .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
@@ -52,10 +50,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
         .eq('id', leadId)
         .single();
 
-      if (error) {
-        console.error("Error fetching updated lead:", error);
-        throw error;
-      }
+      if (error) throw error;
 
       console.log("Fetched latest lead data:", lead);
 
@@ -80,7 +75,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
     console.log("Updating lead with activity data:", activity);
     
     try {
-      // First store the activity in activities table
+      // First store the activity
       const { data: activityData, error: activityError } = await supabase
         .from('activities')
         .insert({
@@ -100,12 +95,9 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
         .select()
         .single();
 
-      if (activityError) {
-        console.error("Error storing activity:", activityError);
-        throw activityError;
-      }
+      if (activityError) throw activityError;
 
-      // Prepare lead updates based on activity type
+      // Update leads table with latest activity data
       const leadUpdates = {
         next_action: activity.nextAction,
         follow_up_outcome: activity.outcome,
@@ -115,27 +107,18 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
 
       console.log("Updating lead with:", leadUpdates);
 
-      // Update the leads table
       const { error: leadError } = await supabase
         .from('leads')
         .update(leadUpdates)
         .eq('id', leadId);
 
-      if (leadError) {
-        console.error("Error updating lead with activity data:", leadError);
-        throw leadError;
-      }
+      if (leadError) throw leadError;
 
       await updateLeadWithLatestData();
       
       return activityData;
     } catch (error) {
       console.error("Failed to update lead with activity data:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update lead information",
-        variant: "destructive",
-      });
       throw error;
     }
   };
