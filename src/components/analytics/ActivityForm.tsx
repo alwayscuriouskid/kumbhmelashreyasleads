@@ -45,6 +45,7 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
       ...(activityType === "call" ? { callType } : {}),
     };
 
+    console.log("Submitting activity form with data:", formData);
     onSubmit(formData);
 
     // Reset form

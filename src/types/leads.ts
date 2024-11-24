@@ -34,19 +34,6 @@ export interface Activity {
   contactPerson: string;
   location?: string;
   callType?: 'incoming' | 'outgoing';
-  meetingType?: 'in-person' | 'virtual';
-  emailType?: 'sent' | 'received';
-  statusChange?: {
-    from: string;
-    to: string;
-  };
-  time?: string;
-  description?: string;
-  teamMember?: string;
-  leadName?: string;
-  nextFollowUp?: string;
-  followUpOutcome?: string;
-  activityOutcome?: string;
 }
 
 export interface LeadDB {
@@ -132,9 +119,8 @@ export const dbToFrontend = (lead: LeadDB): Lead => ({
 });
 
 export const frontendToDB = (lead: Partial<Lead>): Omit<LeadDB, 'id'> => {
-  // Validate required fields
   if (!lead.clientName || !lead.location || !lead.contactPerson || !lead.phone || !lead.email) {
-    throw new Error('Missing required fields: clientName, location, contactPerson, phone, and email are required');
+    throw new Error('Missing required fields');
   }
 
   return {
