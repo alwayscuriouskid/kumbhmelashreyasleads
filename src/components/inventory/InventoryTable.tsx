@@ -28,7 +28,6 @@ export const InventoryTable = () => {
     reservedQuantity: true,
     soldQuantity: true,
     maintenanceQuantity: true,
-    status: true,
     sku: true,
   });
 

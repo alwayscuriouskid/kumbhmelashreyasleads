@@ -1,6 +1,5 @@
 import { TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { EditableCell } from "../EditableCell";
-import { EditableStatusCell } from "../EditableStatusCell";
 import { TableActions } from "../TableActions";
 import { InventoryQuantityColumns } from "../columns/InventoryQuantityColumns";
 import { InventoryItem } from "@/types/inventory";
@@ -109,18 +108,6 @@ export const InventoryTableBody = ({
             })}
           />
 
-          {visibleColumns.status && (
-            <TableCell>
-              <EditableStatusCell
-                value={item.status}
-                isEditing={editingId === item.id}
-                onChange={(value) => setEditedValues({
-                  ...editedValues,
-                  status: value
-                })}
-              />
-            </TableCell>
-          )}
           <TableCell>
             <TableActions
               isEditing={editingId === item.id}

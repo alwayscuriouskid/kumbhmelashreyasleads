@@ -21,7 +21,6 @@ export const InventoryTableHeader = ({ visibleColumns }: InventoryTableHeaderPro
         {visibleColumns.reservedQuantity && <TableHead>Reserved</TableHead>}
         {visibleColumns.soldQuantity && <TableHead>Sold</TableHead>}
         {visibleColumns.maintenanceQuantity && <TableHead>In Maintenance</TableHead>}
-        {visibleColumns.status && <TableHead>Status</TableHead>}
         <TableHead className="w-[30px]">Actions</TableHead>
       </TableRow>
     </TableHeader>
