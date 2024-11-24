@@ -9,7 +9,7 @@ import { Order } from "@/types/inventory";
 import { PaymentConfirmationCell } from "./cells/PaymentConfirmationCell";
 import { NextPaymentDateCell } from "./cells/NextPaymentDateCell";
 import { ActionCell } from "./cells/ActionCell";
-import { EditableStatusCell } from "./cells/EditableStatusCell";
+import { InventoryItemsCell } from "./cells/InventoryItemsCell";
 
 interface OrdersTableRowProps {
   order: Order;
@@ -36,13 +36,7 @@ export const OrdersTableRow = ({
     try {
       const { error } = await supabase
         .from('orders')
-        .update({
-          ...editedValues,
-          payment_confirmation: editedValues.payment_confirmation,
-          next_payment_date: editedValues.next_payment_date,
-          next_payment_details: editedValues.next_payment_details,
-          additional_details: editedValues.additional_details
-        })
+        .update(editedValues)
         .eq('id', order.id);
 
       if (error) throw error;
@@ -75,62 +69,6 @@ export const OrdersTableRow = ({
     }));
   };
 
-  const renderStatusCell = () => {
-    if (isEditing) {
-      return (
-        <Select 
-          value={editedValues.status || order.status} 
-          onValueChange={(value) => handleChange('status', value)}
-        >
-          <SelectTrigger className="w-[140px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="ending">Ending</SelectItem>
-            <SelectItem value="approved">Approved</SelectItem>
-          </SelectContent>
-        </Select>
-      );
-    }
-    return (
-      <Badge variant={order.status === "approved" ? "default" : "secondary"}>
-        {order.status}
-      </Badge>
-    );
-  };
-
-  const renderPaymentStatusCell = () => {
-    if (isEditing) {
-      return (
-        <Select 
-          value={editedValues.payment_status || order.payment_status} 
-          onValueChange={(value) => handleChange('payment_status', value)}
-        >
-          <SelectTrigger className="w-[140px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="partially_pending">Partially Pending</SelectItem>
-            <SelectItem value="finished">Finished</SelectItem>
-          </SelectContent>
-        </Select>
-      );
-    }
-    return (
-      <Badge variant={
-        order.payment_status === "finished" 
-          ? "default" 
-          : order.payment_status === "partially_pending" 
-          ? "secondary" 
-          : "destructive"
-      }>
-        {order.payment_status}
-      </Badge>
-    );
-  };
-
   return (
     <TableRow>
       {visibleColumns.orderId && <TableCell>{order.id}</TableCell>}
@@ -141,13 +79,11 @@ export const OrdersTableRow = ({
       )}
       {visibleColumns.customer && (
         <TableCell>
-          <div className="space-y-1">
-            <EditableCell
-              value={isEditing ? editedValues.customer_name || '' : order.customer_name || ''}
-              isEditing={isEditing}
-              onChange={(value) => handleChange('customer_name', value)}
-            />
-          </div>
+          <EditableCell
+            value={isEditing ? editedValues.customer_name || '' : order.customer_name || ''}
+            isEditing={isEditing}
+            onChange={(value) => handleChange('customer_name', value)}
+          />
         </TableCell>
       )}
       {visibleColumns.teamMember && (
@@ -159,10 +95,61 @@ export const OrdersTableRow = ({
         <TableCell>₹{order.total_amount}</TableCell>
       )}
       {visibleColumns.paymentStatus && (
-        <TableCell>{renderPaymentStatusCell()}</TableCell>
+        <TableCell>
+          {isEditing ? (
+            <Select 
+              value={editedValues.payment_status || order.payment_status} 
+              onValueChange={(value) => handleChange('payment_status', value)}
+            >
+              <SelectTrigger className="w-[140px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="partially_pending">Partially Pending</SelectItem>
+                <SelectItem value="finished">Finished</SelectItem>
+              </SelectContent>
+            </Select>
+          ) : (
+            <Badge variant={
+              order.payment_status === "finished" 
+                ? "default" 
+                : order.payment_status === "partially_pending" 
+                ? "secondary" 
+                : "destructive"
+            }>
+              {order.payment_status}
+            </Badge>
+          )}
+        </TableCell>
       )}
       {visibleColumns.orderStatus && (
-        <TableCell>{renderStatusCell()}</TableCell>
+        <TableCell>
+          {isEditing ? (
+            <Select 
+              value={editedValues.status || order.status} 
+              onValueChange={(value) => handleChange('status', value)}
+            >
+              <SelectTrigger className="w-[140px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
+            </Select>
+          ) : (
+            <Badge variant={order.status === "approved" ? "default" : "secondary"}>
+              {order.status}
+            </Badge>
+          )}
+        </TableCell>
+      )}
+      {visibleColumns.inventoryItems && (
+        <TableCell>
+          <InventoryItemsCell items={order.order_items || []} />
+        </TableCell>
       )}
       {visibleColumns.paymentConfirmation && (
         <TableCell>
@@ -200,7 +187,7 @@ export const OrdersTableRow = ({
           />
         </TableCell>
       )}
-      <TableCell className="sticky right-0 bg-background/80 backdrop-blur-sm">
+      <TableCell>
         <ActionCell
           isEditing={isEditing}
           onEdit={handleEdit}

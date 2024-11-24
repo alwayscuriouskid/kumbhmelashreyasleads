@@ -46,27 +46,6 @@
   #root {
     @apply min-h-screen w-full;
   }
-
-  .notes-container {
-    @apply w-full max-w-full relative p-4;
-    min-height: calc(100vh - 12rem);
-  }
-
-  .grid-notes-layout {
-    @apply grid gap-4;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  }
-
-  .note-card-wrapper {
-    @apply w-full transition-all duration-200;
-    min-width: 200px;
-    min-height: 150px;
-  }
-
-  .note-card {
-    height: 100%;
-    width: 100%;
-  }
 }
 
 .table-container {
@@ -88,9 +67,10 @@
 
 .table-container th:last-child,
 .table-container td:last-child {
-  @apply sticky right-0 z-20 bg-background/80 backdrop-blur-sm p-0;
-  width: 30px;
-  min-width: 30px;
+  @apply sticky right-0 z-20 bg-background/80 backdrop-blur-sm;
+  width: 80px;
+  min-width: 80px;
+  padding: 0.75rem;
 }
 
 .table-container::-webkit-scrollbar {

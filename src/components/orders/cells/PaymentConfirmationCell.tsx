@@ -16,7 +16,8 @@ export const PaymentConfirmationCell = ({
       <Input
         value={value || ""}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Enter confirmation"
+        placeholder="Enter confirmation details"
+        className="w-full"
       />
     );
   }
