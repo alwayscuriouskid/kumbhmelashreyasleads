@@ -1,16 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
-  Line,
 } from "recharts";
-import { useOrders } from "@/hooks/useInventory";
+import { useOrders } from "@/hooks/queries/useOrders";
 
 export const OrdersAnalytics = () => {
   const { data: orders } = useOrders();
