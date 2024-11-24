@@ -44,6 +44,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
 
   const updateLeadWithLatestData = async () => {
     try {
+      console.log("Fetching latest lead data for ID:", leadId);
       const { data: lead, error } = await supabase
         .from('leads')
         .select('activity_type, activity_outcome, activity_next_action, activity_next_action_date')
@@ -76,7 +77,25 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
     console.log("Updating lead with activity data:", activity);
     
     try {
-      // First store the activity
+      // First update the leads table with activity data
+      const leadUpdates = {
+        activity_type: activity.type,
+        activity_outcome: activity.outcome,
+        activity_next_action: activity.nextAction,
+        activity_next_action_date: activity.next_action_date,
+        updated_at: new Date().toISOString()
+      };
+
+      console.log("Updating lead with:", leadUpdates);
+
+      const { error: leadError } = await supabase
+        .from('leads')
+        .update(leadUpdates)
+        .eq('id', leadId);
+
+      if (leadError) throw leadError;
+
+      // Then store the activity
       const { data: activityData, error: activityError } = await supabase
         .from('activities')
         .insert({
@@ -97,24 +116,6 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
         .single();
 
       if (activityError) throw activityError;
-
-      // Update leads table with latest activity data
-      const leadUpdates = {
-        activity_type: activity.type,
-        activity_outcome: activity.outcome,
-        activity_next_action: activity.nextAction,
-        activity_next_action_date: activity.next_action_date,
-        updated_at: new Date().toISOString()
-      };
-
-      console.log("Updating lead with:", leadUpdates);
-
-      const { error: leadError } = await supabase
-        .from('leads')
-        .update(leadUpdates)
-        .eq('id', leadId);
-
-      if (leadError) throw leadError;
 
       await updateLeadWithLatestData();
       
