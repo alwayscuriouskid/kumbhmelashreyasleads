@@ -9,17 +9,21 @@ interface LeadSelectorProps {
 }
 
 export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) => {
-  const { data: leads } = useQuery({
+  const { data: leads, isLoading } = useQuery({
     queryKey: ['leads-for-selector'],
     queryFn: async () => {
       console.log('Fetching leads for selector');
       const { data, error } = await supabase
         .from('leads')
         .select('id, client_name, contact_person')
-        .is('conversion_status', null)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching leads:', error);
+        throw error;
+      }
+      
+      console.log('Fetched leads:', data);
       return data;
     }
   });
@@ -30,7 +34,7 @@ export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) 
         <SelectValue placeholder="Select lead (optional)" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="none">No lead selected</SelectItem>
+        <SelectItem value="">No lead selected</SelectItem>
         {leads?.map((lead) => (
           <SelectItem key={lead.id} value={lead.id}>
             {lead.client_name} ({lead.contact_person})
