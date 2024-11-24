@@ -168,21 +168,26 @@ export const useOrders = () => {
   return useQuery({
     queryKey: ["orders"],
     queryFn: async () => {
+      console.log('Fetching orders with items');
       const { data, error } = await supabase
         .from("orders")
         .select(`
           *,
-          order_items (
+          order_items!order_items_order_id_fkey (
             *,
-            inventory_items (
+            inventory_items!order_items_inventory_item_id_fkey (
               *,
-              inventory_types (*)
+              inventory_types!inventory_items_type_id_fkey (*)
             )
           )
         `);
       
-      if (error) throw error;
-      return data as unknown as Order[];
+      if (error) {
+        console.error('Error fetching orders:', error);
+        throw error;
+      }
+      console.log('Fetched orders:', data);
+      return data as Order[];
     },
   });
 };
@@ -196,11 +201,9 @@ export const useBookings = () => {
         .from("bookings")
         .select(`
           *,
-          inventory_item:inventory_item_id (
-            id,
-            inventory_types (
-              id, name
-            )
+          inventory_item:inventory_items!inner (
+            *,
+            inventory_type:inventory_types!inner (*)
           )
         `);
       
