@@ -26,13 +26,36 @@ const TeamActivityTable = () => {
     applyFilters
   } = useActivityFilters();
 
-  const { data: activities } = useTeamActivities(
+  const { data: activities, refetch } = useTeamActivities(
     selectedTeamMember,
     activityType,
     leadSearch,
     selectedDate,
     nextActionDateFilter
   );
+
+  // Add real-time subscription for activities updates
+  useEffect(() => {
+    const channel = supabase
+      .channel('team-activities-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'activities'
+        },
+        () => {
+          console.log('Activity update detected, refetching data...');
+          refetch();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [refetch]);
 
   const sortActivities = (activities: Activity[]) => {
     return [...activities].sort((a, b) => {

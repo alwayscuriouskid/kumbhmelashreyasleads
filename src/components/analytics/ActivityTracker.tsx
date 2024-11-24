@@ -51,7 +51,10 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
         .eq('id', leadId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching lead data:", error);
+        return;
+      }
 
       console.log("Fetched latest lead data:", lead);
 
@@ -65,11 +68,6 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
       }
     } catch (error) {
       console.error("Failed to update lead with latest data:", error);
-      toast({
-        title: "Error",
-        description: "Failed to sync latest activity data",
-        variant: "destructive",
-      });
     }
   };
 
@@ -93,7 +91,10 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
         .update(leadUpdates)
         .eq('id', leadId);
 
-      if (leadError) throw leadError;
+      if (leadError) {
+        console.error("Error updating lead:", leadError);
+        throw leadError;
+      }
 
       // Then store the activity
       const { data: activityData, error: activityError } = await supabase
@@ -115,7 +116,10 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
         .select()
         .single();
 
-      if (activityError) throw activityError;
+      if (activityError) {
+        console.error("Error creating activity:", activityError);
+        throw activityError;
+      }
 
       await updateLeadWithLatestData();
       
@@ -132,6 +136,10 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
     try {
       const activityData = await updateLeadWithActivityData(formData);
       
+      if (!activityData) {
+        throw new Error("No activity data returned");
+      }
+
       const activity: Activity = {
         id: activityData.id,
         date: new Date().toISOString(),
