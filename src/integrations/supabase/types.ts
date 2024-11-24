@@ -289,6 +289,7 @@ export type Database = {
       }
       inventory_items: {
         Row: {
+          available_quantity: number
           created_at: string | null
           current_price: number
           dimensions: string | null
@@ -303,6 +304,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          available_quantity?: number
           created_at?: string | null
           current_price: number
           dimensions?: string | null
@@ -317,6 +319,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          available_quantity?: number
           created_at?: string | null
           current_price?: number
           dimensions?: string | null

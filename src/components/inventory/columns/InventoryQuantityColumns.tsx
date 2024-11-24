@@ -1,11 +1,12 @@
 import { TableCell } from "@/components/ui/table";
 import { InventoryItem } from "@/types/inventory";
+import { EditableCell } from "../EditableCell";
 
 interface InventoryQuantityColumnsProps {
   item: InventoryItem;
   visibleColumns: Record<string, boolean>;
   isEditing: boolean;
-  onEditValue?: (field: string, value: string) => void;
+  onEditValue: (field: string, value: string) => void;
 }
 
 export const InventoryQuantityColumns = ({
@@ -14,7 +15,6 @@ export const InventoryQuantityColumns = ({
   isEditing,
   onEditValue,
 }: InventoryQuantityColumnsProps) => {
-  // Calculate quantities
   const totalQuantity = item.quantity || 0;
   const availableQuantity = item.available_quantity || totalQuantity;
   const reservedQuantity = (item.bookings?.filter(b => b.status === 'reserved').length || 0);
@@ -24,10 +24,24 @@ export const InventoryQuantityColumns = ({
   return (
     <>
       {visibleColumns.totalQuantity && (
-        <TableCell>{totalQuantity}</TableCell>
+        <TableCell>
+          <EditableCell
+            value={totalQuantity.toString()}
+            isEditing={isEditing}
+            onChange={(value) => onEditValue('quantity', value)}
+            type="number"
+          />
+        </TableCell>
       )}
       {visibleColumns.availableQuantity && (
-        <TableCell>{availableQuantity}</TableCell>
+        <TableCell>
+          <EditableCell
+            value={availableQuantity.toString()}
+            isEditing={isEditing}
+            onChange={(value) => onEditValue('available_quantity', value)}
+            type="number"
+          />
+        </TableCell>
       )}
       {visibleColumns.reservedQuantity && (
         <TableCell>{reservedQuantity}</TableCell>

@@ -1,20 +1,11 @@
 import { useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table } from "@/components/ui/table";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useInventoryItems } from "@/hooks/useInventory";
-import { EditableCell } from "./EditableCell";
-import { TableActions } from "./TableActions";
 import { InventoryFilters } from "./InventoryFilters";
-import { EditableStatusCell } from "./EditableStatusCell";
-import { InventoryQuantityColumns } from "./columns/InventoryQuantityColumns";
+import { InventoryTableHeader } from "./table/InventoryTableHeader";
+import { InventoryTableBody } from "./table/InventoryTableBody";
 
 export const InventoryTable = () => {
   const { data: items, refetch } = useInventoryItems();
@@ -48,6 +39,8 @@ export const InventoryTable = () => {
 
   const handleSave = async () => {
     try {
+      console.log('Saving inventory item:', editedValues);
+      
       const { error } = await supabase
         .from('inventory_items')
         .update({
@@ -57,9 +50,10 @@ export const InventoryTable = () => {
           ltc: editedValues.ltc,
           dimensions: editedValues.dimensions,
           quantity: editedValues.quantity,
+          available_quantity: editedValues.available_quantity,
           sku: editedValues.sku,
-          sector_id: editedValues.sector_id, // Add this line
-          type_id: editedValues.type_id // Add this line
+          sector_id: editedValues.sector_id,
+          type_id: editedValues.type_id
         })
         .eq('id', editingId);
 
@@ -73,6 +67,7 @@ export const InventoryTable = () => {
       setEditingId(null);
       refetch();
     } catch (error: any) {
+      console.error('Error updating inventory item:', error);
       toast({
         title: "Error",
         description: error.message,
@@ -136,129 +131,18 @@ export const InventoryTable = () => {
 
       <div className="table-container">
         <Table>
-          <TableHeader>
-            <TableRow>
-              {visibleColumns.type && <TableHead>Type</TableHead>}
-              {visibleColumns.zone && <TableHead>Zone</TableHead>}
-              {visibleColumns.sector && <TableHead>Sector</TableHead>}
-              {visibleColumns.sku && <TableHead>SKU</TableHead>}
-              {visibleColumns.currentPrice && <TableHead>Current Price</TableHead>}
-              {visibleColumns.minPrice && <TableHead>Min Price</TableHead>}
-              {visibleColumns.ltc && <TableHead>LTC</TableHead>}
-              {visibleColumns.dimensions && <TableHead>Dimensions</TableHead>}
-              {visibleColumns.totalQuantity && <TableHead>Total Quantity</TableHead>}
-              {visibleColumns.availableQuantity && <TableHead>Available</TableHead>}
-              {visibleColumns.reservedQuantity && <TableHead>Reserved</TableHead>}
-              {visibleColumns.soldQuantity && <TableHead>Sold</TableHead>}
-              {visibleColumns.maintenanceQuantity && <TableHead>In Maintenance</TableHead>}
-              {visibleColumns.status && <TableHead>Status</TableHead>}
-              <TableHead className="w-[30px]">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredItems?.map((item) => (
-              <TableRow key={item.id}>
-                {visibleColumns.type && <TableCell>{item.inventory_types?.name}</TableCell>}
-                {visibleColumns.zone && <TableCell>{item.sectors?.zones?.name}</TableCell>}
-                {visibleColumns.sector && <TableCell>{item.sectors?.name}</TableCell>}
-                {visibleColumns.sku && (
-                  <TableCell>
-                    <EditableCell
-                      value={item.sku || ''}
-                      isEditing={editingId === item.id}
-                      onChange={(value) => setEditedValues({
-                        ...editedValues,
-                        sku: value
-                      })}
-                    />
-                  </TableCell>
-                )}
-                {visibleColumns.currentPrice && (
-                  <TableCell>
-                    <EditableCell
-                      value={item.current_price}
-                      isEditing={editingId === item.id}
-                      onChange={(value) => setEditedValues({
-                        ...editedValues,
-                        current_price: value
-                      })}
-                      type="number"
-                    />
-                  </TableCell>
-                )}
-                {visibleColumns.minPrice && (
-                  <TableCell>
-                    <EditableCell
-                      value={item.min_price}
-                      isEditing={editingId === item.id}
-                      onChange={(value) => setEditedValues({
-                        ...editedValues,
-                        min_price: value
-                      })}
-                      type="number"
-                    />
-                  </TableCell>
-                )}
-                {visibleColumns.ltc && (
-                  <TableCell>
-                    <EditableCell
-                      value={item.ltc || ''}
-                      isEditing={editingId === item.id}
-                      onChange={(value) => setEditedValues({
-                        ...editedValues,
-                        ltc: value
-                      })}
-                      type="number"
-                    />
-                  </TableCell>
-                )}
-                {visibleColumns.dimensions && (
-                  <TableCell>
-                    <EditableCell
-                      value={item.dimensions || ''}
-                      isEditing={editingId === item.id}
-                      onChange={(value) => setEditedValues({
-                        ...editedValues,
-                        dimensions: value
-                      })}
-                    />
-                  </TableCell>
-                )}
-                
-                <InventoryQuantityColumns
-                  item={item}
-                  visibleColumns={visibleColumns}
-                  isEditing={editingId === item.id}
-                  onEditValue={(field, value) => setEditedValues({
-                    ...editedValues,
-                    [field]: value
-                  })}
-                />
-
-                {visibleColumns.status && (
-                  <TableCell>
-                    <EditableStatusCell
-                      value={item.status}
-                      isEditing={editingId === item.id}
-                      onChange={(value) => setEditedValues({
-                        ...editedValues,
-                        status: value
-                      })}
-                    />
-                  </TableCell>
-                )}
-                <TableCell>
-                  <TableActions
-                    isEditing={editingId === item.id}
-                    onEdit={() => handleEdit(item)}
-                    onSave={handleSave}
-                    onCancel={() => setEditingId(null)}
-                    onDelete={() => handleDelete(item.id)}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
+          <InventoryTableHeader visibleColumns={visibleColumns} />
+          <InventoryTableBody
+            filteredItems={filteredItems}
+            editingId={editingId}
+            editedValues={editedValues}
+            visibleColumns={visibleColumns}
+            onEdit={handleEdit}
+            onSave={handleSave}
+            onCancel={() => setEditingId(null)}
+            onDelete={handleDelete}
+            setEditedValues={setEditedValues}
+          />
         </Table>
       </div>
     </div>
