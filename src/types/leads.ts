@@ -38,6 +38,7 @@ export interface Activity {
   outcome: string;
   notes: string;
   nextAction?: string;
+  next_action_date?: string; // Added this field
   assignedTo: string;
   contactPerson: string;
   location?: string;

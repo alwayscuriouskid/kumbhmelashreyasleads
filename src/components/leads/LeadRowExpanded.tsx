@@ -11,10 +11,9 @@ import { Separator } from "@/components/ui/separator";
 interface LeadRowExpandedProps {
   lead: Lead;
   visibleColumns: Record<string, boolean>;
-  onFollowUpSubmit: (newFollowUp: any) => void;
 }
 
-const LeadRowExpanded = ({ lead, visibleColumns, onFollowUpSubmit }: LeadRowExpandedProps) => {
+const LeadRowExpanded = ({ lead, visibleColumns }: LeadRowExpandedProps) => {
   const { data: orders } = useQuery({
     queryKey: ['lead-orders', lead.id],
     queryFn: async () => {
@@ -154,7 +153,6 @@ const LeadRowExpanded = ({ lead, visibleColumns, onFollowUpSubmit }: LeadRowExpa
           <LeadFollowUps 
             leadId={lead.id} 
             followUps={lead.followUps} 
-            onFollowUpSubmit={onFollowUpSubmit}
           />
         </div>
       </TableCell>
