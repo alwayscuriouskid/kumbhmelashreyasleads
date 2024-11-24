@@ -18,7 +18,6 @@ export const NextPaymentDateCell = ({
         selected={value ? new Date(value) : undefined}
         onSelect={(date) => onChange(date?.toISOString() || null)}
         placeholderText="Select date"
-        className="w-[160px]"
       />
     );
   }
