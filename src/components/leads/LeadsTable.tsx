@@ -24,13 +24,14 @@ const LeadsTable = ({ leads, visibleColumns, onUpdateLead, customStatuses }: Lea
             {visibleColumns.requirements && <TableHead className="min-w-[200px]">Requirements</TableHead>}
             {visibleColumns.status && <TableHead>Status</TableHead>}
             {visibleColumns.remarks && <TableHead className="min-w-[200px]">Remarks</TableHead>}
-            {visibleColumns.nextFollowUp && <TableHead>Next Follow Up</TableHead>}
             {visibleColumns.budget && <TableHead>Budget</TableHead>}
             {visibleColumns.leadRef && <TableHead>Lead Reference</TableHead>}
             {visibleColumns.leadSource && <TableHead>Lead Source</TableHead>}
             {visibleColumns.priceQuoted && <TableHead>Price Quoted</TableHead>}
-            {visibleColumns.nextAction && <TableHead>Next Action</TableHead>}
-            {visibleColumns.followUpOutcome && <TableHead>Follow Up Outcome</TableHead>}
+            {visibleColumns.activityType && <TableHead>Activity Type</TableHead>}
+            {visibleColumns.activityOutcome && <TableHead>Activity Outcome</TableHead>}
+            {visibleColumns.activityNextAction && <TableHead>Next Action</TableHead>}
+            {visibleColumns.activityNextActionDate && <TableHead>Next Action Date</TableHead>}
             <TableHead className="w-[60px] sticky right-4 bg-background z-20">Actions</TableHead>
           </TableRow>
         </TableHeader>

@@ -148,9 +148,6 @@ const LeadRowContent = ({
       {visibleColumns.remarks && (
         <TableCell>{renderCell("remarks", lead.remarks)}</TableCell>
       )}
-      {visibleColumns.nextAction && (
-        <TableCell>{renderCell("activityNextAction", lead.activityNextAction || "-")}</TableCell>
-      )}
       {visibleColumns.budget && (
         <TableCell>{renderCell("budget", lead.budget || "-")}</TableCell>
       )}
@@ -163,11 +160,17 @@ const LeadRowContent = ({
       {visibleColumns.priceQuoted && (
         <TableCell>{renderCell("priceQuoted", lead.priceQuoted?.toString() || "-")}</TableCell>
       )}
-      {visibleColumns.nextFollowUp && (
-        <TableCell>{renderCell("activityNextActionDate", lead.activityNextActionDate || "-")}</TableCell>
+      {visibleColumns.activityType && (
+        <TableCell>{renderCell("activityType", lead.activityType || "-")}</TableCell>
       )}
-      {visibleColumns.followUpOutcome && (
+      {visibleColumns.activityOutcome && (
         <TableCell>{renderCell("activityOutcome", lead.activityOutcome || "-")}</TableCell>
+      )}
+      {visibleColumns.activityNextAction && (
+        <TableCell>{renderCell("activityNextAction", lead.activityNextAction || "-")}</TableCell>
+      )}
+      {visibleColumns.activityNextActionDate && (
+        <TableCell>{renderCell("activityNextActionDate", lead.activityNextActionDate || "-")}</TableCell>
       )}
     </>
   );

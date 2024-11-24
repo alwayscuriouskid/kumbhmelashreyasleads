@@ -26,13 +26,14 @@ const Leads = () => {
     requirements: true,
     status: true,
     remarks: true,
-    nextFollowUp: true,
     budget: true,
     leadRef: true,
     leadSource: true,
     priceQuoted: true,
-    nextAction: true,
-    followUpOutcome: true
+    activityType: true,
+    activityOutcome: true,
+    activityNextAction: true,
+    activityNextActionDate: true
   });
 
   const handleAddLead = async (newLead: Partial<Lead>) => {
