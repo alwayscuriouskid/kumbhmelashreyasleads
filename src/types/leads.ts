@@ -157,4 +157,4 @@ export const frontendToDB = (lead: Partial<Lead>): Omit<LeadDB, 'id'> => {
     activity_next_action: lead.activityNextAction || null,
     activity_next_action_date: lead.activityNextActionDate || null
   };
-});
+};
