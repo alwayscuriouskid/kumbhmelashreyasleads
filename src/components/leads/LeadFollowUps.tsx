@@ -139,13 +139,22 @@ const LeadFollowUps = ({
       : 'note';
   };
 
+  // Handle activity updates locally
+  const handleActivityAdd = (activity: Activity) => {
+    console.log("Handling new activity in LeadFollowUps:", activity);
+    setActivities(prev => [activity, ...prev]);
+    if (onActivityAdd) {
+      onActivityAdd(activity);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <Card>
         <CardContent className="pt-6">
           <FollowUpTabs
             leadId={leadId}
-            onActivityAdd={onActivityAdd}
+            onActivityAdd={handleActivityAdd}  // Pass the local handler
             contactPerson={contactPerson}
             onLeadUpdate={onLeadUpdate}
           />

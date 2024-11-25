@@ -6,7 +6,7 @@ import { ActivityForm } from "./ActivityForm";
 
 interface ActivityTrackerProps {
   leadId: string;
-  onActivityAdd: (activity: Activity) => void;
+  onActivityAdd?: (activity: Activity) => void;  // Made optional
   contactPerson: string;
   onLeadUpdate?: (updates: any) => void;
 }
@@ -79,13 +79,17 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
       // First update the lead table and store activity
       await updateLeadWithActivityData(formData);
       
-      // Then notify parent component
+      // Create the activity object
       const activity: Activity = {
         id: `activity-${Date.now()}`,
         ...formData as Activity
       };
       
-      onActivityAdd(activity);
+      // Only call onActivityAdd if it's provided
+      if (onActivityAdd) {
+        console.log("Calling onActivityAdd with activity:", activity);
+        onActivityAdd(activity);
+      }
       
       toast({
         title: "Activity Logged",
