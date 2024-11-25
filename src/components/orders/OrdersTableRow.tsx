@@ -71,8 +71,8 @@ export const OrdersTableRow = ({
           const { error: inventoryError } = await supabase
             .from('inventory_items')
             .update({
-              available_quantity: supabase.raw('available_quantity - ?', [item.quantity]),
-              sold_quantity: supabase.raw('COALESCE(sold_quantity, 0) + ?', [item.quantity])
+              available_quantity: `available_quantity - ${item.quantity}`,
+              sold_quantity: `COALESCE(sold_quantity, 0) + ${item.quantity}`
             })
             .eq('id', item.inventory_item_id);
 

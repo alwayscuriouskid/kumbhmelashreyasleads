@@ -50,14 +50,14 @@ export const updateInventoryQuantity = async (orderId: string, newStatus: string
       if (newStatus === 'approved' && oldStatus !== 'approved') {
         // Move quantity from available to reserved
         updates = {
-          available_quantity: supabase.raw('available_quantity - ?', [item.quantity]),
-          reserved_quantity: supabase.raw('COALESCE(reserved_quantity, 0) + ?', [item.quantity])
+          available_quantity: `available_quantity - ${item.quantity}`,
+          reserved_quantity: `COALESCE(reserved_quantity, 0) + ${item.quantity}`
         };
       } else if (newStatus === 'rejected') {
         // Move quantity from reserved back to available
         updates = {
-          available_quantity: supabase.raw('available_quantity + ?', [item.quantity]),
-          reserved_quantity: supabase.raw('COALESCE(reserved_quantity, 0) - ?', [item.quantity])
+          available_quantity: `available_quantity + ${item.quantity}`,
+          reserved_quantity: `COALESCE(reserved_quantity, 0) - ${item.quantity}`
         };
       }
 
