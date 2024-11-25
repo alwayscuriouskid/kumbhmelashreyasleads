@@ -20,6 +20,11 @@ export const useNotesOperations = (
 
       if (error) {
         console.error("Error fetching notes:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch notes. Please try again.",
+          variant: "destructive",
+        });
         throw error;
       }
 
@@ -68,6 +73,11 @@ export const useNotesOperations = (
 
       if (error) {
         console.error("Error creating note:", error);
+        toast({
+          title: "Error",
+          description: "Failed to create note",
+          variant: "destructive",
+        });
         throw error;
       }
 
@@ -115,6 +125,11 @@ export const useNotesOperations = (
 
       if (error) {
         console.error("Error updating note in Supabase:", error);
+        toast({
+          title: "Error",
+          description: "Failed to update note",
+          variant: "destructive",
+        });
         throw error;
       }
 
