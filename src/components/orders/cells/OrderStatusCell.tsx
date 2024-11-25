@@ -8,6 +8,8 @@ interface OrderStatusCellProps {
 }
 
 export const OrderStatusCell = ({ value, isEditing, onChange }: OrderStatusCellProps) => {
+  console.log('OrderStatusCell render:', { value, isEditing });
+  
   if (isEditing) {
     return (
       <Select value={value} onValueChange={onChange}>

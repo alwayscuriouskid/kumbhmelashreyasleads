@@ -77,103 +77,6 @@ export type Database = {
           },
         ]
       }
-      bookings: {
-        Row: {
-          booking_reference: string | null
-          cancellation_reason: string | null
-          created_at: string | null
-          customer_address: string | null
-          customer_email: string | null
-          customer_name: string | null
-          customer_phone: string | null
-          end_date: string
-          id: string
-          inventory_item_id: string
-          lead_id: string | null
-          notes: string | null
-          payment_amount: number | null
-          payment_date: string | null
-          payment_method: string | null
-          payment_status: string | null
-          quantity: number
-          start_date: string
-          status: string
-          team_member_id: string | null
-          team_member_name: string
-          updated_at: string | null
-        }
-        Insert: {
-          booking_reference?: string | null
-          cancellation_reason?: string | null
-          created_at?: string | null
-          customer_address?: string | null
-          customer_email?: string | null
-          customer_name?: string | null
-          customer_phone?: string | null
-          end_date: string
-          id?: string
-          inventory_item_id: string
-          lead_id?: string | null
-          notes?: string | null
-          payment_amount?: number | null
-          payment_date?: string | null
-          payment_method?: string | null
-          payment_status?: string | null
-          quantity?: number
-          start_date: string
-          status: string
-          team_member_id?: string | null
-          team_member_name?: string
-          updated_at?: string | null
-        }
-        Update: {
-          booking_reference?: string | null
-          cancellation_reason?: string | null
-          created_at?: string | null
-          customer_address?: string | null
-          customer_email?: string | null
-          customer_name?: string | null
-          customer_phone?: string | null
-          end_date?: string
-          id?: string
-          inventory_item_id?: string
-          lead_id?: string | null
-          notes?: string | null
-          payment_amount?: number | null
-          payment_date?: string | null
-          payment_method?: string | null
-          payment_status?: string | null
-          quantity?: number
-          start_date?: string
-          status?: string
-          team_member_id?: string | null
-          team_member_name?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bookings_inventory_item_id_fkey"
-            columns: ["inventory_item_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_items"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bookings_lead_id_fkey"
-            columns: ["lead_id"]
-            isOneToOne: false
-            referencedRelation: "leads"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bookings_team_member_id_fkey"
-            columns: ["team_member_id"]
-            isOneToOne: false
-            referencedRelation: "team_members"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       file_tag_relations: {
         Row: {
           file_id: string
@@ -764,63 +667,6 @@ export type Database = {
       }
     }
     Views: {
-      booking_detailed_metrics: {
-        Row: {
-          avg_booking_duration: number | null
-          avg_booking_value: number | null
-          booking_revenue: number | null
-          cancelled_bookings: number | null
-          confirmed_bookings: number | null
-          date: string | null
-          item_type: string | null
-          team_member_id: string | null
-          team_member_name: string | null
-          total_bookings: number | null
-          type_id: string | null
-          zone_id: string | null
-          zone_name: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bookings_team_member_id_fkey"
-            columns: ["team_member_id"]
-            isOneToOne: false
-            referencedRelation: "team_members"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "inventory_items_type_id_fkey"
-            columns: ["type_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_types"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sectors_zone_id_fkey"
-            columns: ["zone_id"]
-            isOneToOne: false
-            referencedRelation: "zones"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      detailed_sales_metrics: {
-        Row: {
-          avg_commission_rate: number | null
-          cancelled_bookings: number | null
-          confirmed_bookings: number | null
-          month: string | null
-          paid_orders: number | null
-          pending_orders: number | null
-          team_member_name: string | null
-          total_booking_revenue: number | null
-          total_bookings: number | null
-          total_commission: number | null
-          total_orders: number | null
-          total_revenue: number | null
-        }
-        Relationships: []
-      }
       inventory_detailed_metrics: {
         Row: {
           avg_price: number | null
@@ -862,19 +708,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      sales_metrics: {
-        Row: {
-          cancelled_bookings: number | null
-          confirmed_bookings: number | null
-          month: string | null
-          team_member_name: string | null
-          total_booking_revenue: number | null
-          total_bookings: number | null
-          total_orders: number | null
-          total_revenue: number | null
-        }
-        Relationships: []
       }
     }
     Functions: {

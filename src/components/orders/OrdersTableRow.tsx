@@ -10,7 +10,7 @@ import { OrderStatusCell } from "./cells/OrderStatusCell";
 import { PaymentStatusCell } from "./cells/PaymentStatusCell";
 import { handleOrderStatusChange } from "./utils/orderStatusUtils";
 import { toast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client"; // Add this import
+import { supabase } from "@/integrations/supabase/client";
 
 interface OrdersTableRowProps {
   order: Order;
@@ -37,38 +37,37 @@ export const OrdersTableRow = ({
   const handleSave = async () => {
     try {
       setIsUpdating(true);
-      
-      console.log('Current order state:', order);
-      console.log('Edited order state:', editedOrder);
-      
-      // Check if status is actually changing
-      if (order.status === editedOrder.status && 
-          order.payment_status === editedOrder.payment_status) {
-        console.log('No status changes detected');
-        setIsEditing(false);
-        return;
+      console.log('Saving order changes:', {
+        currentOrder: order,
+        editedOrder: editedOrder
+      });
+
+      // First update the order status in the database
+      const { data: updatedOrder, error: updateError } = await supabase
+        .from('orders')
+        .update({ 
+          status: editedOrder.status,
+          payment_status: editedOrder.payment_status,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', order.id)
+        .select('*')
+        .single();
+
+      if (updateError) {
+        console.error('Error updating order:', updateError);
+        throw updateError;
       }
 
-      // Get order items for inventory updates
-      const { data: orderItems, error: itemsError } = await supabase
-        .from('order_items')
-        .select(`
-          quantity,
-          inventory_item_id,
-          price
-        `)
-        .eq('order_id', order.id);
-
-      if (itemsError) throw itemsError;
-      
-      if (!orderItems || orderItems.length === 0) {
-        throw new Error('No order items found');
-      }
-
-      await handleOrderStatusChange(order, editedOrder, orderItems);
+      console.log('Order updated successfully:', updatedOrder);
       
       setIsEditing(false);
       onOrderUpdate();
+      
+      toast({
+        title: "Success",
+        description: "Order updated successfully",
+      });
     } catch (error: any) {
       console.error("Error updating order:", error);
       toast({
@@ -194,4 +193,3 @@ export const OrdersTableRow = ({
     </TableRow>
   );
 };
-
