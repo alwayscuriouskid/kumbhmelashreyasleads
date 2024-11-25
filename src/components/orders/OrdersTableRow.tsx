@@ -9,8 +9,7 @@ import { ActionCell } from "./cells/ActionCell";
 import { InventoryItemsCell } from "./cells/InventoryItemsCell";
 import { OrderStatusCell } from "./cells/OrderStatusCell";
 import { PaymentStatusCell } from "./cells/PaymentStatusCell";
-import { updateOrderStatus } from "./utils/orderStatusUtils";
-import { updateInventoryQuantities } from "./utils/inventoryUtils";
+import { supabase } from "@/integrations/supabase/client";
 
 interface OrdersTableRowProps {
   order: Order;
@@ -44,29 +43,17 @@ export const OrdersTableRow = ({
         newPaymentStatus: editedOrder.payment_status
       });
 
-      // First update order status
-      await updateOrderStatus(
-        order.id, 
-        editedOrder.status,
-        editedOrder.payment_status || null
-      );
+      // Update order status
+      const { error: updateError } = await supabase
+        .from('orders')
+        .update({ 
+          status: editedOrder.status,
+          payment_status: editedOrder.payment_status,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', order.id);
 
-      // If payment status is changing to partially_pending or finished
-      if (editedOrder.payment_status && 
-          (editedOrder.payment_status === 'partially_pending' || 
-           editedOrder.payment_status === 'finished') && 
-          order.payment_status !== editedOrder.payment_status) {
-        
-        console.log('Payment status changing to:', editedOrder.payment_status);
-        
-        // Update inventory items
-        if (order.order_items?.length) {
-          await updateInventoryQuantities(
-            order.order_items,
-            editedOrder.status === 'approved' ? 'approve' : 'reject'
-          );
-        }
-      }
+      if (updateError) throw updateError;
 
       toast({
         title: "Success",
@@ -74,7 +61,7 @@ export const OrdersTableRow = ({
       });
       
       setIsEditing(false);
-      onOrderUpdate();
+      onOrderUpdate(); // Refresh the orders list
     } catch (error: any) {
       console.error("Error updating order:", error);
       toast({
