@@ -8,7 +8,6 @@ import { ActionCell } from "./cells/ActionCell";
 import { InventoryItemsCell } from "./cells/InventoryItemsCell";
 import { OrderStatusCell } from "./cells/OrderStatusCell";
 import { PaymentStatusCell } from "./cells/PaymentStatusCell";
-import { handleOrderStatusChange } from "./utils/orderStatusUtils";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -37,28 +36,33 @@ export const OrdersTableRow = ({
   const handleSave = async () => {
     try {
       setIsUpdating(true);
-      console.log('Saving order changes:', {
-        currentOrder: order,
-        editedOrder: editedOrder
+      console.log('Attempting to update order:', {
+        orderId: order.id,
+        currentStatus: order.status,
+        newStatus: editedOrder.status,
+        currentPaymentStatus: order.payment_status,
+        newPaymentStatus: editedOrder.payment_status
       });
 
-      // First update the order status in the database
-      const { error: updateError } = await supabase
+      const { error } = await supabase
         .from('orders')
-        .update({ 
+        .update({
           status: editedOrder.status,
           payment_status: editedOrder.payment_status,
+          payment_confirmation: editedOrder.payment_confirmation,
+          next_payment_date: editedOrder.next_payment_date,
+          next_payment_details: editedOrder.next_payment_details,
+          additional_details: editedOrder.additional_details,
           updated_at: new Date().toISOString()
         })
         .eq('id', order.id);
 
-      if (updateError) {
-        console.error('Error updating order:', updateError);
-        throw updateError;
+      if (error) {
+        console.error('Error updating order:', error);
+        throw error;
       }
 
       console.log('Order updated successfully');
-      
       setIsEditing(false);
       onOrderUpdate();
       
