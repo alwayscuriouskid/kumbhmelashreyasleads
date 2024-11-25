@@ -46,10 +46,6 @@ export interface InventoryItem {
       name: string 
     };
   };
-  bookings?: {
-    id: string;
-    status: string;
-  }[];
 }
 
 export interface Order {
@@ -90,27 +86,6 @@ export interface OrderItem {
       id: string;
       name: string;
     };
-  };
-}
-
-export interface Booking {
-  id: string;
-  inventory_item_id: string;
-  start_date: string;
-  end_date: string;
-  status: string;
-  created_at: string;
-  updated_at: string;
-  team_member_name: string;
-  customer_name?: string;
-  customer_email?: string;
-  customer_phone?: string;
-  notes?: string;
-  payment_status?: string;
-  payment_amount?: number;
-  inventory_items?: {
-    id: string;
-    inventory_types?: InventoryType;
   };
 }
 

@@ -11,8 +11,6 @@ import {
   Activity,
   Package,
   ShoppingCart,
-  Calendar,
-  LineChart,
   ChevronLeft,
   ChevronRight,
   Trash2,
@@ -42,8 +40,6 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }: SidebarProps) => {
     { path: "/files", icon: FileStack, label: "Files" },
     { path: "/inventory", icon: Package, label: "Inventory" },
     { path: "/inventory/orders", icon: ShoppingCart, label: "Orders" },
-    { path: "/inventory/bookings", icon: Calendar, label: "Bookings" },
-    { path: "/inventory/analytics", icon: LineChart, label: "Inventory Analytics" },
   ];
 
   return (
