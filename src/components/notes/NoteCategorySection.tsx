@@ -28,6 +28,11 @@ export const NoteCategorySection = ({
     }
   };
 
+  const handleCategorySelect = (category: string) => {
+    console.log("Selecting category:", category);
+    onUpdateNote({ ...editedNote, category });
+  };
+
   return (
     <div className="space-y-2">
       <div className="flex gap-2">
@@ -46,6 +51,11 @@ export const NoteCategorySection = ({
           <Plus className="h-4 w-4" />
         </Button>
       </div>
+      <datalist id="categories">
+        {categories.map((category) => (
+          <option key={category} value={category} />
+        ))}
+      </datalist>
       {categories.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-2">
           {categories.map((category) => (
@@ -53,7 +63,7 @@ export const NoteCategorySection = ({
               key={category}
               variant={editedNote.category === category ? "default" : "outline"}
               className="cursor-pointer"
-              onClick={() => onUpdateNote({ ...editedNote, category })}
+              onClick={() => handleCategorySelect(category)}
             >
               {category}
             </Badge>
