@@ -1,0 +1,56 @@
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem;
+  width: 100%;
+}
+
+.note-card {
+  height: 100%;
+  min-height: 200px;
+  transition: all 0.2s ease-in-out;
+}
+
+.note-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.note-resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 15px;
+  height: 15px;
+  cursor: se-resize;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.note-card:hover .note-resize-handle {
+  opacity: 0.5;
+}
+
+.note-card:hover .note-actions {
+  opacity: 1;
+}
+
+.note-content {
+  max-height: calc(100% - 120px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.note-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.note-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.note-content::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.3);
+  border-radius: 4px;
+}

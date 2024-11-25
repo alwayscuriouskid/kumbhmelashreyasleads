@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import NoteCard from "./NoteCard";
 import { Note } from "@/types/notes";
+import "@/styles/notes.css";
 
 interface NotesContentProps {
   filteredNotes: Note[];
@@ -20,7 +21,7 @@ export const NotesContent = ({
   setIsCreateOpen,
 }: NotesContentProps) => {
   return (
-    <div className="notes-container">
+    <div className="w-full">
       {filteredNotes.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
           <p>No notes found</p>
@@ -33,7 +34,7 @@ export const NotesContent = ({
           </Button>
         </div>
       ) : (
-        <div className="grid-notes-layout">
+        <div className="notes-grid animate-fade-in">
           {filteredNotes.map((note) => (
             <NoteCard
               key={note.id}
