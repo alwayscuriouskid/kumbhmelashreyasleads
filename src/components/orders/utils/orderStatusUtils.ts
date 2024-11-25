@@ -19,20 +19,20 @@ export const updateOrderStatus = async (
     updateData.payment_status = newPaymentStatus;
   }
 
-  const { data, error: updateError } = await supabase
+  const { data, error } = await supabase
     .from('orders')
     .update(updateData)
     .eq('id', orderId)
-    .select('*')
-    .single();
+    .select('*, order_items(*, inventory_items(*, inventory_types(*)))')
+    .maybeSingle();
 
-  if (updateError) {
-    console.error('Error updating order status:', updateError);
-    throw updateError;
+  if (error) {
+    console.error('Error updating order status:', error);
+    throw error;
   }
 
   if (!data) {
-    throw new Error('Order update failed - no data returned');
+    throw new Error('Order not found or update failed');
   }
 
   console.log('Order update successful:', data);
@@ -64,11 +64,6 @@ export const handleOrderStatusChange = async (
       throw new Error('Order update failed');
     }
 
-    // Handle inventory updates based on status changes
-    if (order.status !== editedOrder.status) {
-      await updateInventoryForStatusChange(order.status, editedOrder.status, orderItems);
-    }
-
     toast({
       title: "Success",
       description: "Order updated successfully",
@@ -83,51 +78,5 @@ export const handleOrderStatusChange = async (
       variant: "destructive",
     });
     throw error;
-  }
-};
-
-const updateInventoryForStatusChange = async (
-  oldStatus: string,
-  newStatus: string,
-  orderItems: OrderItem[]
-) => {
-  console.log('Updating inventory for status change:', {
-    oldStatus,
-    newStatus,
-    orderItems
-  });
-
-  for (const item of orderItems) {
-    const { data: currentItem, error: getError } = await supabase
-      .from('inventory_items')
-      .select('quantity, available_quantity, reserved_quantity')
-      .eq('id', item.inventory_item_id)
-      .single();
-
-    if (getError) throw getError;
-
-    const quantity = Number(item.quantity) || 0;
-    let updates = {};
-
-    if (oldStatus === 'pending' && newStatus === 'approved') {
-      updates = {
-        available_quantity: (currentItem.available_quantity || 0) - quantity,
-        reserved_quantity: (currentItem.reserved_quantity || 0) + quantity
-      };
-    } else if (oldStatus === 'approved' && newStatus === 'rejected') {
-      updates = {
-        available_quantity: (currentItem.available_quantity || 0) + quantity,
-        reserved_quantity: (currentItem.reserved_quantity || 0) - quantity
-      };
-    }
-
-    if (Object.keys(updates).length > 0) {
-      const { error: updateError } = await supabase
-        .from('inventory_items')
-        .update(updates)
-        .eq('id', item.inventory_item_id);
-
-      if (updateError) throw updateError;
-    }
   }
 };
