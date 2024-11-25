@@ -18,6 +18,24 @@ interface OrdersTableRowProps {
   onOrderUpdate: () => void;
 }
 
+// Extract the inventory update logic to a separate component
+const handleInventoryUpdate = async (orderId: string, item: any) => {
+  try {
+    const { error: inventoryError } = await supabase
+      .from('inventory_items')
+      .update({
+        available_quantity: item.quantity ? Number(item.quantity) : 0,
+        sold_quantity: item.quantity ? Number(item.quantity) : 0
+      })
+      .eq('id', item.inventory_item_id);
+
+    if (inventoryError) throw inventoryError;
+  } catch (error) {
+    console.error('Error updating inventory:', error);
+    throw error;
+  }
+};
+
 export const OrdersTableRow = ({ 
   order, 
   visibleColumns, 
@@ -68,15 +86,7 @@ export const OrdersTableRow = ({
         
         // Update inventory items to mark quantities as sold
         for (const item of order.order_items || []) {
-          const { error: inventoryError } = await supabase
-            .from('inventory_items')
-            .update({
-              available_quantity: `available_quantity - ${item.quantity}`,
-              sold_quantity: `COALESCE(sold_quantity, 0) + ${item.quantity}`
-            })
-            .eq('id', item.inventory_item_id);
-
-          if (inventoryError) throw inventoryError;
+          await handleInventoryUpdate(order.id, item);
         }
       }
 
