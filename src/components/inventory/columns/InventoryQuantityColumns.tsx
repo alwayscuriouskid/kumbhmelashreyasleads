@@ -19,7 +19,6 @@ export const InventoryQuantityColumns = ({
   const availableQuantity = item.available_quantity || totalQuantity;
   const reservedQuantity = (item.bookings?.filter(b => b.status === 'reserved').length || 0);
   const soldQuantity = (item.bookings?.filter(b => b.status === 'sold').length || 0);
-  const maintenanceQuantity = (item.bookings?.filter(b => b.status === 'maintenance').length || 0);
 
   return (
     <>
@@ -48,9 +47,6 @@ export const InventoryQuantityColumns = ({
       )}
       {visibleColumns.soldQuantity && (
         <TableCell>{soldQuantity}</TableCell>
-      )}
-      {visibleColumns.maintenanceQuantity && (
-        <TableCell>{maintenanceQuantity}</TableCell>
       )}
     </>
   );

@@ -27,7 +27,6 @@ export const InventoryTable = () => {
     availableQuantity: true,
     reservedQuantity: true,
     soldQuantity: true,
-    maintenanceQuantity: true,
     sku: true,
   });
 
