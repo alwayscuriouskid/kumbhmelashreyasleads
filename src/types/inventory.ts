@@ -34,8 +34,8 @@ export interface InventoryItem {
   dimensions?: string;
   quantity: number;
   available_quantity: number;
-  reserved_quantity?: number;
-  sold_quantity?: number;
+  reserved_quantity: number;
+  sold_quantity: number;
   sku?: string;
   inventory_types?: InventoryType;
   sectors?: { 

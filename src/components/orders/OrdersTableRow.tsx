@@ -1,7 +1,6 @@
 import { TableCell, TableRow } from "@/components/ui/table";
 import { EditableCell } from "@/components/inventory/EditableCell";
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { Order } from "@/types/inventory";
 import { PaymentConfirmationCell } from "./cells/PaymentConfirmationCell";
@@ -10,6 +9,8 @@ import { ActionCell } from "./cells/ActionCell";
 import { InventoryItemsCell } from "./cells/InventoryItemsCell";
 import { OrderStatusCell } from "./cells/OrderStatusCell";
 import { PaymentStatusCell } from "./cells/PaymentStatusCell";
+import { updateOrderStatus } from "./utils/orderStatusUtils";
+import { updateInventoryQuantities } from "./utils/inventoryUtils";
 
 interface OrdersTableRowProps {
   order: Order;
@@ -17,24 +18,6 @@ interface OrdersTableRowProps {
   teamMembers: any[];
   onOrderUpdate: () => void;
 }
-
-// Extract the inventory update logic to a separate component
-const handleInventoryUpdate = async (orderId: string, item: any) => {
-  try {
-    const { error: inventoryError } = await supabase
-      .from('inventory_items')
-      .update({
-        available_quantity: item.quantity ? Number(item.quantity) : 0,
-        sold_quantity: item.quantity ? Number(item.quantity) : 0
-      })
-      .eq('id', item.inventory_item_id);
-
-    if (inventoryError) throw inventoryError;
-  } catch (error) {
-    console.error('Error updating inventory:', error);
-    throw error;
-  }
-};
 
 export const OrdersTableRow = ({ 
   order, 
@@ -61,20 +44,12 @@ export const OrdersTableRow = ({
         newPaymentStatus: editedOrder.payment_status
       });
 
-      // First update the order status and payment status
-      const { error: updateError } = await supabase
-        .from('orders')
-        .update({
-          status: editedOrder.status,
-          payment_status: editedOrder.payment_status,
-          payment_confirmation: editedOrder.payment_confirmation,
-          next_payment_date: editedOrder.next_payment_date,
-          next_payment_details: editedOrder.next_payment_details,
-          additional_details: editedOrder.additional_details
-        })
-        .eq('id', order.id);
-
-      if (updateError) throw updateError;
+      // First update order status
+      await updateOrderStatus(
+        order.id, 
+        editedOrder.status,
+        editedOrder.payment_status || null
+      );
 
       // If payment status is changing to partially_pending or finished
       if (editedOrder.payment_status && 
@@ -84,9 +59,12 @@ export const OrdersTableRow = ({
         
         console.log('Payment status changing to:', editedOrder.payment_status);
         
-        // Update inventory items to mark quantities as sold
-        for (const item of order.order_items || []) {
-          await handleInventoryUpdate(order.id, item);
+        // Update inventory items
+        if (order.order_items?.length) {
+          await updateInventoryQuantities(
+            order.order_items,
+            editedOrder.status === 'approved' ? 'approve' : 'reject'
+          );
         }
       }
 
