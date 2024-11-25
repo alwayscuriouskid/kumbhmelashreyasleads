@@ -26,7 +26,17 @@ const NoteCard = ({
 
   const handleUpdateNote = (updatedNote: Note) => {
     console.log("Updating note from NoteCard:", updatedNote);
-    onUpdate(updatedNote);
+    try {
+      onUpdate(updatedNote);
+      console.log("Note update handler called successfully");
+    } catch (error) {
+      console.error("Error in handleUpdateNote:", error);
+    }
+  };
+
+  const handleEditClick = () => {
+    console.log("Edit button clicked for note:", note.id);
+    setIsEditDialogOpen(true);
   };
 
   return (
@@ -35,7 +45,7 @@ const NoteCard = ({
         <div className="flex justify-between items-start">
           <h3 className="text-lg font-semibold text-foreground">{note.title}</h3>
           <NoteCardActions
-            onEdit={() => setIsEditDialogOpen(true)}
+            onEdit={handleEditClick}
             onDelete={onDelete}
             onExpand={() => {}}
           />
