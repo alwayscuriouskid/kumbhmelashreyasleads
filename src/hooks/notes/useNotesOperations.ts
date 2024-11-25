@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, handleSupabaseError } from "@/integrations/supabase/client";
 import { Note, dbToNote } from "@/types/notes";
 import { useToast } from "@/hooks/use-toast";
 
@@ -19,13 +19,7 @@ export const useNotesOperations = (
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error("Supabase error fetching notes:", error);
-        toast({
-          title: "Error fetching notes",
-          description: error.message,
-          variant: "destructive",
-        });
-        throw error;
+        handleSupabaseError(error);
       }
 
       if (!data) {
@@ -72,13 +66,7 @@ export const useNotesOperations = (
         .single();
 
       if (error) {
-        console.error("Supabase error creating note:", error);
-        toast({
-          title: "Error creating note",
-          description: error.message,
-          variant: "destructive",
-        });
-        throw error;
+        handleSupabaseError(error);
       }
 
       console.log("Created note:", data);
@@ -96,6 +84,11 @@ export const useNotesOperations = (
       return formattedNote;
     } catch (error) {
       console.error("Error in createNote:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create note",
+        variant: "destructive",
+      });
       throw error;
     }
   };
@@ -114,13 +107,7 @@ export const useNotesOperations = (
         .single();
 
       if (error) {
-        console.error("Supabase error updating note:", error);
-        toast({
-          title: "Error updating note",
-          description: error.message,
-          variant: "destructive",
-        });
-        throw error;
+        handleSupabaseError(error);
       }
 
       console.log("Updated note:", data);
@@ -138,6 +125,11 @@ export const useNotesOperations = (
       return formattedNote;
     } catch (error) {
       console.error("Error in updateNote:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update note",
+        variant: "destructive",
+      });
       throw error;
     }
   };
