@@ -16,6 +16,16 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
     return member ? member.name : 'Unassigned';
   };
 
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "-";
+    try {
+      return format(new Date(dateString), 'dd MMM yyyy');
+    } catch (error) {
+      console.error("Error formatting date:", error, "Date string:", dateString);
+      return "-";
+    }
+  };
+
   return (
     <TableRow>
       {visibleColumns.time && <TableCell>{activity.time}</TableCell>}
@@ -39,12 +49,7 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
         <TableCell>{activity.nextAction || "-"}</TableCell>
       }
       {visibleColumns.activityNextActionDate && 
-        <TableCell>
-          {activity.next_action_date ? 
-            format(new Date(activity.next_action_date), 'dd MMM yyyy') : 
-            "-"
-          }
-        </TableCell>
+        <TableCell>{formatDate(activity.next_action_date)}</TableCell>
       }
     </TableRow>
   );
