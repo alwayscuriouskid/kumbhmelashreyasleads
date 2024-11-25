@@ -16,9 +16,9 @@ export const InventoryQuantityColumns = ({
   onEditValue,
 }: InventoryQuantityColumnsProps) => {
   const totalQuantity = item.quantity || 0;
-  const availableQuantity = item.available_quantity || totalQuantity;
-  const reservedQuantity = (item.bookings?.filter(b => b.status === 'reserved').length || 0);
-  const soldQuantity = (item.bookings?.filter(b => b.status === 'sold').length || 0);
+  const availableQuantity = item.available_quantity || 0;
+  const reservedQuantity = item.reserved_quantity || 0;
+  const soldQuantity = item.sold_quantity || 0;
 
   return (
     <>

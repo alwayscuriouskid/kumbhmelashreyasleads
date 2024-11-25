@@ -43,44 +43,34 @@ export const updateInventoryQuantity = async (orderId: string, newStatus: string
       throw updateOrderError;
     }
 
-    // 3. If order is being approved, update inventory
-    if (newStatus === 'approved' && oldStatus !== 'approved') {
-      console.log('Order approved - updating inventory quantities');
+    // 3. Handle inventory updates based on status change
+    for (const item of order.order_items || []) {
+      let updates = {};
       
-      for (const item of order.order_items || []) {
-        console.log('Updating inventory item:', item.inventory_item_id);
-        
-        // Get current inventory state
-        const { data: currentInventory, error: inventoryError } = await supabase
+      if (newStatus === 'approved' && oldStatus !== 'approved') {
+        // Move quantity from available to reserved
+        updates = {
+          available_quantity: supabase.raw('available_quantity - ?', [item.quantity]),
+          reserved_quantity: supabase.raw('COALESCE(reserved_quantity, 0) + ?', [item.quantity])
+        };
+      } else if (newStatus === 'rejected') {
+        // Move quantity from reserved back to available
+        updates = {
+          available_quantity: supabase.raw('available_quantity + ?', [item.quantity]),
+          reserved_quantity: supabase.raw('COALESCE(reserved_quantity, 0) - ?', [item.quantity])
+        };
+      }
+
+      if (Object.keys(updates).length > 0) {
+        const { error: inventoryError } = await supabase
           .from('inventory_items')
-          .select('quantity, available_quantity')
-          .eq('id', item.inventory_item_id)
-          .single();
-
-        if (inventoryError) {
-          console.error('Error fetching inventory item:', inventoryError);
-          throw inventoryError;
-        }
-
-        const newQuantity = (currentInventory.quantity || 0) - item.quantity;
-        const newAvailable = (currentInventory.available_quantity || 0) - item.quantity;
-
-        // Update inventory
-        const { error: updateError } = await supabase
-          .from('inventory_items')
-          .update({ 
-            quantity: newQuantity,
-            available_quantity: newAvailable,
-            status: newQuantity <= 0 ? 'sold' : 'available'
-          })
+          .update(updates)
           .eq('id', item.inventory_item_id);
 
-        if (updateError) {
-          console.error('Error updating inventory:', updateError);
-          throw updateError;
+        if (inventoryError) {
+          console.error('Error updating inventory:', inventoryError);
+          throw inventoryError;
         }
-
-        console.log('Successfully updated inventory item:', item.inventory_item_id);
       }
     }
 

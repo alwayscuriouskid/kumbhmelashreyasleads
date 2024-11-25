@@ -10,7 +10,6 @@ import { ActionCell } from "./cells/ActionCell";
 import { InventoryItemsCell } from "./cells/InventoryItemsCell";
 import { OrderStatusCell } from "./cells/OrderStatusCell";
 import { PaymentStatusCell } from "./cells/PaymentStatusCell";
-import { updateInventoryQuantity } from "./utils/inventoryUtils";
 
 interface OrdersTableRowProps {
   order: Order;
@@ -37,41 +36,54 @@ export const OrdersTableRow = ({
   const handleSave = async () => {
     try {
       setIsUpdating(true);
-      
-      // Handle status change and inventory updates first
-      if (order.status !== editedOrder.status) {
-        console.log("Status changing from", order.status, "to", editedOrder.status);
-        const updatedOrder = await updateInventoryQuantity(order.id, editedOrder.status, order.status);
-        if (!updatedOrder) throw new Error('Failed to update order status');
+      console.log('Saving order changes:', {
+        oldStatus: order.status,
+        newStatus: editedOrder.status,
+        oldPaymentStatus: order.payment_status,
+        newPaymentStatus: editedOrder.payment_status
+      });
+
+      // First update the order status and payment status
+      const { error: updateError } = await supabase
+        .from('orders')
+        .update({
+          status: editedOrder.status,
+          payment_status: editedOrder.payment_status,
+          payment_confirmation: editedOrder.payment_confirmation,
+          next_payment_date: editedOrder.next_payment_date,
+          next_payment_details: editedOrder.next_payment_details,
+          additional_details: editedOrder.additional_details
+        })
+        .eq('id', order.id);
+
+      if (updateError) throw updateError;
+
+      // If payment status is changing to partially_pending or finished
+      if (editedOrder.payment_status && 
+          (editedOrder.payment_status === 'partially_pending' || 
+           editedOrder.payment_status === 'finished') && 
+          order.payment_status !== editedOrder.payment_status) {
+        
+        console.log('Payment status changing to:', editedOrder.payment_status);
+        
+        // Update inventory items to mark quantities as sold
+        for (const item of order.order_items || []) {
+          const { error: inventoryError } = await supabase
+            .from('inventory_items')
+            .update({
+              available_quantity: supabase.raw('available_quantity - ?', [item.quantity]),
+              sold_quantity: supabase.raw('COALESCE(sold_quantity, 0) + ?', [item.quantity])
+            })
+            .eq('id', item.inventory_item_id);
+
+          if (inventoryError) throw inventoryError;
+        }
       }
 
-      // Then update other order fields if they've changed
-      const updates: any = {};
-      if (editedOrder.payment_status !== order.payment_status) {
-        updates.payment_status = editedOrder.payment_status;
-      }
-      if (editedOrder.payment_confirmation !== order.payment_confirmation) {
-        updates.payment_confirmation = editedOrder.payment_confirmation;
-      }
-      if (editedOrder.next_payment_date !== order.next_payment_date) {
-        updates.next_payment_date = editedOrder.next_payment_date;
-      }
-      if (editedOrder.next_payment_details !== order.next_payment_details) {
-        updates.next_payment_details = editedOrder.next_payment_details;
-      }
-      if (editedOrder.additional_details !== order.additional_details) {
-        updates.additional_details = editedOrder.additional_details;
-      }
-
-      // Only update if there are changes other than status
-      if (Object.keys(updates).length > 0) {
-        const { error } = await supabase
-          .from('orders')
-          .update(updates)
-          .eq('id', order.id);
-
-        if (error) throw error;
-      }
+      toast({
+        title: "Success",
+        description: "Order updated successfully",
+      });
       
       setIsEditing(false);
       onOrderUpdate();
