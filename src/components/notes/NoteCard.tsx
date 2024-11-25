@@ -1,7 +1,7 @@
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Note } from "@/types/notes";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { NoteHeader } from "./NoteHeader";
 import { NoteTags } from "./NoteTags";
 import { MINIMUM_NOTE_SIZE } from "@/utils/notePositioning";
@@ -9,6 +9,7 @@ import { useNotes } from "@/hooks/useNotes";
 import { Badge } from "@/components/ui/badge";
 import { NoteCardContent } from "./NoteCardContent";
 import { NoteCardActions } from "./NoteCardActions";
+import EditNoteDialog from "./EditNoteDialog";
 import {
   Dialog,
   DialogContent,
@@ -33,30 +34,11 @@ const NoteCard = ({
   tags,
   onAddCategory,
 }: NoteCardProps) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedNote, setEditedNote] = useState(note);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const { toast } = useToast();
   const { deleteNote } = useNotes();
   const nodeRef = useRef<HTMLDivElement>(null);
-  const [isResizing, setIsResizing] = useState(false);
-
-  const handleSave = () => {
-    if (!editedNote.title.trim() || !editedNote.content.trim()) {
-      toast({
-        title: "Error",
-        description: "Title and content cannot be empty",
-        variant: "destructive",
-      });
-      return;
-    }
-    onUpdate(editedNote);
-    setIsEditing(false);
-    toast({
-      title: "Success",
-      description: "Note updated successfully",
-    });
-  };
 
   const handleDelete = async () => {
     await deleteNote(note.id);
@@ -66,78 +48,28 @@ const NoteCard = ({
     });
   };
 
-  const handleResize = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsResizing(true);
-
-    const startX = e.pageX;
-    const startY = e.pageY;
-    const startWidth = editedNote.width || MINIMUM_NOTE_SIZE.width;
-    const startHeight = editedNote.height || MINIMUM_NOTE_SIZE.height;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!nodeRef.current || !isResizing) return;
-
-      const newWidth = Math.max(
-        MINIMUM_NOTE_SIZE.width,
-        startWidth + (e.pageX - startX)
-      );
-      const newHeight = Math.max(
-        MINIMUM_NOTE_SIZE.height,
-        startHeight + (e.pageY - startY)
-      );
-
-      setEditedNote((prev) => ({
-        ...prev,
-        width: newWidth,
-        height: newHeight,
-      }));
-
-      // Force grid recalculation
-      const grid = nodeRef.current.parentElement;
-      if (grid) {
-        grid.style.display = 'none';
-        grid.offsetHeight; // Force reflow
-        grid.style.display = 'grid';
-      }
-    };
-
-    const handleMouseUp = () => {
-      setIsResizing(false);
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-      onUpdate(editedNote);
-    };
-
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
-  };
-
   return (
     <>
       <div 
         ref={nodeRef} 
         style={{ 
-          width: editedNote.width || 300,
-          transition: isResizing ? 'none' : 'all 0.2s ease-in-out'
+          width: note.width || 300,
         }}
         className="animate-fade-in"
       >
         <Card className="note-card group hover:border-primary/50 transition-colors bg-background/90 backdrop-blur-sm shadow-lg">
           <CardHeader className="space-y-1">
             <div className="flex items-center justify-between">
-              <NoteHeader
-                isEditing={isEditing}
-                editedNote={editedNote}
-                setEditedNote={setEditedNote}
-                setIsEditing={setIsEditing}
-                handleSave={handleSave}
-                categories={categories}
-                originalNote={note}
-                onAddCategory={onAddCategory}
-              />
+              <div className="flex-1">
+                <h3 className="text-base font-semibold line-clamp-1">{note.title}</h3>
+                {note.category && (
+                  <span className="text-xs text-muted-foreground">
+                    {note.category}
+                  </span>
+                )}
+              </div>
               <NoteCardActions
+                onEdit={() => setIsEditDialogOpen(true)}
                 onDelete={handleDelete}
                 onExpand={() => setIsExpanded(true)}
                 isDeleted={!!note.deleted_at}
@@ -146,31 +78,34 @@ const NoteCard = ({
           </CardHeader>
 
           <CardContent>
-            <NoteCardContent
-              note={note}
-              isEditing={isEditing}
-              editedNote={editedNote}
-              setEditedNote={setEditedNote}
-            />
+            <div className="note-content">
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                {note.content}
+              </p>
+            </div>
           </CardContent>
 
           <CardFooter className="flex flex-wrap gap-2">
-            <NoteTags
-              isEditing={isEditing}
-              editedNote={editedNote}
-              tags={tags}
-              onUpdate={(updatedNote) => setEditedNote(updatedNote)}
-            />
+            <div className="flex flex-wrap gap-2">
+              {note.tags?.map((tag) => (
+                <Badge key={tag} variant="secondary" className="text-xs">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
           </CardFooter>
-
-          {!note.deleted_at && (
-            <div
-              className="note-resize-handle"
-              onMouseDown={handleResize}
-            />
-          )}
         </Card>
       </div>
+
+      <EditNoteDialog
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        note={note}
+        categories={categories}
+        tags={tags}
+        onAddCategory={onAddCategory}
+        onUpdateNote={onUpdate}
+      />
 
       <Dialog open={isExpanded} onOpenChange={setIsExpanded}>
         <DialogContent className="max-w-4xl h-[80vh]">

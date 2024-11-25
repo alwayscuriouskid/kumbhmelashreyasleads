@@ -1,19 +1,36 @@
 import { Button } from "@/components/ui/button";
-import { Trash2, Maximize2 } from "lucide-react";
+import { Edit2, Trash2, Maximize2 } from "lucide-react";
 
 interface NoteCardActionsProps {
+  onEdit: () => void;
   onDelete: () => void;
   onExpand: () => void;
-  isDeleted: boolean;
+  isDeleted?: boolean;
 }
 
-export const NoteCardActions = ({
-  onDelete,
-  onExpand,
-  isDeleted,
-}: NoteCardActionsProps) => {
+export const NoteCardActions = ({ onEdit, onDelete, onExpand, isDeleted }: NoteCardActionsProps) => {
   return (
-    <div className="note-actions flex gap-1 opacity-0 transition-opacity">
+    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      {!isDeleted && (
+        <>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={onEdit}
+          >
+            <Edit2 className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={onDelete}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </>
+      )}
       <Button
         variant="ghost"
         size="icon"
@@ -22,16 +39,6 @@ export const NoteCardActions = ({
       >
         <Maximize2 className="h-4 w-4" />
       </Button>
-      {!isDeleted && (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8"
-          onClick={onDelete}
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      )}
     </div>
   );
 };
