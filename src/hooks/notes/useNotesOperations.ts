@@ -1,4 +1,4 @@
-import { supabase, handleSupabaseError } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 import { Note, dbToNote } from "@/types/notes";
 import { useToast } from "@/hooks/use-toast";
 
@@ -95,26 +95,36 @@ export const useNotesOperations = (
 
   const updateNote = async (updatedNote: Note) => {
     try {
-      console.log("Updating note:", updatedNote);
+      console.log("Updating note in Supabase:", updatedNote);
+      
+      // Prepare the note data for update
+      const noteForUpdate = {
+        ...updatedNote,
+        position: JSON.stringify(updatedNote.position),
+        updated_at: new Date().toISOString()
+      };
+
       const { data, error } = await supabase
         .from('notes')
-        .update({
-          ...updatedNote,
-          position: JSON.stringify(updatedNote.position)
-        })
+        .update(noteForUpdate)
         .eq('id', updatedNote.id)
         .select()
         .single();
 
       if (error) {
-        handleSupabaseError(error);
+        console.error("Error updating note in Supabase:", error);
+        throw error;
       }
 
-      console.log("Updated note:", data);
+      console.log("Note updated successfully in Supabase:", data);
       const formattedNote = dbToNote(data);
-      setNotes(prev => prev.map(note => note.id === formattedNote.id ? formattedNote : note));
       
-      // Update categories and tags
+      // Update local state
+      setNotes(prev => prev.map(note => 
+        note.id === formattedNote.id ? formattedNote : note
+      ));
+      
+      // Update categories and tags if needed
       if (updatedNote.category) {
         setCategories(prev => [...new Set([...prev, updatedNote.category!])]);
       }
