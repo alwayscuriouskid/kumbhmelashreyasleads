@@ -44,7 +44,7 @@ export const OrdersTableRow = ({
         newPaymentStatus: editedOrder.payment_status
       });
 
-      // First update the order
+      // Update the order with explicit column selection
       const { data, error } = await supabase
         .from('orders')
         .update({
@@ -57,7 +57,8 @@ export const OrdersTableRow = ({
           updated_at: new Date().toISOString()
         })
         .eq('id', order.id)
-        .select();
+        .select('id, status, payment_status, updated_at')
+        .single();
 
       if (error) {
         console.error('Error updating order:', error);
@@ -66,23 +67,8 @@ export const OrdersTableRow = ({
 
       console.log('Order update response:', data);
 
-      // Fetch the updated order to confirm changes
-      const { data: updatedOrder, error: fetchError } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('id', order.id)
-        .single();
-
-      if (fetchError) {
-        console.error('Error fetching updated order:', fetchError);
-        throw fetchError;
-      }
-
-      console.log('Fetched updated order:', updatedOrder);
-
-      if (updatedOrder.status !== editedOrder.status) {
-        console.error('Order status not updated correctly');
-        throw new Error('Order status update failed');
+      if (!data) {
+        throw new Error('No data returned from update');
       }
 
       setIsEditing(false);
