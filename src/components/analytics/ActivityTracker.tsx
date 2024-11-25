@@ -94,11 +94,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
       console.log("Lead updated successfully with latest activity data");
     } catch (error) {
       console.error("Failed to update lead with latest data:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update lead with latest activity data",
-        variant: "destructive",
-      });
+      // Don't show error toast here as it's handled in handleActivitySubmit
     }
   };
 
@@ -145,7 +141,17 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
 
       if (leadError) {
         console.error("Error updating lead:", leadError);
-        throw leadError;
+        // Don't throw here, as activity was created successfully
+        toast({
+          title: "Partial Success",
+          description: "Activity created but lead update failed. Please refresh.",
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "Activity Logged",
+          description: `New ${formData.type} activity has been recorded.`,
+        });
       }
 
       if (!activityData) {
@@ -159,14 +165,9 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
       };
       
       onActivityAdd(activity);
-      
-      toast({
-        title: "Activity Logged",
-        description: `New ${formData.type} activity has been recorded.`,
-      });
 
       // Trigger a lead update
-      if (onLeadUpdate) {
+      if (onLeadUpdate && !leadError) {
         onLeadUpdate({
           activityType: formData.type,
           activityOutcome: formData.outcome,
@@ -181,6 +182,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
         description: "Failed to submit activity. Please try again.",
         variant: "destructive",
       });
+      return; // Exit early on error
     }
   };
 
