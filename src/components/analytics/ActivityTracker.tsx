@@ -79,15 +79,35 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
       // First update the lead table and store activity
       await updateLeadWithActivityData(formData);
       
-      // Create the activity object
+      // Create the activity object with all required fields
       const activity: Activity = {
         id: `activity-${Date.now()}`,
-        ...formData as Activity
+        date: new Date().toISOString(),
+        type: formData.type || 'note',
+        notes: formData.notes || '',
+        outcome: formData.outcome || '',
+        startTime: formData.startTime,
+        endTime: formData.endTime,
+        duration: formData.duration,
+        assignedTo: formData.assignedTo || '',
+        contactPerson: formData.contactPerson || '',
+        location: formData.location,
+        callType: formData.callType,
+        nextAction: formData.nextAction,
+        next_action_date: formData.next_action_date,
+        time: new Date().toLocaleTimeString(),
+        description: `Activity for ${contactPerson}`,
+        teamMember: formData.assignedTo || 'Unassigned',
+        activityType: formData.type,
+        activityOutcome: formData.outcome,
+        activityNextAction: formData.nextAction,
+        activityNextActionDate: formData.next_action_date
       };
       
       console.log("Calling onActivityAdd with activity:", activity);
       onActivityAdd(activity);
       
+      // Show success notification
       toast({
         title: "Activity Logged",
         description: `New ${formData.type} activity has been recorded.`,
@@ -109,7 +129,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
         description: "Failed to submit activity. Please try again.",
         variant: "destructive",
       });
-      throw error; // Re-throw to prevent form reset on error
+      throw error;
     }
   };
 
