@@ -36,24 +36,31 @@ export const OrdersTableRow = ({
   const handleSave = async () => {
     try {
       setIsUpdating(true);
-      console.log('Saving order changes:', {
-        oldStatus: order.status,
-        newStatus: editedOrder.status,
-        oldPaymentStatus: order.payment_status,
-        newPaymentStatus: editedOrder.payment_status
-      });
+      
+      // Log the current state and changes
+      console.log('Current order state:', order);
+      console.log('Edited order state:', editedOrder);
+      
+      // Prepare update data
+      const updateData = {
+        status: editedOrder.status,
+        payment_status: editedOrder.payment_status,
+        updated_at: new Date().toISOString()
+      };
+      
+      console.log('Sending update to database:', updateData);
 
       // Update order status
-      const { error: updateError } = await supabase
+      const { error: updateError, data: updatedOrder } = await supabase
         .from('orders')
-        .update({ 
-          status: editedOrder.status,
-          payment_status: editedOrder.payment_status,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', order.id);
+        .update(updateData)
+        .eq('id', order.id)
+        .select()
+        .single();
 
       if (updateError) throw updateError;
+      
+      console.log('Database update response:', updatedOrder);
 
       toast({
         title: "Success",
@@ -81,10 +88,14 @@ export const OrdersTableRow = ({
 
   const handleChange = (field: keyof Order, value: any) => {
     console.log(`Updating ${field} to:`, value);
-    setEditedOrder(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setEditedOrder(prev => {
+      const updated = {
+        ...prev,
+        [field]: value
+      };
+      console.log('Updated order state:', updated);
+      return updated;
+    });
   };
 
   return (
