@@ -10,21 +10,27 @@ export const updateOrderStatus = async (
 ) => {
   console.log('Updating order status:', { orderId, newStatus, newPaymentStatus });
   
-  const { error: updateError } = await supabase
+  const { data, error: updateError } = await supabase
     .from('orders')
     .update({
       status: newStatus,
       payment_status: newPaymentStatus,
       updated_at: new Date().toISOString()
     })
-    .eq('id', orderId);
+    .eq('id', orderId)
+    .select();
 
   if (updateError) {
     console.error('Error updating order status:', updateError);
     throw updateError;
   }
 
-  return true;
+  if (!data || data.length === 0) {
+    throw new Error('Order update failed - no data returned');
+  }
+
+  console.log('Order update successful:', data[0]);
+  return data[0];
 };
 
 export const handleOrderStatusChange = async (
@@ -42,7 +48,15 @@ export const handleOrderStatusChange = async (
 
   try {
     // Update order status first
-    await updateOrderStatus(order.id, editedOrder.status, editedOrder.payment_status);
+    const updatedOrder = await updateOrderStatus(
+      order.id, 
+      editedOrder.status, 
+      editedOrder.payment_status
+    );
+
+    if (!updatedOrder) {
+      throw new Error('Order update failed');
+    }
 
     // Handle inventory updates based on status changes
     if (order.status !== editedOrder.status) {

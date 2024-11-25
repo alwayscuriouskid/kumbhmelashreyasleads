@@ -10,6 +10,7 @@ import { OrderStatusCell } from "./cells/OrderStatusCell";
 import { PaymentStatusCell } from "./cells/PaymentStatusCell";
 import { supabase } from "@/integrations/supabase/client";
 import { handleOrderStatusChange } from "./utils/orderStatusUtils";
+import { toast } from "@/components/ui/use-toast";
 
 interface OrdersTableRowProps {
   order: Order;
@@ -57,7 +58,9 @@ export const OrdersTableRow = ({
         `)
         .eq('order_id', order.id);
 
-      if (itemsError) throw itemsError;
+      if (itemsError) {
+        throw itemsError;
+      }
       
       if (!orderItems || orderItems.length === 0) {
         throw new Error('No order items found');
@@ -76,6 +79,11 @@ export const OrdersTableRow = ({
       onOrderUpdate();
     } catch (error: any) {
       console.error("Error updating order:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update order",
+        variant: "destructive",
+      });
     } finally {
       setIsUpdating(false);
     }
