@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ActivityForm } from "./ActivityForm";
-import { useEffect } from "react";
 
 interface ActivityTrackerProps {
   leadId: string;
@@ -15,85 +14,60 @@ interface ActivityTrackerProps {
 const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }: ActivityTrackerProps) => {
   const { toast } = useToast();
 
-  useEffect(() => {
-    console.log("Setting up real-time subscriptions for lead:", leadId);
+  const updateLeadWithActivityData = async (activity: Partial<Activity>) => {
+    console.log("Updating lead with activity data:", activity);
     
-    const channel = supabase
-      .channel('activities-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'activities',
-          filter: `lead_id=eq.${leadId}`
-        },
-        async (payload) => {
-          console.log("Real-time activity update received:", payload);
-          if (payload.new) {
-            await updateLeadWithLatestData();
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [leadId]);
-
-  const updateLeadWithLatestData = async () => {
     try {
-      console.log("Fetching latest activity data for lead:", leadId);
-      const { data: latestActivity, error: activityError } = await supabase
-        .from('activities')
-        .select('*')
-        .eq('lead_id', leadId)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
+      // Map activity fields to lead table fields
+      const leadUpdate = {
+        activity_type: activity.type,
+        activity_outcome: activity.outcome,
+        activity_next_action: activity.nextAction,
+        activity_next_action_date: activity.next_action_date,
+        updated_at: new Date().toISOString()
+      };
 
-      if (activityError) {
-        console.error("Error fetching latest activity:", activityError);
-        return;
-      }
+      console.log("Updating lead with mapped data:", leadUpdate);
 
-      if (!latestActivity) {
-        console.log("No activities found for lead");
-        return;
-      }
-
-      console.log("Latest activity data:", latestActivity);
-
-      // Update lead with latest activity data
-      const { error: updateError } = await supabase
+      // Update the leads table with mapped activity data
+      const { error: leadError } = await supabase
         .from('leads')
-        .update({
-          activity_type: latestActivity.type,
-          activity_outcome: latestActivity.outcome,
-          activity_next_action: latestActivity.next_action,
-          activity_next_action_date: latestActivity.next_action_date,
-          updated_at: new Date().toISOString()
-        })
+        .update(leadUpdate)
         .eq('id', leadId);
 
-      if (updateError) {
-        console.error("Error updating lead:", updateError);
-        return; // Don't throw error, just log it
+      if (leadError) {
+        console.error("Error updating lead with activity data:", leadError);
+        throw leadError;
       }
 
-      if (onLeadUpdate) {
-        onLeadUpdate({
-          activityType: latestActivity.type,
-          activityOutcome: latestActivity.outcome,
-          activityNextAction: latestActivity.next_action,
-          activityNextActionDate: latestActivity.next_action_date
+      // Store the activity in activities table
+      const { error: activityError } = await supabase
+        .from('activities')
+        .insert({
+          lead_id: leadId,
+          type: activity.type,
+          notes: activity.notes,
+          outcome: activity.outcome,
+          start_time: activity.startTime,
+          end_time: activity.endTime,
+          assigned_to: activity.assignedTo,
+          next_action: activity.nextAction,
+          next_action_date: activity.next_action_date,
+          location: activity.location,
+          call_type: activity.callType,
+          contact_person: activity.contactPerson,
+          is_followup: activity.type === 'follow_up'
         });
+
+      if (activityError) {
+        console.error("Error storing activity:", activityError);
+        throw activityError;
       }
 
-      console.log("Lead updated successfully with latest activity data");
+      console.log("Successfully updated lead and stored activity");
     } catch (error) {
-      console.error("Failed to update lead with latest data:", error);
+      console.error("Failed to update lead with activity data:", error);
+      throw error;
     }
   };
 
@@ -101,60 +75,17 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
     console.log("Submitting new activity:", formData);
     
     try {
-      // First store the activity
-      const { data: activityData, error: activityError } = await supabase
-        .from('activities')
-        .insert({
-          lead_id: leadId,
-          type: formData.type,
-          notes: formData.notes,
-          outcome: formData.outcome,
-          start_time: formData.startTime,
-          end_time: formData.endTime,
-          assigned_to: formData.assignedTo,
-          next_action: formData.nextAction,
-          next_action_date: formData.next_action_date,
-          location: formData.location,
-          call_type: formData.callType,
-          contact_person: formData.contactPerson,
-          is_followup: formData.type === 'follow_up' // Add this to properly flag follow-ups
-        })
-        .select()
-        .single();
-
-      if (activityError) {
-        console.error("Error creating activity:", activityError);
-        throw activityError;
-      }
-
-      // Immediately update the lead with the latest activity data
-      const { error: leadError } = await supabase
-        .from('leads')
-        .update({
-          activity_type: formData.type,
-          activity_outcome: formData.outcome,
-          activity_next_action: formData.nextAction,
-          activity_next_action_date: formData.next_action_date,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', leadId);
-
-      if (leadError) {
-        console.error("Error updating lead:", leadError);
-      }
-
-      if (!activityData) {
-        throw new Error("No activity data returned");
-      }
-
+      // First update the lead table and store activity
+      await updateLeadWithActivityData(formData);
+      
+      // Then notify parent component
       const activity: Activity = {
-        id: activityData.id,
-        date: new Date().toISOString(),
+        id: `activity-${Date.now()}`,
         ...formData as Activity
       };
       
       onActivityAdd(activity);
-
+      
       toast({
         title: "Activity Logged",
         description: `New ${formData.type} activity has been recorded.`,
