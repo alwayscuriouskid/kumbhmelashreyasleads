@@ -9,6 +9,7 @@ import { MINIMUM_NOTE_SIZE } from "@/utils/notePositioning";
 import { Button } from "@/components/ui/button";
 import { Trash2, Maximize2, Minimize2 } from "lucide-react";
 import { useNotes } from "@/hooks/useNotes";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
