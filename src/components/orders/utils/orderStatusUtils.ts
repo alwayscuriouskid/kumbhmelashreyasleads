@@ -4,7 +4,7 @@ import { Order, OrderItem } from "@/types/inventory";
 
 export const updateOrderStatus = async (
   orderId: string, 
-  newStatus: string,
+  newStatus: "pending" | "approved" | "rejected",
   newPaymentStatus: string | null
 ) => {
   console.log('Updating order status:', { orderId, newStatus, newPaymentStatus });
@@ -56,7 +56,7 @@ export const handleOrderStatusChange = async (
     // Update order status first
     const updatedOrder = await updateOrderStatus(
       order.id, 
-      editedOrder.status, 
+      editedOrder.status as "pending" | "approved" | "rejected", 
       editedOrder.payment_status
     );
 

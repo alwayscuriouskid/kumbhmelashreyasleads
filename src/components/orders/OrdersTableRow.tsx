@@ -10,6 +10,7 @@ import { OrderStatusCell } from "./cells/OrderStatusCell";
 import { PaymentStatusCell } from "./cells/PaymentStatusCell";
 import { handleOrderStatusChange } from "./utils/orderStatusUtils";
 import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client"; // Add this import
 
 interface OrdersTableRowProps {
   order: Order;
@@ -193,3 +194,4 @@ export const OrdersTableRow = ({
     </TableRow>
   );
 };
+

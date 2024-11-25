@@ -26,7 +26,7 @@ export const OrderStatusCell = ({ value, isEditing, onChange }: OrderStatusCellP
   return (
     <Badge variant={
       value === "approved" 
-        ? "success" 
+        ? "default" 
         : value === "rejected" 
         ? "destructive" 
         : "secondary"
