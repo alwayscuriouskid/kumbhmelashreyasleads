@@ -75,6 +75,7 @@ export const useInventoryItems = () => {
           order_items (
             id,
             order_id,
+            quantity,
             orders (
               status,
               payment_status
@@ -92,15 +93,18 @@ export const useInventoryItems = () => {
         const orderItems = item.order_items || [];
         
         const reservedQuantity = orderItems
-          .filter(oi => oi.orders?.status === 'approved' && oi.orders?.payment_status === 'pending')
-          .length;
+          .filter(oi => 
+            oi.orders?.status === 'approved' && 
+            oi.orders?.payment_status === 'pending'
+          )
+          .reduce((sum, oi) => sum + (oi.quantity || 0), 0);
 
         const soldQuantity = orderItems
           .filter(oi => 
             oi.orders?.status === 'approved' && 
             (oi.orders?.payment_status === 'finished' || oi.orders?.payment_status === 'partially_pending')
           )
-          .length;
+          .reduce((sum, oi) => sum + (oi.quantity || 0), 0);
 
         const availableQuantity = item.quantity - (reservedQuantity + soldQuantity);
 
