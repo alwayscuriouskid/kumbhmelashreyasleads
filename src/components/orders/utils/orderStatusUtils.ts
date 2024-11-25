@@ -5,38 +5,63 @@ import { Order, OrderItem } from "@/types/inventory";
 export const updateOrderStatus = async (
   orderId: string, 
   newStatus: "pending" | "approved" | "rejected",
-  newPaymentStatus: string | null
+  newPaymentStatus: string | null = null
 ) => {
   console.log('Updating order status:', { orderId, newStatus, newPaymentStatus });
   
-  const updateData: Partial<Order> = {
-    status: newStatus,
-    updated_at: new Date().toISOString()
-  };
+  try {
+    const updateData: Partial<Order> = {
+      status: newStatus,
+      updated_at: new Date().toISOString()
+    };
 
-  if (newPaymentStatus) {
-    console.log('Updating payment_status to:', newPaymentStatus);
-    updateData.payment_status = newPaymentStatus;
-  }
+    if (newPaymentStatus) {
+      console.log('Updating payment_status to:', newPaymentStatus);
+      updateData.payment_status = newPaymentStatus;
+    }
 
-  const { data, error } = await supabase
-    .from('orders')
-    .update(updateData)
-    .eq('id', orderId)
-    .select('*, order_items(*, inventory_items(*, inventory_types(*)))')
-    .maybeSingle();
+    const { data, error } = await supabase
+      .from('orders')
+      .update(updateData)
+      .eq('id', orderId)
+      .select('*, order_items(*, inventory_items(*, inventory_types(*)))')
+      .single();
 
-  if (error) {
+    if (error) throw error;
+
+    console.log('Order update successful:', data);
+    return data;
+  } catch (error) {
     console.error('Error updating order status:', error);
     throw error;
   }
+};
 
-  if (!data) {
-    throw new Error('Order not found or update failed');
+export const updateOrderPaymentStatus = async (
+  orderId: string,
+  newPaymentStatus: 'pending' | 'partially_pending' | 'finished'
+) => {
+  console.log('Updating order payment status:', { orderId, newPaymentStatus });
+  
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .update({
+        payment_status: newPaymentStatus,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', orderId)
+      .select('*, order_items(*, inventory_items(*, inventory_types(*)))')
+      .single();
+
+    if (error) throw error;
+
+    console.log('Payment status update successful:', data);
+    return data;
+  } catch (error) {
+    console.error('Error updating payment status:', error);
+    throw error;
   }
-
-  console.log('Order update successful:', data);
-  return data;
 };
 
 export const handleOrderStatusChange = async (
@@ -53,21 +78,28 @@ export const handleOrderStatusChange = async (
   });
 
   try {
-    // Update order status first
-    const updatedOrder = await updateOrderStatus(
-      order.id, 
-      editedOrder.status as "pending" | "approved" | "rejected", 
-      editedOrder.payment_status
-    );
-
-    if (!updatedOrder) {
-      throw new Error('Order update failed');
+    // First handle order status change if any
+    if (order.status !== editedOrder.status) {
+      await updateOrderStatus(order.id, editedOrder.status as "pending" | "approved" | "rejected");
+      
+      toast({
+        title: "Success",
+        description: `Order status updated to ${editedOrder.status}`,
+      });
     }
 
-    toast({
-      title: "Success",
-      description: "Order updated successfully",
-    });
+    // Then handle payment status change if any
+    if (order.payment_status !== editedOrder.payment_status) {
+      await updateOrderPaymentStatus(
+        order.id, 
+        editedOrder.payment_status as 'pending' | 'partially_pending' | 'finished'
+      );
+      
+      toast({
+        title: "Success",
+        description: `Payment status updated to ${editedOrder.payment_status}`,
+      });
+    }
 
     return true;
   } catch (error) {

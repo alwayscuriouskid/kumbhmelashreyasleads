@@ -76,7 +76,8 @@ export const useInventoryItems = () => {
             id,
             order_id,
             orders (
-              status
+              status,
+              payment_status
             )
           )
         `);
@@ -87,16 +88,27 @@ export const useInventoryItems = () => {
       }
 
       return data.map(item => {
-        // Calculate reserved quantity from confirmed orders
-        const reservedQuantity = item.order_items
-          ?.filter(oi => oi.orders?.status === 'approved')
-          .length || 0;
+        // Calculate quantities based on orders
+        const orderItems = item.order_items || [];
+        
+        const reservedQuantity = orderItems
+          .filter(oi => oi.orders?.status === 'approved' && oi.orders?.payment_status === 'pending')
+          .length;
+
+        const soldQuantity = orderItems
+          .filter(oi => 
+            oi.orders?.status === 'approved' && 
+            (oi.orders?.payment_status === 'finished' || oi.orders?.payment_status === 'partially_pending')
+          )
+          .length;
+
+        const availableQuantity = item.quantity - (reservedQuantity + soldQuantity);
 
         return {
           ...item,
           reserved_quantity: reservedQuantity,
-          sold_quantity: 0, // This will need to be updated when we track sold items
-          available_quantity: item.quantity - reservedQuantity
+          sold_quantity: soldQuantity,
+          available_quantity: availableQuantity
         } as InventoryItem;
       });
     },
