@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { EditableCell } from "@/components/inventory/EditableCell";
-import { toast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { Order, OrderItem } from "@/types/inventory";
 import { PaymentConfirmationCell } from "./cells/PaymentConfirmationCell";
 import { NextPaymentDateCell } from "./cells/NextPaymentDateCell";
@@ -10,8 +8,8 @@ import { ActionCell } from "./cells/ActionCell";
 import { InventoryItemsCell } from "./cells/InventoryItemsCell";
 import { OrderStatusCell } from "./cells/OrderStatusCell";
 import { PaymentStatusCell } from "./cells/PaymentStatusCell";
-import { updateInventoryQuantities, updateInventoryPaymentStatus } from "./utils/inventoryUtils";
-import { updateOrderStatus } from "./utils/orderStatusUtils";
+import { supabase } from "@/integrations/supabase/client";
+import { handleOrderStatusChange } from "./utils/orderStatusUtils";
 
 interface OrdersTableRowProps {
   order: Order;
@@ -72,38 +70,12 @@ export const OrdersTableRow = ({
         price: item.price
       }));
 
-      // Update order status
-      await updateOrderStatus(order.id, editedOrder.status, editedOrder.payment_status);
-
-      // Handle inventory updates based on status changes
-      if (order.status !== editedOrder.status) {
-        if (order.status === 'pending' && editedOrder.status === 'approved') {
-          await updateInventoryQuantities(typedOrderItems, 'approve');
-        } else if (order.status === 'approved' && editedOrder.status === 'rejected') {
-          await updateInventoryQuantities(typedOrderItems, 'reject');
-        }
-      }
-
-      // Handle payment status changes
-      if (order.payment_status !== editedOrder.payment_status && 
-          ['partially_paid', 'finished'].includes(editedOrder.payment_status || '')) {
-        await updateInventoryPaymentStatus(typedOrderItems);
-      }
-
-      toast({
-        title: "Success",
-        description: "Order updated successfully",
-      });
+      await handleOrderStatusChange(order, editedOrder, typedOrderItems);
       
       setIsEditing(false);
       onOrderUpdate();
     } catch (error: any) {
       console.error("Error updating order:", error);
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
     } finally {
       setIsUpdating(false);
     }

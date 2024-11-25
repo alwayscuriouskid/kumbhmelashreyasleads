@@ -1,27 +1,77 @@
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
+import { Order, OrderItem } from "@/types/inventory";
+import { updateInventoryQuantities, updateInventoryPaymentStatus } from "./inventoryUtils";
 
 export const updateOrderStatus = async (
   orderId: string, 
-  status: string,
-  paymentStatus: string | null
+  newStatus: string,
+  newPaymentStatus: string | null
 ) => {
-  try {
-    console.log('Updating order status:', { orderId, status, paymentStatus });
-    
-    const { error: updateError } = await supabase
-      .from('orders')
-      .update({
-        status,
-        payment_status: paymentStatus,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', orderId);
+  console.log('Updating order status:', { orderId, newStatus, newPaymentStatus });
+  
+  const { error: updateError } = await supabase
+    .from('orders')
+    .update({
+      status: newStatus,
+      payment_status: newPaymentStatus,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', orderId);
 
-    if (updateError) throw updateError;
+  if (updateError) {
+    console.error('Error updating order status:', updateError);
+    throw updateError;
+  }
+
+  return true;
+};
+
+export const handleOrderStatusChange = async (
+  order: Order,
+  editedOrder: Order,
+  orderItems: OrderItem[]
+) => {
+  console.log('Handling order status change:', {
+    currentStatus: order.status,
+    newStatus: editedOrder.status,
+    currentPaymentStatus: order.payment_status,
+    newPaymentStatus: editedOrder.payment_status,
+    orderItems
+  });
+
+  try {
+    // Update order status first
+    await updateOrderStatus(order.id, editedOrder.status, editedOrder.payment_status);
+
+    // Handle inventory updates based on status changes
+    if (order.status !== editedOrder.status) {
+      if (order.status === 'pending' && editedOrder.status === 'approved') {
+        await updateInventoryQuantities(orderItems, 'approve');
+      } else if (order.status === 'approved' && editedOrder.status === 'rejected') {
+        await updateInventoryQuantities(orderItems, 'reject');
+      }
+    }
+
+    // Handle payment status changes
+    if (order.payment_status !== editedOrder.payment_status && 
+        ['partially_paid', 'finished'].includes(editedOrder.payment_status || '')) {
+      await updateInventoryPaymentStatus(orderItems);
+    }
+
+    toast({
+      title: "Success",
+      description: "Order updated successfully",
+    });
 
     return true;
   } catch (error) {
-    console.error('Error updating order status:', error);
+    console.error('Error in handleOrderStatusChange:', error);
+    toast({
+      title: "Error",
+      description: error instanceof Error ? error.message : "Failed to update order",
+      variant: "destructive",
+    });
     throw error;
   }
 };
