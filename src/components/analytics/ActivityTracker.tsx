@@ -79,7 +79,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
 
       if (updateError) {
         console.error("Error updating lead:", updateError);
-        return;
+        throw updateError;
       }
 
       if (onLeadUpdate) {
@@ -94,6 +94,11 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
       console.log("Lead updated successfully with latest activity data");
     } catch (error) {
       console.error("Failed to update lead with latest data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update lead with latest activity data",
+        variant: "destructive",
+      });
     }
   };
 
@@ -126,7 +131,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
         throw activityError;
       }
 
-      // Then update the lead with the latest activity data
+      // Immediately update the lead with the latest activity data
       const { error: leadError } = await supabase
         .from('leads')
         .update({
