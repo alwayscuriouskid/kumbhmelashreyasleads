@@ -50,17 +50,20 @@ export const OrdersTableRow = ({
       
       console.log('Sending update to database:', updateData);
 
-      // Update order status
-      const { error: updateError, data: updatedOrder } = await supabase
+      // Update order status without using .single()
+      const { error: updateError, data } = await supabase
         .from('orders')
         .update(updateData)
         .eq('id', order.id)
-        .select()
-        .single();
+        .select();
 
       if (updateError) throw updateError;
+
+      if (!data || data.length === 0) {
+        throw new Error('Order not found or update failed');
+      }
       
-      console.log('Database update response:', updatedOrder);
+      console.log('Database update response:', data[0]);
 
       toast({
         title: "Success",
