@@ -43,23 +43,21 @@ export const OrdersTableRow = ({
       });
 
       // First update the order status in the database
-      const { data: updatedOrder, error: updateError } = await supabase
+      const { error: updateError } = await supabase
         .from('orders')
         .update({ 
           status: editedOrder.status,
           payment_status: editedOrder.payment_status,
           updated_at: new Date().toISOString()
         })
-        .eq('id', order.id)
-        .select('*')
-        .single();
+        .eq('id', order.id);
 
       if (updateError) {
         console.error('Error updating order:', updateError);
         throw updateError;
       }
 
-      console.log('Order updated successfully:', updatedOrder);
+      console.log('Order updated successfully');
       
       setIsEditing(false);
       onOrderUpdate();
