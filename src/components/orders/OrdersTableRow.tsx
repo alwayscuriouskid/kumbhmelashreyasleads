@@ -57,8 +57,8 @@ export const OrdersTableRow = ({
           updated_at: new Date().toISOString()
         })
         .eq('id', order.id)
-        .select('id, status, payment_status, updated_at')
-        .single();
+        .select('*')
+        .maybeSingle();
 
       if (error) {
         console.error('Error updating order:', error);
