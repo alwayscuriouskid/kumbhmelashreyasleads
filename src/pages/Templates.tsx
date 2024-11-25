@@ -9,6 +9,14 @@ import CreateNoteDialog from "@/components/notes/CreateNoteDialog";
 const Templates = () => {
   const [search, setSearch] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState<{
+    categories: string[];
+    tags: string[];
+  }>({
+    categories: [],
+    tags: [],
+  });
+
   const { notes, setNotes, categories, tags, addCategory, setCategories, setTags } = useNotes();
 
   const filteredNotes = notes.filter((note) => {
@@ -19,17 +27,18 @@ const Templates = () => {
     return matchesSearch;
   });
 
-const handleCreateNote = (noteData: Omit<Note, "id" | "created_at">) => {
-  const newNote: Omit<Note, "id"> = {
-    ...noteData,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    ...DEFAULT_NOTE_SIZE,
+  const handleCreateNote = (noteData: Omit<Note, "id" | "created_at">) => {
+    const newNote: Omit<Note, "id"> = {
+      ...noteData,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      ...DEFAULT_NOTE_SIZE,
+    };
+    
+    setNotes(prevNotes => [{ ...newNote, id: crypto.randomUUID() }, ...prevNotes]);
+    console.log("New template created:", newNote);
   };
-  
-  setNotes(prevNotes => [{ ...newNote, id: crypto.randomUUID() }, ...prevNotes]);
-  console.log("New template created:", newNote);
-};
+
   const handleUpdateNote = (updatedNote: Note) => {
     setNotes(notes.map((note) => (note.id === updatedNote.id ? updatedNote : note)));
     console.log("Template updated:", updatedNote);
@@ -57,6 +66,15 @@ const handleCreateNote = (noteData: Omit<Note, "id" | "created_at">) => {
     })));
   };
 
+  const toggleFilter = (type: 'categories' | 'tags', value: string) => {
+    setSelectedFilters(prev => ({
+      ...prev,
+      [type]: prev[type].includes(value)
+        ? prev[type].filter(item => item !== value)
+        : [...prev[type], value]
+    }));
+  };
+
   return (
     <div className="space-y-6 animate-fade-in min-h-screen">
       <NotesHeader
@@ -65,6 +83,8 @@ const handleCreateNote = (noteData: Omit<Note, "id" | "created_at">) => {
         setIsCreateOpen={setIsCreateOpen}
         categories={categories}
         tags={tags}
+        selectedFilters={selectedFilters}
+        toggleFilter={toggleFilter}
         handleDeleteCategory={handleDeleteCategory}
         handleDeleteTag={handleDeleteTag}
       />
