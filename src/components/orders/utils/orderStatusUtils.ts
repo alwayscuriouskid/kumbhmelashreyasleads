@@ -1,7 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { Order, OrderItem } from "@/types/inventory";
-import { updateInventoryQuantities, updateInventoryPaymentStatus } from "./inventoryUtils";
 
 export const updateOrderStatus = async (
   orderId: string, 
@@ -10,27 +9,34 @@ export const updateOrderStatus = async (
 ) => {
   console.log('Updating order status:', { orderId, newStatus, newPaymentStatus });
   
+  const updateData: Partial<Order> = {
+    status: newStatus,
+    updated_at: new Date().toISOString()
+  };
+
+  if (newPaymentStatus) {
+    console.log('Updating payment_status to:', newPaymentStatus);
+    updateData.payment_status = newPaymentStatus;
+  }
+
   const { data, error: updateError } = await supabase
     .from('orders')
-    .update({
-      status: newStatus,
-      payment_status: newPaymentStatus,
-      updated_at: new Date().toISOString()
-    })
+    .update(updateData)
     .eq('id', orderId)
-    .select();
+    .select('*')
+    .single();
 
   if (updateError) {
     console.error('Error updating order status:', updateError);
     throw updateError;
   }
 
-  if (!data || data.length === 0) {
+  if (!data) {
     throw new Error('Order update failed - no data returned');
   }
 
-  console.log('Order update successful:', data[0]);
-  return data[0];
+  console.log('Order update successful:', data);
+  return data;
 };
 
 export const handleOrderStatusChange = async (
@@ -60,17 +66,7 @@ export const handleOrderStatusChange = async (
 
     // Handle inventory updates based on status changes
     if (order.status !== editedOrder.status) {
-      if (order.status === 'pending' && editedOrder.status === 'approved') {
-        await updateInventoryQuantities(orderItems, 'approve');
-      } else if (order.status === 'approved' && editedOrder.status === 'rejected') {
-        await updateInventoryQuantities(orderItems, 'reject');
-      }
-    }
-
-    // Handle payment status changes
-    if (order.payment_status !== editedOrder.payment_status && 
-        ['partially_paid', 'finished'].includes(editedOrder.payment_status || '')) {
-      await updateInventoryPaymentStatus(orderItems);
+      await updateInventoryForStatusChange(order.status, editedOrder.status, orderItems);
     }
 
     toast({
@@ -87,5 +83,51 @@ export const handleOrderStatusChange = async (
       variant: "destructive",
     });
     throw error;
+  }
+};
+
+const updateInventoryForStatusChange = async (
+  oldStatus: string,
+  newStatus: string,
+  orderItems: OrderItem[]
+) => {
+  console.log('Updating inventory for status change:', {
+    oldStatus,
+    newStatus,
+    orderItems
+  });
+
+  for (const item of orderItems) {
+    const { data: currentItem, error: getError } = await supabase
+      .from('inventory_items')
+      .select('quantity, available_quantity, reserved_quantity')
+      .eq('id', item.inventory_item_id)
+      .single();
+
+    if (getError) throw getError;
+
+    const quantity = Number(item.quantity) || 0;
+    let updates = {};
+
+    if (oldStatus === 'pending' && newStatus === 'approved') {
+      updates = {
+        available_quantity: (currentItem.available_quantity || 0) - quantity,
+        reserved_quantity: (currentItem.reserved_quantity || 0) + quantity
+      };
+    } else if (oldStatus === 'approved' && newStatus === 'rejected') {
+      updates = {
+        available_quantity: (currentItem.available_quantity || 0) + quantity,
+        reserved_quantity: (currentItem.reserved_quantity || 0) - quantity
+      };
+    }
+
+    if (Object.keys(updates).length > 0) {
+      const { error: updateError } = await supabase
+        .from('inventory_items')
+        .update(updates)
+        .eq('id', item.inventory_item_id);
+
+      if (updateError) throw updateError;
+    }
   }
 };

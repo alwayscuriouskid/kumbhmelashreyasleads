@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { EditableCell } from "@/components/inventory/EditableCell";
-import { Order, OrderItem } from "@/types/inventory";
+import { Order } from "@/types/inventory";
 import { PaymentConfirmationCell } from "./cells/PaymentConfirmationCell";
 import { NextPaymentDateCell } from "./cells/NextPaymentDateCell";
 import { ActionCell } from "./cells/ActionCell";
 import { InventoryItemsCell } from "./cells/InventoryItemsCell";
 import { OrderStatusCell } from "./cells/OrderStatusCell";
 import { PaymentStatusCell } from "./cells/PaymentStatusCell";
-import { supabase } from "@/integrations/supabase/client";
 import { handleOrderStatusChange } from "./utils/orderStatusUtils";
 import { toast } from "@/components/ui/use-toast";
 
@@ -42,7 +41,8 @@ export const OrdersTableRow = ({
       console.log('Edited order state:', editedOrder);
       
       // Check if status is actually changing
-      if (order.status === editedOrder.status && order.payment_status === editedOrder.payment_status) {
+      if (order.status === editedOrder.status && 
+          order.payment_status === editedOrder.payment_status) {
         console.log('No status changes detected');
         setIsEditing(false);
         return;
@@ -58,22 +58,13 @@ export const OrdersTableRow = ({
         `)
         .eq('order_id', order.id);
 
-      if (itemsError) {
-        throw itemsError;
-      }
+      if (itemsError) throw itemsError;
       
       if (!orderItems || orderItems.length === 0) {
         throw new Error('No order items found');
       }
 
-      // Cast the retrieved data to OrderItem[]
-      const typedOrderItems: OrderItem[] = orderItems.map(item => ({
-        inventory_item_id: item.inventory_item_id,
-        quantity: item.quantity,
-        price: item.price
-      }));
-
-      await handleOrderStatusChange(order, editedOrder, typedOrderItems);
+      await handleOrderStatusChange(order, editedOrder, orderItems);
       
       setIsEditing(false);
       onOrderUpdate();
