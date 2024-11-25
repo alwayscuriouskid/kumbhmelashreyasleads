@@ -12,11 +12,16 @@ const PendingActionsTab = () => {
   const [selectedDate, setSelectedDate] = useState<Date>();
   const { data: teamMembers = [] } = useTeamMemberOptions();
 
-  const { data: pendingActions, isLoading } = usePendingActions(
+  const { data: pendingActions, isLoading, refetch } = usePendingActions(
     selectedTeamMember,
     selectedActionType,
     selectedDate
   );
+
+  const handleActionDeleted = () => {
+    console.log('Refreshing pending actions after deletion');
+    refetch();
+  };
 
   return (
     <div className="space-y-4">
@@ -63,6 +68,7 @@ const PendingActionsTab = () => {
           <PendingActionsList 
             actions={pendingActions || []}
             isLoading={isLoading}
+            onActionDeleted={handleActionDeleted}
           />
         </CardContent>
       </Card>
