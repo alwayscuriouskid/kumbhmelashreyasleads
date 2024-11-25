@@ -297,8 +297,10 @@ export type Database = {
           ltc: number | null
           min_price: number
           quantity: number
+          reserved_quantity: number | null
           sector_id: string
           sku: string | null
+          sold_quantity: number | null
           status: string
           type_id: string
           updated_at: string | null
@@ -312,8 +314,10 @@ export type Database = {
           ltc?: number | null
           min_price: number
           quantity?: number
+          reserved_quantity?: number | null
           sector_id: string
           sku?: string | null
+          sold_quantity?: number | null
           status: string
           type_id: string
           updated_at?: string | null
@@ -327,8 +331,10 @@ export type Database = {
           ltc?: number | null
           min_price?: number
           quantity?: number
+          reserved_quantity?: number | null
           sector_id?: string
           sku?: string | null
+          sold_quantity?: number | null
           status?: string
           type_id?: string
           updated_at?: string | null

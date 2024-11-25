@@ -1,7 +1,8 @@
+import { useState } from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { EditableCell } from "@/components/inventory/EditableCell";
-import { useState } from "react";
 import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { Order } from "@/types/inventory";
 import { PaymentConfirmationCell } from "./cells/PaymentConfirmationCell";
 import { NextPaymentDateCell } from "./cells/NextPaymentDateCell";
@@ -9,7 +10,8 @@ import { ActionCell } from "./cells/ActionCell";
 import { InventoryItemsCell } from "./cells/InventoryItemsCell";
 import { OrderStatusCell } from "./cells/OrderStatusCell";
 import { PaymentStatusCell } from "./cells/PaymentStatusCell";
-import { supabase } from "@/integrations/supabase/client";
+import { updateInventoryQuantities } from "./utils/inventoryUtils";
+import { updateOrderStatus } from "./utils/orderStatusUtils";
 
 interface OrdersTableRowProps {
   order: Order;
@@ -62,76 +64,17 @@ export const OrdersTableRow = ({
         throw new Error('No order items found');
       }
 
-      // Prepare update data
-      const updateData = {
-        status: editedOrder.status,
-        payment_status: editedOrder.payment_status,
-        updated_at: new Date().toISOString()
-      };
-      
-      console.log('Sending update to database:', updateData);
-
       // Update order status
-      const { error: updateError, data } = await supabase
-        .from('orders')
-        .update(updateData)
-        .eq('id', order.id)
-        .select();
-
-      if (updateError) throw updateError;
-
-      if (!data || data.length === 0) {
-        throw new Error('Order not found or update failed');
-      }
+      await updateOrderStatus(order.id, editedOrder.status, editedOrder.payment_status);
 
       // Handle inventory updates based on status changes
       if (order.status !== editedOrder.status) {
-        for (const item of orderItems) {
-          let inventoryUpdate = {};
-          
-          // Pending → Approved: Reserve inventory
-          if (order.status === 'pending' && editedOrder.status === 'approved') {
-            inventoryUpdate = {
-              available_quantity: supabase.sql`available_quantity - ${item.quantity}`,
-              reserved_quantity: supabase.sql`COALESCE(reserved_quantity, 0) + ${item.quantity}`
-            };
-          }
-          // Approved → Rejected: Release reserved inventory
-          else if (order.status === 'approved' && editedOrder.status === 'rejected') {
-            inventoryUpdate = {
-              available_quantity: supabase.sql`available_quantity + ${item.quantity}`,
-              reserved_quantity: supabase.sql`COALESCE(reserved_quantity, 0) - ${item.quantity}`
-            };
-          }
-          
-          if (Object.keys(inventoryUpdate).length > 0) {
-            const { error: inventoryError } = await supabase
-              .from('inventory_items')
-              .update(inventoryUpdate)
-              .eq('id', item.inventory_item_id);
-
-            if (inventoryError) throw inventoryError;
-          }
+        if (order.status === 'pending' && editedOrder.status === 'approved') {
+          await updateInventoryQuantities(orderItems, 'approve');
+        } else if (order.status === 'approved' && editedOrder.status === 'rejected') {
+          await updateInventoryQuantities(orderItems, 'reject');
         }
       }
-
-      // Handle payment status changes
-      if (order.payment_status !== editedOrder.payment_status && 
-          ['partially_paid', 'finished'].includes(editedOrder.payment_status || '')) {
-        for (const item of orderItems) {
-          const { error: inventoryError } = await supabase
-            .from('inventory_items')
-            .update({
-              reserved_quantity: supabase.sql`COALESCE(reserved_quantity, 0) - ${item.quantity}`,
-              sold_quantity: supabase.sql`COALESCE(sold_quantity, 0) + ${item.quantity}`
-            })
-            .eq('id', item.inventory_item_id);
-
-          if (inventoryError) throw inventoryError;
-        }
-      }
-      
-      console.log('Database update response:', data[0]);
 
       toast({
         title: "Success",
