@@ -19,7 +19,8 @@ export const useNotesOperations = (
         .order('created_at', { ascending: false });
 
       if (error) {
-        handleSupabaseError(error);
+        console.error("Error fetching notes:", error);
+        throw error;
       }
 
       if (!data) {
@@ -66,7 +67,8 @@ export const useNotesOperations = (
         .single();
 
       if (error) {
-        handleSupabaseError(error);
+        console.error("Error creating note:", error);
+        throw error;
       }
 
       console.log("Created note:", data);
