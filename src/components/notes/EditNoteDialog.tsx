@@ -36,10 +36,11 @@ const EditNoteDialog = ({
   const [editedNote, setEditedNote] = useState<Note>(note);
   const { toast } = useToast();
 
+  // Reset form when dialog opens with new note
   useEffect(() => {
     if (open) {
       console.log("Setting edited note:", note);
-      setEditedNote(note);
+      setEditedNote({ ...note }); // Create a new object to ensure state updates
     }
   }, [note, open]);
 
@@ -60,6 +61,14 @@ const EditNoteDialog = ({
     onOpenChange(false);
   };
 
+  const handleInputChange = (field: keyof Note, value: any) => {
+    console.log("Updating field:", field, "with value:", value);
+    setEditedNote(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
@@ -72,14 +81,14 @@ const EditNoteDialog = ({
               <Input
                 placeholder="Note Title"
                 value={editedNote.title}
-                onChange={(e) => setEditedNote({ ...editedNote, title: e.target.value })}
+                onChange={(e) => handleInputChange("title", e.target.value)}
               />
             </div>
             <div className="space-y-2">
               <Textarea
                 placeholder="Note Content"
                 value={editedNote.content}
-                onChange={(e) => setEditedNote({ ...editedNote, content: e.target.value })}
+                onChange={(e) => handleInputChange("content", e.target.value)}
                 className="min-h-[200px]"
               />
             </div>
