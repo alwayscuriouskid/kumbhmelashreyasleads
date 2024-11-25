@@ -9,12 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { X, Plus } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Note } from "@/types/notes";
 import { useState, useEffect } from "react";
-import { NoteTagsSection } from "./NoteTagsSection";
 import { NoteCategorySection } from "./NoteCategorySection";
+import { NoteTagsSection } from "./NoteTagsSection";
 
 interface EditNoteDialogProps {
   open: boolean;
@@ -39,9 +37,11 @@ const EditNoteDialog = ({
   const { toast } = useToast();
 
   useEffect(() => {
-    console.log("Note received for editing:", note);
-    setEditedNote(note);
-  }, [note]);
+    if (open) {
+      console.log("Setting edited note:", note);
+      setEditedNote(note);
+    }
+  }, [note, open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
