@@ -40,7 +40,7 @@ const EditNoteDialog = ({
   useEffect(() => {
     if (open) {
       console.log("Setting edited note:", note);
-      setEditedNote({ ...note }); // Create a new object to ensure state updates
+      setEditedNote(note);
     }
   }, [note, open]);
 
@@ -62,7 +62,7 @@ const EditNoteDialog = ({
   };
 
   const handleInputChange = (field: keyof Note, value: any) => {
-    console.log("Updating field:", field, "with value:", value);
+    console.log(`Updating ${field}:`, value);
     setEditedNote(prev => ({
       ...prev,
       [field]: value

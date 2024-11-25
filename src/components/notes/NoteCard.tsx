@@ -24,6 +24,11 @@ const NoteCard = ({
 }: NoteCardProps) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
+  const handleUpdateNote = (updatedNote: Note) => {
+    console.log("Updating note from NoteCard:", updatedNote);
+    onUpdate(updatedNote);
+  };
+
   return (
     <>
       <Card className="group p-4 space-y-4 bg-background border-border hover:shadow-lg transition-shadow">
@@ -62,7 +67,7 @@ const NoteCard = ({
         categories={categories}
         tags={tags}
         onAddCategory={onAddCategory}
-        onUpdateNote={onUpdate}
+        onUpdateNote={handleUpdateNote}
       />
     </>
   );
