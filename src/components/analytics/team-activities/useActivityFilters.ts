@@ -12,7 +12,6 @@ export const useActivityFilters = () => {
     notes: true,
     teamMember: true,
     leadName: true,
-    activityType: true,
     activityOutcome: true,
     activityNextAction: true,
     activityNextActionDate: true

@@ -39,9 +39,6 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
         </TableCell>
       }
       {visibleColumns.leadName && <TableCell>{activity.leadName}</TableCell>}
-      {visibleColumns.activityType && 
-        <TableCell>{activity.type || "-"}</TableCell>
-      }
       {visibleColumns.activityOutcome && 
         <TableCell>{activity.outcome || "-"}</TableCell>
       }
