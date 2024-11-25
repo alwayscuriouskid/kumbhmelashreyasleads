@@ -27,11 +27,7 @@ export const useTeamActivities = (
           *,
           lead:leads (
             id,
-            client_name,
-            activity_type,
-            activity_outcome,
-            activity_next_action,
-            activity_next_action_date
+            client_name
           )
         `);
 
@@ -78,14 +74,15 @@ export const useTeamActivities = (
         endTime: item.end_time,
         assignedTo: item.assigned_to || '',
         nextAction: item.next_action || '',
+        next_action_date: item.next_action_date,
         contactPerson: item.contact_person || '',
         description: `Lead activity for ${item.lead?.client_name}`,
         teamMember: item.assigned_to || 'System',
         leadName: item.lead?.client_name,
-        activityNextActionDate: item.next_action_date,
+        activityType: item.type,
         activityOutcome: item.outcome,
-        activityType: item.lead?.activity_type,
-        activityNextAction: item.lead?.activity_next_action
+        activityNextAction: item.next_action,
+        activityNextActionDate: item.next_action_date
       }));
     }
   });

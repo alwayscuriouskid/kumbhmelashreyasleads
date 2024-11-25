@@ -30,18 +30,18 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
       }
       {visibleColumns.leadName && <TableCell>{activity.leadName}</TableCell>}
       {visibleColumns.activityType && 
-        <TableCell>{activity.activityType || "-"}</TableCell>
+        <TableCell>{activity.type || "-"}</TableCell>
       }
       {visibleColumns.activityOutcome && 
-        <TableCell>{activity.activityOutcome || "-"}</TableCell>
+        <TableCell>{activity.outcome || "-"}</TableCell>
       }
       {visibleColumns.activityNextAction && 
-        <TableCell>{activity.activityNextAction || "-"}</TableCell>
+        <TableCell>{activity.nextAction || "-"}</TableCell>
       }
       {visibleColumns.activityNextActionDate && 
         <TableCell>
-          {activity.activityNextActionDate ? 
-            format(new Date(activity.activityNextActionDate), 'dd MMM yyyy') : 
+          {activity.next_action_date ? 
+            format(new Date(activity.next_action_date), 'dd MMM yyyy') : 
             "-"
           }
         </TableCell>
