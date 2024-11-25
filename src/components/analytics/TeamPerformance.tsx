@@ -8,35 +8,45 @@ const TeamPerformance = () => {
   const { data: teamData, isLoading } = useQuery({
     queryKey: ['team-performance'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('booking_detailed_metrics')
-        .select('*')
-        .order('date', { ascending: false })
-        .limit(10);
+      console.log('Fetching team performance data');
+      const { data: orders, error: ordersError } = await supabase
+        .from('orders')
+        .select(`
+          *,
+          team_members (
+            id,
+            name
+          )
+        `)
+        .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching team performance:', error);
-        throw error;
+      if (ordersError) {
+        console.error('Error fetching team performance:', ordersError);
+        throw ordersError;
       }
 
       // Group and aggregate by team member
-      const teamStats = data.reduce((acc: any, curr) => {
-        if (!curr.team_member_name) return acc;
+      const teamStats = orders.reduce((acc: any, curr) => {
+        if (!curr.team_member_id || !curr.team_members?.name) return acc;
         
-        if (!acc[curr.team_member_name]) {
-          acc[curr.team_member_name] = {
-            name: curr.team_member_name,
+        const memberName = curr.team_members.name;
+        
+        if (!acc[memberName]) {
+          acc[memberName] = {
+            name: memberName,
             activities: 0,
             completionRate: 0,
             avgResponseTime: 0,
-            totalBookings: 0,
-            confirmedBookings: 0
+            totalOrders: 0,
+            confirmedOrders: 0
           };
         }
 
-        acc[curr.team_member_name].activities += curr.total_bookings || 0;
-        acc[curr.team_member_name].totalBookings += curr.total_bookings || 0;
-        acc[curr.team_member_name].confirmedBookings += curr.confirmed_bookings || 0;
+        acc[memberName].activities += 1;
+        acc[memberName].totalOrders += 1;
+        if (curr.status === 'approved') {
+          acc[memberName].confirmedOrders += 1;
+        }
 
         return acc;
       }, {});
@@ -44,7 +54,7 @@ const TeamPerformance = () => {
       // Calculate completion rates
       return Object.values(teamStats).map((member: any) => ({
         ...member,
-        completionRate: Math.round((member.confirmedBookings / member.totalBookings) * 100) || 0,
+        completionRate: Math.round((member.confirmedOrders / member.totalOrders) * 100) || 0,
         avgResponseTime: "2.5 hours" // This could be calculated from actual data if available
       }));
     }
@@ -83,8 +93,8 @@ const TeamPerformance = () => {
                     <span className="ml-1">{member.avgResponseTime}</span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Total Bookings:</span>
-                    <span className="ml-1">{member.totalBookings}</span>
+                    <span className="text-muted-foreground">Total Orders:</span>
+                    <span className="ml-1">{member.totalOrders}</span>
                   </div>
                 </div>
               </div>

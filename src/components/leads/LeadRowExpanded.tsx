@@ -47,33 +47,6 @@ const LeadRowExpanded = ({ lead, visibleColumns }: LeadRowExpandedProps) => {
     refetchInterval: 5000
   });
 
-  const { data: bookings = [], isLoading: bookingsLoading } = useQuery({
-    queryKey: ['lead-bookings', lead.id],
-    queryFn: async () => {
-      console.log('Fetching bookings for lead:', lead.id);
-      const { data, error } = await supabase
-        .from('bookings')
-        .select(`
-          *,
-          inventory_item:inventory_items!inner (
-            *,
-            inventory_type:inventory_types!inner (*)
-          )
-        `)
-        .eq('lead_id', lead.id)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error("Error fetching bookings:", error);
-        throw error;
-      }
-      console.log("Fetched bookings for lead:", lead.id, "Data:", data);
-      return data || [];
-    },
-    enabled: !!lead.id,
-    refetchInterval: 5000
-  });
-
   const getStatusBadge = (status: string) => {
     const colors: Record<string, string> = {
       pending: "bg-yellow-500/20 text-yellow-500",
@@ -127,44 +100,6 @@ const LeadRowExpanded = ({ lead, visibleColumns }: LeadRowExpandedProps) => {
                   </div>
                 ) : (
                   <div className="text-sm text-muted-foreground">No orders found</div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Bookings Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Related Bookings</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {bookingsLoading ? (
-                  <div className="text-sm text-muted-foreground">Loading bookings...</div>
-                ) : bookings && bookings.length > 0 ? (
-                  <div className="space-y-4">
-                    {bookings.map((booking) => (
-                      <div key={booking.id} className="space-y-2">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <div className="font-medium">
-                              {booking.inventory_item?.inventory_type?.name}
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              {format(new Date(booking.start_date), 'PP')} - {format(new Date(booking.end_date), 'PP')}
-                            </div>
-                          </div>
-                          <Badge className={getStatusBadge(booking.status)}>
-                            {booking.status}
-                          </Badge>
-                        </div>
-                        <div className="text-sm">
-                          Amount: ₹{booking.payment_amount}
-                        </div>
-                        <Separator className="my-2" />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-sm text-muted-foreground">No bookings found</div>
                 )}
               </CardContent>
             </Card>
