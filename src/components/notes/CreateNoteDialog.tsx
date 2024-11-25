@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { X } from "lucide-react";
+import { X, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Note } from "@/types/notes";
 
@@ -33,7 +33,8 @@ const CreateNoteDialog = ({
 }: CreateNoteDialogProps) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [category, setCategory] = useState("");
+  const [newCategory, setNewCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [newTag, setNewTag] = useState("");
   const { toast } = useToast();
@@ -50,11 +51,10 @@ const CreateNoteDialog = ({
       return;
     }
 
-    // Create new note
     const newNote = {
       title: title.trim(),
       content: content.trim(),
-      category: category.trim(),
+      category: selectedCategory,
       tags: selectedTags,
       position: { x: Math.random() * 100, y: Math.random() * 100 },
     };
@@ -69,7 +69,8 @@ const CreateNoteDialog = ({
     // Reset form
     setTitle("");
     setContent("");
-    setCategory("");
+    setNewCategory("");
+    setSelectedCategory("");
     setSelectedTags([]);
     setNewTag("");
     onOpenChange(false);
@@ -82,15 +83,16 @@ const CreateNoteDialog = ({
     }
   };
 
-  const handleRemoveTag = (tagToRemove: string) => {
-    setSelectedTags(selectedTags.filter(tag => tag !== tagToRemove));
+  const handleAddCategory = () => {
+    if (newCategory && !categories.includes(newCategory)) {
+      onAddCategory(newCategory);
+      setSelectedCategory(newCategory);
+      setNewCategory("");
+    }
   };
 
-  const handleCategoryChange = (value: string) => {
-    if (!categories.includes(value)) {
-      onAddCategory(value);
-    }
-    setCategory(value);
+  const handleRemoveTag = (tagToRemove: string) => {
+    setSelectedTags(selectedTags.filter(tag => tag !== tagToRemove));
   };
 
   return (
@@ -117,17 +119,36 @@ const CreateNoteDialog = ({
               />
             </div>
             <div className="space-y-2">
-              <Input
-                placeholder="Enter category"
-                value={category}
-                onChange={(e) => handleCategoryChange(e.target.value)}
-                list="categories"
-              />
-              <datalist id="categories">
-                {categories.map((cat) => (
-                  <option key={cat} value={cat} />
-                ))}
-              </datalist>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Add category"
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  list="categories"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleAddCategory}
+                  disabled={!newCategory}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              {categories.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {categories.map((category) => (
+                    <Badge
+                      key={category}
+                      variant={selectedCategory === category ? "default" : "outline"}
+                      className="cursor-pointer"
+                      onClick={() => setSelectedCategory(category)}
+                    >
+                      {category}
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               <div className="flex gap-2">
@@ -148,7 +169,7 @@ const CreateNoteDialog = ({
                   onClick={handleAddTag}
                   disabled={!newTag}
                 >
-                  Add Tag
+                  <Plus className="h-4 w-4" />
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2">
