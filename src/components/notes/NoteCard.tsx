@@ -39,6 +39,7 @@ const NoteCard = ({
   const { toast } = useToast();
   const { deleteNote } = useNotes();
   const nodeRef = useRef<HTMLDivElement>(null);
+  const [isResizing, setIsResizing] = useState(false);
 
   const handleSave = () => {
     if (!editedNote.title.trim() || !editedNote.content.trim()) {
@@ -68,6 +69,7 @@ const NoteCard = ({
   const handleResize = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
+    setIsResizing(true);
 
     const startX = e.pageX;
     const startY = e.pageY;
@@ -75,7 +77,7 @@ const NoteCard = ({
     const startHeight = editedNote.height || MINIMUM_NOTE_SIZE.height;
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (!nodeRef.current) return;
+      if (!nodeRef.current || !isResizing) return;
 
       const newWidth = Math.max(
         MINIMUM_NOTE_SIZE.width,
@@ -91,9 +93,18 @@ const NoteCard = ({
         width: newWidth,
         height: newHeight,
       }));
+
+      // Force grid recalculation
+      const grid = nodeRef.current.parentElement;
+      if (grid) {
+        grid.style.display = 'none';
+        grid.offsetHeight; // Force reflow
+        grid.style.display = 'grid';
+      }
     };
 
     const handleMouseUp = () => {
+      setIsResizing(false);
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
       onUpdate(editedNote);
@@ -105,8 +116,15 @@ const NoteCard = ({
 
   return (
     <>
-      <div ref={nodeRef} style={{ width: editedNote.width || 300 }}>
-        <Card className="note-card group hover:border-primary/50 transition-colors bg-white/80 backdrop-blur-sm">
+      <div 
+        ref={nodeRef} 
+        style={{ 
+          width: editedNote.width || 300,
+          transition: isResizing ? 'none' : 'all 0.2s ease-in-out'
+        }}
+        className="animate-fade-in"
+      >
+        <Card className="note-card group hover:border-primary/50 transition-colors bg-background/90 backdrop-blur-sm shadow-lg">
           <CardHeader className="space-y-1">
             <div className="flex items-center justify-between">
               <NoteHeader
