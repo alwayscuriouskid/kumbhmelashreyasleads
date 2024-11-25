@@ -96,6 +96,24 @@ const Notes = () => {
     }
   };
 
+  const handleDeleteNote = async (noteId: string) => {
+    try {
+      console.log("Deleting note:", noteId);
+      await deleteNote(noteId);
+      toast({
+        title: "Success",
+        description: "Note moved to trash",
+      });
+    } catch (error) {
+      console.error("Error deleting note:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete note",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleDeleteCategory = (categoryToDelete: string) => {
     setCategories(categories.filter(category => category !== categoryToDelete));
     setSelectedFilters(prev => ({
@@ -148,6 +166,7 @@ const Notes = () => {
         tags={tags}
         onAddCategory={handleAddCategory}
         setIsCreateOpen={setIsCreateOpen}
+        onDeleteNote={handleDeleteNote}
       />
 
       <CreateNoteDialog

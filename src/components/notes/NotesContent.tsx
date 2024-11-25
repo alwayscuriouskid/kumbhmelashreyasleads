@@ -10,6 +10,7 @@ interface NotesContentProps {
   tags: string[];
   onAddCategory: (category: string) => void;
   setIsCreateOpen: (open: boolean) => void;
+  onDeleteNote?: (noteId: string) => void;
 }
 
 export const NotesContent = ({
@@ -19,6 +20,7 @@ export const NotesContent = ({
   tags,
   onAddCategory,
   setIsCreateOpen,
+  onDeleteNote,
 }: NotesContentProps) => {
   return (
     <div className="w-full">
@@ -40,6 +42,7 @@ export const NotesContent = ({
               key={note.id}
               note={note}
               onUpdate={handleUpdateNote}
+              onDelete={() => onDeleteNote?.(note.id)}
               categories={categories}
               tags={tags}
               onAddCategory={onAddCategory}

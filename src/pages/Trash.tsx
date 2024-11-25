@@ -23,6 +23,9 @@ const Trash = () => {
     setTrashedNotes(prev => prev.filter(note => note.id !== noteId));
   };
 
+  // Placeholder onDelete function since we don't need deletion in trash
+  const handleDelete = () => {};
+
   return (
     <div className="space-y-6 animate-fade-in min-h-screen">
       <div className="flex items-center justify-between sticky top-0 z-10 bg-background/80 backdrop-blur-sm pb-4">
@@ -50,6 +53,7 @@ const Trash = () => {
                 <NoteCard
                   note={note}
                   onUpdate={updateNote}
+                  onDelete={handleDelete}
                   categories={categories}
                   tags={tags}
                   onAddCategory={addCategory}
