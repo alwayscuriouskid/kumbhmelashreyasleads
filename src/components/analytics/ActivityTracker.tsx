@@ -44,74 +44,79 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
 
   const updateLeadWithLatestData = async () => {
     try {
-      console.log("Fetching latest lead data for ID:", leadId);
-      const { data: lead, error } = await supabase
-        .from('leads')
-        .select('activity_type, activity_outcome, activity_next_action, activity_next_action_date')
-        .eq('id', leadId)
+      console.log("Fetching latest activity data for lead:", leadId);
+      const { data: latestActivity, error: activityError } = await supabase
+        .from('activities')
+        .select('*')
+        .eq('lead_id', leadId)
+        .order('created_at', { ascending: false })
+        .limit(1)
         .single();
 
-      if (error) {
-        console.error("Error fetching lead data:", error);
+      if (activityError) {
+        console.error("Error fetching latest activity:", activityError);
         return;
       }
 
-      console.log("Fetched latest lead data:", lead);
+      if (!latestActivity) {
+        console.log("No activities found for lead");
+        return;
+      }
 
-      if (onLeadUpdate && lead) {
+      console.log("Latest activity data:", latestActivity);
+
+      // Update lead with latest activity data
+      const { error: updateError } = await supabase
+        .from('leads')
+        .update({
+          activity_type: latestActivity.type,
+          activity_outcome: latestActivity.outcome,
+          activity_next_action: latestActivity.next_action,
+          activity_next_action_date: latestActivity.next_action_date,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', leadId);
+
+      if (updateError) {
+        console.error("Error updating lead:", updateError);
+        return;
+      }
+
+      if (onLeadUpdate) {
         onLeadUpdate({
-          activityType: lead.activity_type,
-          activityOutcome: lead.activity_outcome,
-          activityNextAction: lead.activity_next_action,
-          activityNextActionDate: lead.activity_next_action_date
+          activityType: latestActivity.type,
+          activityOutcome: latestActivity.outcome,
+          activityNextAction: latestActivity.next_action,
+          activityNextActionDate: latestActivity.next_action_date
         });
       }
+
+      console.log("Lead updated successfully with latest activity data");
     } catch (error) {
       console.error("Failed to update lead with latest data:", error);
     }
   };
 
-  const updateLeadWithActivityData = async (activity: Partial<Activity>) => {
-    console.log("Updating lead with activity data:", activity);
+  const handleActivitySubmit = async (formData: Partial<Activity>) => {
+    console.log("Submitting new activity:", formData);
     
     try {
-      // First update the leads table with activity data
-      const leadUpdates = {
-        activity_type: activity.type,
-        activity_outcome: activity.outcome,
-        activity_next_action: activity.nextAction,
-        activity_next_action_date: activity.next_action_date,
-        updated_at: new Date().toISOString()
-      };
-
-      console.log("Updating lead with:", leadUpdates);
-
-      const { error: leadError } = await supabase
-        .from('leads')
-        .update(leadUpdates)
-        .eq('id', leadId);
-
-      if (leadError) {
-        console.error("Error updating lead:", leadError);
-        throw leadError;
-      }
-
-      // Then store the activity
+      // First store the activity
       const { data: activityData, error: activityError } = await supabase
         .from('activities')
         .insert({
           lead_id: leadId,
-          type: activity.type,
-          notes: activity.notes,
-          outcome: activity.outcome,
-          start_time: activity.startTime,
-          end_time: activity.endTime,
-          assigned_to: activity.assignedTo,
-          next_action: activity.nextAction,
-          location: activity.location,
-          call_type: activity.callType,
-          contact_person: activity.contactPerson,
-          next_action_date: activity.next_action_date
+          type: formData.type,
+          notes: formData.notes,
+          outcome: formData.outcome,
+          start_time: formData.startTime,
+          end_time: formData.endTime,
+          assigned_to: formData.assignedTo,
+          next_action: formData.nextAction,
+          next_action_date: formData.next_action_date,
+          location: formData.location,
+          call_type: formData.callType,
+          contact_person: formData.contactPerson
         })
         .select()
         .single();
@@ -121,21 +126,23 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
         throw activityError;
       }
 
-      await updateLeadWithLatestData();
-      
-      return activityData;
-    } catch (error) {
-      console.error("Failed to update lead with activity data:", error);
-      throw error;
-    }
-  };
+      // Then update the lead with the latest activity data
+      const { error: leadError } = await supabase
+        .from('leads')
+        .update({
+          activity_type: formData.type,
+          activity_outcome: formData.outcome,
+          activity_next_action: formData.nextAction,
+          activity_next_action_date: formData.next_action_date,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', leadId);
 
-  const handleActivitySubmit = async (formData: Partial<Activity>) => {
-    console.log("Submitting new activity:", formData);
-    
-    try {
-      const activityData = await updateLeadWithActivityData(formData);
-      
+      if (leadError) {
+        console.error("Error updating lead:", leadError);
+        throw leadError;
+      }
+
       if (!activityData) {
         throw new Error("No activity data returned");
       }
@@ -152,6 +159,16 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
         title: "Activity Logged",
         description: `New ${formData.type} activity has been recorded.`,
       });
+
+      // Trigger a lead update
+      if (onLeadUpdate) {
+        onLeadUpdate({
+          activityType: formData.type,
+          activityOutcome: formData.outcome,
+          activityNextAction: formData.nextAction,
+          activityNextActionDate: formData.next_action_date
+        });
+      }
     } catch (error) {
       console.error("Error submitting activity:", error);
       toast({
