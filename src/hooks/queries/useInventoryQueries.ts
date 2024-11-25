@@ -72,10 +72,12 @@ export const useInventoryItems = () => {
             id, name,
             zones (id, name)
           ),
-          bookings (
+          order_items (
             id,
-            status,
-            quantity
+            order_id,
+            orders (
+              status
+            )
           )
         `);
       
@@ -85,19 +87,15 @@ export const useInventoryItems = () => {
       }
 
       return data.map(item => {
-        // Calculate reserved quantity from confirmed bookings
-        const reservedQuantity = item.bookings
-          ?.filter(b => b.status === 'confirmed')
-          .reduce((sum, booking) => sum + (booking.quantity || 1), 0) || 0;
-
-        // For now, we'll set sold_quantity to 0 since it's not tracked in the database
-        // In a real application, you might want to track this separately
-        const soldQuantity = 0;
+        // Calculate reserved quantity from confirmed orders
+        const reservedQuantity = item.order_items
+          ?.filter(oi => oi.orders?.status === 'approved')
+          .length || 0;
 
         return {
           ...item,
           reserved_quantity: reservedQuantity,
-          sold_quantity: soldQuantity,
+          sold_quantity: 0, // This will need to be updated when we track sold items
           available_quantity: item.quantity - reservedQuantity
         } as InventoryItem;
       });
