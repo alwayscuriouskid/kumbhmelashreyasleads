@@ -79,7 +79,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
 
       if (updateError) {
         console.error("Error updating lead:", updateError);
-        throw updateError;
+        return; // Don't throw error, just log it
       }
 
       if (onLeadUpdate) {
@@ -94,7 +94,6 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
       console.log("Lead updated successfully with latest activity data");
     } catch (error) {
       console.error("Failed to update lead with latest data:", error);
-      // Don't show error toast here as it's handled in handleActivitySubmit
     }
   };
 
@@ -117,7 +116,8 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
           next_action_date: formData.next_action_date,
           location: formData.location,
           call_type: formData.callType,
-          contact_person: formData.contactPerson
+          contact_person: formData.contactPerson,
+          is_followup: formData.type === 'follow_up' // Add this to properly flag follow-ups
         })
         .select()
         .single();
@@ -141,17 +141,6 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
 
       if (leadError) {
         console.error("Error updating lead:", leadError);
-        // Don't throw here, as activity was created successfully
-        toast({
-          title: "Partial Success",
-          description: "Activity created but lead update failed. Please refresh.",
-          variant: "default",
-        });
-      } else {
-        toast({
-          title: "Activity Logged",
-          description: `New ${formData.type} activity has been recorded.`,
-        });
       }
 
       if (!activityData) {
@@ -166,8 +155,13 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
       
       onActivityAdd(activity);
 
+      toast({
+        title: "Activity Logged",
+        description: `New ${formData.type} activity has been recorded.`,
+      });
+
       // Trigger a lead update
-      if (onLeadUpdate && !leadError) {
+      if (onLeadUpdate) {
         onLeadUpdate({
           activityType: formData.type,
           activityOutcome: formData.outcome,
@@ -182,7 +176,6 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
         description: "Failed to submit activity. Please try again.",
         variant: "destructive",
       });
-      return; // Exit early on error
     }
   };
 
