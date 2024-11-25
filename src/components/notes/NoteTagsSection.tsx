@@ -20,7 +20,7 @@ export const NoteTagsSection = ({
 
   const handleAddTag = () => {
     if (newTag && !editedNote.tags?.includes(newTag)) {
-      console.log("Adding tag:", newTag);
+      console.log("Adding new tag:", newTag);
       onUpdateNote({
         ...editedNote,
         tags: [...(editedNote.tags || []), newTag],
@@ -37,6 +37,13 @@ export const NoteTagsSection = ({
     });
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleAddTag();
+    }
+  };
+
   return (
     <div className="space-y-2">
       <div className="flex gap-2">
@@ -44,12 +51,7 @@ export const NoteTagsSection = ({
           placeholder="Add tag"
           value={newTag}
           onChange={(e) => setNewTag(e.target.value)}
-          onKeyPress={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              handleAddTag();
-            }
-          }}
+          onKeyPress={handleKeyPress}
           list="available-tags"
         />
         <Button

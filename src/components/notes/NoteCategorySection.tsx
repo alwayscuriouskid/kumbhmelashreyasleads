@@ -22,6 +22,7 @@ export const NoteCategorySection = ({
 
   const handleAddCategory = () => {
     if (newCategory && !categories.includes(newCategory)) {
+      console.log("Adding new category:", newCategory);
       onAddCategory(newCategory);
       onUpdateNote({ ...editedNote, category: newCategory });
       setNewCategory("");

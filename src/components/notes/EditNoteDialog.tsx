@@ -40,7 +40,7 @@ const EditNoteDialog = ({
   useEffect(() => {
     if (open) {
       console.log("Setting edited note:", note);
-      setEditedNote(note);
+      setEditedNote({ ...note }); // Create a new object to ensure state updates
     }
   }, [note, open]);
 
@@ -59,10 +59,15 @@ const EditNoteDialog = ({
     console.log("Submitting edited note:", editedNote);
     onUpdateNote(editedNote);
     onOpenChange(false);
+    
+    toast({
+      title: "Success",
+      description: "Note updated successfully",
+    });
   };
 
   const handleInputChange = (field: keyof Note, value: any) => {
-    console.log(`Updating ${field}:`, value);
+    console.log("Updating field:", field, "with value:", value);
     setEditedNote(prev => ({
       ...prev,
       [field]: value
