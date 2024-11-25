@@ -44,7 +44,8 @@ export const OrdersTableRow = ({
         newPaymentStatus: editedOrder.payment_status
       });
 
-      const { error } = await supabase
+      // First update the order
+      const { data, error } = await supabase
         .from('orders')
         .update({
           status: editedOrder.status,
@@ -55,14 +56,35 @@ export const OrdersTableRow = ({
           additional_details: editedOrder.additional_details,
           updated_at: new Date().toISOString()
         })
-        .eq('id', order.id);
+        .eq('id', order.id)
+        .select();
 
       if (error) {
         console.error('Error updating order:', error);
         throw error;
       }
 
-      console.log('Order updated successfully');
+      console.log('Order update response:', data);
+
+      // Fetch the updated order to confirm changes
+      const { data: updatedOrder, error: fetchError } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('id', order.id)
+        .single();
+
+      if (fetchError) {
+        console.error('Error fetching updated order:', fetchError);
+        throw fetchError;
+      }
+
+      console.log('Fetched updated order:', updatedOrder);
+
+      if (updatedOrder.status !== editedOrder.status) {
+        console.error('Order status not updated correctly');
+        throw new Error('Order status update failed');
+      }
+
       setIsEditing(false);
       onOrderUpdate();
       
