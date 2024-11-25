@@ -65,6 +65,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
       }
 
       console.log("Successfully updated lead and stored activity");
+      return true;
     } catch (error) {
       console.error("Failed to update lead with activity data:", error);
       throw error;
@@ -91,7 +92,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
         description: `New ${formData.type} activity has been recorded.`,
       });
 
-      // Trigger a lead update
+      // Trigger a lead update if callback provided
       if (onLeadUpdate) {
         onLeadUpdate({
           activityType: formData.type,
@@ -107,6 +108,7 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
         description: "Failed to submit activity. Please try again.",
         variant: "destructive",
       });
+      throw error; // Re-throw to prevent form reset on error
     }
   };
 
