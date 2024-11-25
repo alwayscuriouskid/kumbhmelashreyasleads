@@ -6,7 +6,7 @@ import { ActivityForm } from "./ActivityForm";
 
 interface ActivityTrackerProps {
   leadId: string;
-  onActivityAdd?: (activity: Activity) => void;  // Made optional
+  onActivityAdd: (activity: Activity) => void;
   contactPerson: string;
   onLeadUpdate?: (updates: any) => void;
 }
@@ -85,11 +85,8 @@ const ActivityTracker = ({ leadId, onActivityAdd, contactPerson, onLeadUpdate }:
         ...formData as Activity
       };
       
-      // Only call onActivityAdd if it's provided
-      if (onActivityAdd) {
-        console.log("Calling onActivityAdd with activity:", activity);
-        onActivityAdd(activity);
-      }
+      console.log("Calling onActivityAdd with activity:", activity);
+      onActivityAdd(activity);
       
       toast({
         title: "Activity Logged",

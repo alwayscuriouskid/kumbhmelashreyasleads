@@ -139,7 +139,6 @@ const LeadFollowUps = ({
       : 'note';
   };
 
-  // Handle activity updates locally
   const handleActivityAdd = (activity: Activity) => {
     console.log("Handling new activity in LeadFollowUps:", activity);
     setActivities(prev => [activity, ...prev]);
@@ -154,7 +153,7 @@ const LeadFollowUps = ({
         <CardContent className="pt-6">
           <FollowUpTabs
             leadId={leadId}
-            onActivityAdd={handleActivityAdd}  // Pass the local handler
+            onActivityAdd={handleActivityAdd}
             contactPerson={contactPerson}
             onLeadUpdate={onLeadUpdate}
           />
