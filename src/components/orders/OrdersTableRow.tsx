@@ -37,10 +37,31 @@ export const OrdersTableRow = ({
     try {
       setIsUpdating(true);
       
-      // Log the current state and changes
       console.log('Current order state:', order);
       console.log('Edited order state:', editedOrder);
       
+      // Check if status is actually changing
+      if (order.status === editedOrder.status && order.payment_status === editedOrder.payment_status) {
+        console.log('No status changes detected');
+        setIsEditing(false);
+        return;
+      }
+
+      // Get order items for inventory updates
+      const { data: orderItems, error: itemsError } = await supabase
+        .from('order_items')
+        .select(`
+          quantity,
+          inventory_item_id
+        `)
+        .eq('order_id', order.id);
+
+      if (itemsError) throw itemsError;
+      
+      if (!orderItems || orderItems.length === 0) {
+        throw new Error('No order items found');
+      }
+
       // Prepare update data
       const updateData = {
         status: editedOrder.status,
@@ -50,7 +71,7 @@ export const OrdersTableRow = ({
       
       console.log('Sending update to database:', updateData);
 
-      // Update order status without using .single()
+      // Update order status
       const { error: updateError, data } = await supabase
         .from('orders')
         .update(updateData)
@@ -62,6 +83,53 @@ export const OrdersTableRow = ({
       if (!data || data.length === 0) {
         throw new Error('Order not found or update failed');
       }
+
+      // Handle inventory updates based on status changes
+      if (order.status !== editedOrder.status) {
+        for (const item of orderItems) {
+          let inventoryUpdate = {};
+          
+          // Pending → Approved: Reserve inventory
+          if (order.status === 'pending' && editedOrder.status === 'approved') {
+            inventoryUpdate = {
+              available_quantity: supabase.sql`available_quantity - ${item.quantity}`,
+              reserved_quantity: supabase.sql`COALESCE(reserved_quantity, 0) + ${item.quantity}`
+            };
+          }
+          // Approved → Rejected: Release reserved inventory
+          else if (order.status === 'approved' && editedOrder.status === 'rejected') {
+            inventoryUpdate = {
+              available_quantity: supabase.sql`available_quantity + ${item.quantity}`,
+              reserved_quantity: supabase.sql`COALESCE(reserved_quantity, 0) - ${item.quantity}`
+            };
+          }
+          
+          if (Object.keys(inventoryUpdate).length > 0) {
+            const { error: inventoryError } = await supabase
+              .from('inventory_items')
+              .update(inventoryUpdate)
+              .eq('id', item.inventory_item_id);
+
+            if (inventoryError) throw inventoryError;
+          }
+        }
+      }
+
+      // Handle payment status changes
+      if (order.payment_status !== editedOrder.payment_status && 
+          ['partially_paid', 'finished'].includes(editedOrder.payment_status || '')) {
+        for (const item of orderItems) {
+          const { error: inventoryError } = await supabase
+            .from('inventory_items')
+            .update({
+              reserved_quantity: supabase.sql`COALESCE(reserved_quantity, 0) - ${item.quantity}`,
+              sold_quantity: supabase.sql`COALESCE(sold_quantity, 0) + ${item.quantity}`
+            })
+            .eq('id', item.inventory_item_id);
+
+          if (inventoryError) throw inventoryError;
+        }
+      }
       
       console.log('Database update response:', data[0]);
 
@@ -71,7 +139,7 @@ export const OrdersTableRow = ({
       });
       
       setIsEditing(false);
-      onOrderUpdate(); // Refresh the orders list
+      onOrderUpdate();
     } catch (error: any) {
       console.error("Error updating order:", error);
       toast({
