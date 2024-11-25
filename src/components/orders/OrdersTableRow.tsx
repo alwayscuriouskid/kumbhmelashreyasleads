@@ -3,7 +3,7 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { EditableCell } from "@/components/inventory/EditableCell";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Order } from "@/types/inventory";
+import { Order, OrderItem } from "@/types/inventory";
 import { PaymentConfirmationCell } from "./cells/PaymentConfirmationCell";
 import { NextPaymentDateCell } from "./cells/NextPaymentDateCell";
 import { ActionCell } from "./cells/ActionCell";
@@ -65,22 +65,29 @@ export const OrdersTableRow = ({
         throw new Error('No order items found');
       }
 
+      // Cast the retrieved data to OrderItem[]
+      const typedOrderItems: OrderItem[] = orderItems.map(item => ({
+        inventory_item_id: item.inventory_item_id,
+        quantity: item.quantity,
+        price: item.price
+      }));
+
       // Update order status
       await updateOrderStatus(order.id, editedOrder.status, editedOrder.payment_status);
 
       // Handle inventory updates based on status changes
       if (order.status !== editedOrder.status) {
         if (order.status === 'pending' && editedOrder.status === 'approved') {
-          await updateInventoryQuantities(orderItems, 'approve');
+          await updateInventoryQuantities(typedOrderItems, 'approve');
         } else if (order.status === 'approved' && editedOrder.status === 'rejected') {
-          await updateInventoryQuantities(orderItems, 'reject');
+          await updateInventoryQuantities(typedOrderItems, 'reject');
         }
       }
 
       // Handle payment status changes
       if (order.payment_status !== editedOrder.payment_status && 
           ['partially_paid', 'finished'].includes(editedOrder.payment_status || '')) {
-        await updateInventoryPaymentStatus(orderItems);
+        await updateInventoryPaymentStatus(typedOrderItems);
       }
 
       toast({
