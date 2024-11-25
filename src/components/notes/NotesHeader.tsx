@@ -10,6 +10,11 @@ interface NotesHeaderProps {
   setIsCreateOpen: (open: boolean) => void;
   categories: string[];
   tags: string[];
+  selectedFilters: {
+    categories: string[];
+    tags: string[];
+  };
+  toggleFilter: (type: 'categories' | 'tags', value: string) => void;
   handleDeleteCategory: (category: string) => void;
   handleDeleteTag: (tag: string) => void;
 }
@@ -20,6 +25,8 @@ export const NotesHeader = ({
   setIsCreateOpen,
   categories,
   tags,
+  selectedFilters,
+  toggleFilter,
   handleDeleteCategory,
   handleDeleteTag,
 }: NotesHeaderProps) => {
@@ -49,8 +56,8 @@ export const NotesHeader = ({
             <FiltersSection
               categories={categories}
               tags={tags}
-              selectedFilters={{ categories: [], tags: [] }}
-              toggleFilter={() => {}}
+              selectedFilters={selectedFilters}
+              toggleFilter={toggleFilter}
               handleDeleteCategory={handleDeleteCategory}
               handleDeleteTag={handleDeleteTag}
             />

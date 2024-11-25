@@ -3,7 +3,9 @@ import { Note, dbToNote } from "@/types/notes";
 import { useToast } from "@/components/ui/use-toast";
 
 export const useNotesOperations = (
-  setNotes: React.Dispatch<React.SetStateAction<Note[]>>
+  setNotes: React.Dispatch<React.SetStateAction<Note[]>>,
+  setCategories: React.Dispatch<React.SetStateAction<string[]>>,
+  setTags: React.Dispatch<React.SetStateAction<string[]>>
 ) => {
   const { toast } = useToast();
 
@@ -22,8 +24,12 @@ export const useNotesOperations = (
       const formattedNotes = data?.map(dbToNote) || [];
       setNotes(formattedNotes);
       
+      // Extract unique categories and tags
       const uniqueCategories = [...new Set(data?.map(note => note.category).filter(Boolean))];
       const uniqueTags = [...new Set(data?.flatMap(note => note.tags || []))];
+      
+      setCategories(uniqueCategories);
+      setTags(uniqueTags);
       
       return { uniqueCategories, uniqueTags };
     } catch (error) {
@@ -55,19 +61,18 @@ export const useNotesOperations = (
       const formattedNote = dbToNote(data);
       setNotes(prev => [formattedNote, ...prev]);
       
-      toast({
-        title: "Success",
-        description: "Note created successfully",
-      });
+      // Update categories and tags
+      if (noteData.category) {
+        setCategories(prev => [...new Set([...prev, noteData.category!])]);
+      }
+      if (noteData.tags?.length) {
+        setTags(prev => [...new Set([...prev, ...noteData.tags!])]);
+      }
 
       return formattedNote;
     } catch (error) {
       console.error("Error creating note:", error);
-      toast({
-        title: "Error",
-        description: "Failed to create note",
-        variant: "destructive",
-      });
+      throw error;
     }
   };
 
@@ -90,19 +95,18 @@ export const useNotesOperations = (
       const formattedNote = dbToNote(data);
       setNotes(prev => prev.map(note => note.id === formattedNote.id ? formattedNote : note));
       
-      toast({
-        title: "Success",
-        description: "Note updated successfully",
-      });
+      // Update categories and tags
+      if (updatedNote.category) {
+        setCategories(prev => [...new Set([...prev, updatedNote.category!])]);
+      }
+      if (updatedNote.tags?.length) {
+        setTags(prev => [...new Set([...prev, ...updatedNote.tags!])]);
+      }
 
       return formattedNote;
     } catch (error) {
       console.error("Error updating note:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update note",
-        variant: "destructive",
-      });
+      throw error;
     }
   };
 

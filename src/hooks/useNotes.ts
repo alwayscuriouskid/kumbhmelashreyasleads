@@ -1,6 +1,7 @@
 import { useNotesState } from "./notes/useNotesState";
 import { useNotesOperations } from "./notes/useNotesOperations";
 import { useTrashOperations } from "./notes/useTrashOperations";
+import { Note } from "@/types/notes";
 
 export const useNotes = () => {
   const {
@@ -16,7 +17,7 @@ export const useNotes = () => {
     fetchNotes,
     createNote,
     updateNote,
-  } = useNotesOperations(setNotes);
+  } = useNotesOperations(setNotes, setCategories, setTags);
 
   const {
     deleteNote,
@@ -42,6 +43,7 @@ export const useNotes = () => {
     createNote,
     updateNote,
     deleteNote,
+    fetchNotes,
     fetchTrashedNotes,
     restoreNote,
   };
