@@ -1,6 +1,4 @@
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
-import { Order } from "@/types/inventory";
 
 export const updateOrderStatus = async (
   orderId: string, 

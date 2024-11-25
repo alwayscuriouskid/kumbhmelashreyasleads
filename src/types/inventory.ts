@@ -77,12 +77,12 @@ export interface Order {
 }
 
 export interface OrderItem {
-  id?: string;  // Made optional since it's not always returned
-  order_id?: string; // Made optional since it's not always returned
+  id?: string;
+  order_id?: string;
   inventory_item_id: string;
   quantity: number;
   price: number;
-  created_at?: string; // Made optional since it's not always returned
+  created_at?: string;
   inventory_items?: {
     id: string;
     sku?: string;

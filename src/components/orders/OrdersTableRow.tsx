@@ -10,7 +10,7 @@ import { ActionCell } from "./cells/ActionCell";
 import { InventoryItemsCell } from "./cells/InventoryItemsCell";
 import { OrderStatusCell } from "./cells/OrderStatusCell";
 import { PaymentStatusCell } from "./cells/PaymentStatusCell";
-import { updateInventoryQuantities } from "./utils/inventoryUtils";
+import { updateInventoryQuantities, updateInventoryPaymentStatus } from "./utils/inventoryUtils";
 import { updateOrderStatus } from "./utils/orderStatusUtils";
 
 interface OrdersTableRowProps {
@@ -54,7 +54,8 @@ export const OrdersTableRow = ({
         .from('order_items')
         .select(`
           quantity,
-          inventory_item_id
+          inventory_item_id,
+          price
         `)
         .eq('order_id', order.id);
 
@@ -74,6 +75,12 @@ export const OrdersTableRow = ({
         } else if (order.status === 'approved' && editedOrder.status === 'rejected') {
           await updateInventoryQuantities(orderItems, 'reject');
         }
+      }
+
+      // Handle payment status changes
+      if (order.payment_status !== editedOrder.payment_status && 
+          ['partially_paid', 'finished'].includes(editedOrder.payment_status || '')) {
+        await updateInventoryPaymentStatus(orderItems);
       }
 
       toast({
