@@ -8,7 +8,6 @@ import { useTeamMemberOptions } from "@/hooks/useTeamMemberOptions";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
 
 interface PendingAction {
   id: string;
@@ -31,7 +30,6 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
   const { data: teamMembers = [] } = useTeamMemberOptions();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [actions, setActions] = useState(initialActions);
   
   const getTeamMemberName = (id: string) => {
     const member = teamMembers.find(m => m.id === id);
@@ -49,13 +47,9 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
 
       if (error) throw error;
 
-      // Update local state to remove the completed action
-      setActions(prevActions => prevActions.filter(action => action.id !== actionId));
-
-      // Invalidate and refetch the pending-actions query
+      // Wait for the update to complete before invalidating queries
       await queryClient.invalidateQueries({ 
         queryKey: ['pending-actions'],
-        refetchType: 'active',
         exact: false 
       });
 
@@ -79,10 +73,10 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
 
   return (
     <div className="space-y-4">
-      {actions?.length === 0 ? (
+      {initialActions?.length === 0 ? (
         <p className="text-muted-foreground">No pending actions found</p>
       ) : (
-        actions?.map((action) => (
+        initialActions?.map((action) => (
           <div
             key={action.id}
             className="flex items-start space-x-4 p-4 rounded-lg border animate-fade-in"
