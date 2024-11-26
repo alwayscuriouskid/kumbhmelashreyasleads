@@ -44,7 +44,7 @@ export const usePendingActions = (
         `)
         .not('next_action', 'is', null)
         .not('next_action', 'eq', '')
-        .filter('hidden_by', 'not.cs', `{${currentTeamMemberId}}`);
+        .not('hidden_by', 'cs', `{${currentTeamMemberId}}`);
 
       if (selectedTeamMember !== 'all') {
         query = query.eq('assigned_to', selectedTeamMember);
