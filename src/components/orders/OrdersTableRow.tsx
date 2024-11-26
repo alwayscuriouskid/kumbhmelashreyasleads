@@ -9,7 +9,7 @@ import { InventoryItemsCell } from "./cells/InventoryItemsCell";
 import { OrderStatusCell } from "./cells/OrderStatusCell";
 import { PaymentStatusCell } from "./cells/PaymentStatusCell";
 import { toast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { updateOrderStatus } from "./utils/orderStatusManager";
 
 interface OrdersTableRowProps {
   order: Order;
@@ -36,39 +36,18 @@ export const OrdersTableRow = ({
   const handleSave = async () => {
     try {
       setIsUpdating(true);
-      console.log('Attempting to update order:', {
+      console.log('Saving order changes:', {
         orderId: order.id,
         currentStatus: order.status,
-        newStatus: editedOrder.status,
-        currentPaymentStatus: order.payment_status,
-        newPaymentStatus: editedOrder.payment_status
+        newStatus: editedOrder.status
       });
 
-      // Update the order with explicit column selection
-      const { data, error } = await supabase
-        .from('orders')
-        .update({
-          status: editedOrder.status,
-          payment_status: editedOrder.payment_status,
-          payment_confirmation: editedOrder.payment_confirmation,
-          next_payment_date: editedOrder.next_payment_date,
-          next_payment_details: editedOrder.next_payment_details,
-          additional_details: editedOrder.additional_details,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', order.id)
-        .select('*')
-        .maybeSingle();
-
-      if (error) {
-        console.error('Error updating order:', error);
-        throw error;
-      }
-
-      console.log('Order update response:', data);
-
-      if (!data) {
-        throw new Error('No data returned from update');
+      if (order.status !== editedOrder.status) {
+        await updateOrderStatus(
+          order.id, 
+          editedOrder.status as 'pending' | 'approved' | 'rejected',
+          order.status
+        );
       }
 
       setIsEditing(false);
@@ -97,14 +76,10 @@ export const OrdersTableRow = ({
 
   const handleChange = (field: keyof Order, value: any) => {
     console.log(`Updating ${field} to:`, value);
-    setEditedOrder(prev => {
-      const updated = {
-        ...prev,
-        [field]: value
-      };
-      console.log('Updated order state:', updated);
-      return updated;
-    });
+    setEditedOrder(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   return (
