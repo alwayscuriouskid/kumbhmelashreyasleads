@@ -57,7 +57,9 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
 
       if (error) throw error;
 
+      // Immediately invalidate the pending-actions query to trigger a refetch
       await queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
+      console.log('Query cache invalidated after deletion');
 
       toast({
         title: "Action deleted",
