@@ -3,6 +3,8 @@ import { TableRow } from "@/components/ui/table";
 import { Order } from "@/types/inventory";
 import { OrderRowCells } from "./table/OrderRowCells";
 import { OrderRowActions } from "./table/OrderRowActions";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 interface OrdersTableRowProps {
   order: Order;
@@ -31,12 +33,45 @@ export const OrdersTableRow = ({
     setEditedOrder(order);
   };
 
-  const handleChange = (field: keyof Order, value: any) => {
+  const handleChange = async (field: keyof Order, value: any) => {
     console.log(`Updating ${field} to:`, value);
-    setEditedOrder(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    
+    // Special handling for status changes to ensure inventory updates
+    if (field === 'status' || field === 'payment_status') {
+      try {
+        setIsUpdating(true);
+        
+        const { error } = await supabase
+          .from('orders')
+          .update({ [field]: value })
+          .eq('id', order.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: `Order ${field.replace('_', ' ')} updated successfully`,
+        });
+
+        onOrderUpdate();
+      } catch (error: any) {
+        console.error('Error updating order:', error);
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      } finally {
+        setIsUpdating(false);
+        setIsEditing(false);
+      }
+    } else {
+      // For other fields, just update the local state
+      setEditedOrder(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    }
   };
 
   const handleSuccess = () => {

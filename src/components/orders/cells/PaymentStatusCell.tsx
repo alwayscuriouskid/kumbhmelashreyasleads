@@ -8,6 +8,8 @@ interface PaymentStatusCellProps {
 }
 
 export const PaymentStatusCell = ({ value, isEditing, onChange }: PaymentStatusCellProps) => {
+  console.log('Payment status value:', value);
+  
   if (isEditing) {
     return (
       <Select value={value} onValueChange={onChange}>
