@@ -6,6 +6,7 @@ import { InventoryItemsCell } from "../cells/InventoryItemsCell";
 import { PaymentConfirmationCell } from "../cells/PaymentConfirmationCell";
 import { NextPaymentDateCell } from "../cells/NextPaymentDateCell";
 import { Order } from "@/types/inventory";
+import { updateOrderPaymentStatus } from "../utils/paymentStatusManager";
 
 interface OrderRowCellsProps {
   order: Order;
@@ -24,6 +25,15 @@ export const OrderRowCells = ({
   teamMembers,
   onChange,
 }: OrderRowCellsProps) => {
+  const handlePaymentStatusChange = async (value: string) => {
+    try {
+      await updateOrderPaymentStatus(order.id, value as 'pending' | 'partially_pending' | 'finished');
+      onChange('payment_status', value);
+    } catch (error) {
+      console.error('Failed to update payment status:', error);
+    }
+  };
+
   return (
     <>
       {visibleColumns.orderId && <TableCell>{order.id}</TableCell>}
@@ -54,7 +64,7 @@ export const OrderRowCells = ({
           <PaymentStatusCell
             value={isEditing ? editedOrder.payment_status || 'pending' : order.payment_status || 'pending'}
             isEditing={isEditing}
-            onChange={(value) => onChange('payment_status', value)}
+            onChange={handlePaymentStatusChange}
           />
         </TableCell>
       )}
