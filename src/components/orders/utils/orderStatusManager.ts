@@ -3,16 +3,12 @@ import { toast } from "@/components/ui/use-toast";
 import { Order } from "@/types/inventory";
 
 export const updateOrderStatus = async (
-  orderId: string,
-  newStatus: 'pending' | 'approved' | 'rejected',
+  orderId: string, 
+  newStatus: "pending" | "approved" | "rejected",
   currentStatus: string
 ) => {
-  console.log('Updating order status:', {
-    orderId,
-    currentStatus,
-    newStatus
-  });
-
+  console.log('Updating order status:', { orderId, currentStatus, newStatus });
+  
   try {
     // First get the order details with items
     const { data: order, error: fetchError } = await supabase
@@ -47,6 +43,7 @@ export const updateOrderStatus = async (
 
     if (updateError) throw updateError;
 
+    // The database trigger handle_order_status_change will handle inventory updates
     console.log('Order status updated successfully');
     return true;
   } catch (error) {
