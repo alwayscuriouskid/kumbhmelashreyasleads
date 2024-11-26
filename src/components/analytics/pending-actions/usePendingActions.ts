@@ -69,7 +69,7 @@ export const usePendingActions = (
         notes: action.notes
       }));
     },
-    refetchOnWindowFocus: true, // Add this to ensure UI stays in sync
-    staleTime: 0, // Add this to ensure immediate refetch after updates
+    refetchOnWindowFocus: true,
+    staleTime: 0,
   });
 };
