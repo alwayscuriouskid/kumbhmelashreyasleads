@@ -21,7 +21,14 @@ export const updateOrderStatus = async (
         *,
         order_items (
           quantity,
-          inventory_item_id
+          inventory_item_id,
+          inventory_items (
+            id,
+            quantity,
+            available_quantity,
+            reserved_quantity,
+            sold_quantity
+          )
         )
       `)
       .eq('id', orderId)
@@ -40,12 +47,38 @@ export const updateOrderStatus = async (
 
     if (updateError) throw updateError;
 
-    // The database trigger handle_order_status_change will handle inventory updates
     console.log('Order status updated successfully');
-    
     return true;
   } catch (error) {
     console.error('Error updating order status:', error);
+    throw error;
+  }
+};
+
+export const updateOrderPaymentStatus = async (
+  orderId: string,
+  newPaymentStatus: 'pending' | 'partially_pending' | 'finished'
+) => {
+  console.log('Updating order payment status:', {
+    orderId,
+    newPaymentStatus
+  });
+
+  try {
+    const { error: updateError } = await supabase
+      .from('orders')
+      .update({ 
+        payment_status: newPaymentStatus,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', orderId);
+
+    if (updateError) throw updateError;
+
+    console.log('Payment status updated successfully');
+    return true;
+  } catch (error) {
+    console.error('Error updating payment status:', error);
     throw error;
   }
 };

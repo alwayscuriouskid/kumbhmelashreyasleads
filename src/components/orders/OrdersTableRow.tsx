@@ -9,7 +9,7 @@ import { InventoryItemsCell } from "./cells/InventoryItemsCell";
 import { OrderStatusCell } from "./cells/OrderStatusCell";
 import { PaymentStatusCell } from "./cells/PaymentStatusCell";
 import { toast } from "@/components/ui/use-toast";
-import { updateOrderStatus } from "./utils/orderStatusManager";
+import { updateOrderStatus, updateOrderPaymentStatus } from "./utils/orderStatusManager";
 
 interface OrdersTableRowProps {
   order: Order;
@@ -39,14 +39,25 @@ export const OrdersTableRow = ({
       console.log('Saving order changes:', {
         orderId: order.id,
         currentStatus: order.status,
-        newStatus: editedOrder.status
+        newStatus: editedOrder.status,
+        currentPaymentStatus: order.payment_status,
+        newPaymentStatus: editedOrder.payment_status
       });
 
+      // Handle order status change
       if (order.status !== editedOrder.status) {
         await updateOrderStatus(
           order.id, 
           editedOrder.status as 'pending' | 'approved' | 'rejected',
           order.status
+        );
+      }
+
+      // Handle payment status change
+      if (order.payment_status !== editedOrder.payment_status) {
+        await updateOrderPaymentStatus(
+          order.id,
+          editedOrder.payment_status as 'pending' | 'partially_pending' | 'finished'
         );
       }
 

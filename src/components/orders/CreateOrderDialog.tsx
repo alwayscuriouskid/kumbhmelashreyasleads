@@ -37,11 +37,12 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
             notes: formData.notes,
             total_amount: formData.totalAmount,
             status: "pending",
+            payment_status: "pending",
             payment_confirmation: formData.paymentConfirmation,
             next_payment_date: formData.nextPaymentDate,
             next_payment_details: formData.nextPaymentDetails,
             additional_details: formData.additionalDetails,
-            lead_id: formData.leadId || null // Ensure lead_id is properly set
+            lead_id: formData.leadId || null
           },
         ])
         .select()
@@ -67,23 +68,20 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
 
       // Update inventory items quantities
       for (const item of formData.selectedItems) {
-        // First get current quantity
         const { data: currentItem, error: getError } = await supabase
           .from("inventory_items")
-          .select("quantity")
+          .select("quantity, available_quantity")
           .eq("id", item.inventory_item_id)
           .single();
 
         if (getError) throw getError;
 
-        const newQuantity = currentItem.quantity - item.quantity;
+        const newAvailableQuantity = currentItem.available_quantity - item.quantity;
 
-        // Then update with new quantity and status
         const { error: updateError } = await supabase
           .from("inventory_items")
           .update({ 
-            quantity: newQuantity,
-            status: newQuantity <= 0 ? 'sold' : 'available'
+            available_quantity: newAvailableQuantity
           })
           .eq("id", item.inventory_item_id);
 
