@@ -10,9 +10,14 @@ interface OrderStatusCellProps {
 export const OrderStatusCell = ({ value, isEditing, onChange }: OrderStatusCellProps) => {
   console.log('OrderStatusCell render:', { value, isEditing });
   
+  const handleStatusChange = (newValue: string) => {
+    console.log('Updating status to:', newValue);
+    onChange(newValue);
+  };
+  
   if (isEditing) {
     return (
-      <Select value={value} onValueChange={onChange}>
+      <Select value={value} onValueChange={handleStatusChange}>
         <SelectTrigger className="w-[140px]">
           <SelectValue />
         </SelectTrigger>

@@ -25,7 +25,7 @@ export const OrderRowActions = ({
 }: OrderRowActionsProps) => {
   const handleSave = async () => {
     try {
-      console.log('Saving order changes:', {
+      console.log('Starting order update:', {
         orderId: order.id,
         currentStatus: order.status,
         newStatus: editedOrder.status,
@@ -33,20 +33,31 @@ export const OrderRowActions = ({
         newPaymentStatus: editedOrder.payment_status
       });
 
-      const { error: updateError } = await supabase
-        .from('orders')
-        .update({ 
-          status: editedOrder.status,
-          payment_status: editedOrder.payment_status,
-          payment_confirmation: editedOrder.payment_confirmation,
-          next_payment_date: editedOrder.next_payment_date,
-          next_payment_details: editedOrder.next_payment_details,
-          additional_details: editedOrder.additional_details,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', order.id);
+      const updateData = {
+        status: editedOrder.status,
+        payment_status: editedOrder.payment_status,
+        payment_confirmation: editedOrder.payment_confirmation,
+        next_payment_date: editedOrder.next_payment_date,
+        next_payment_details: editedOrder.next_payment_details,
+        additional_details: editedOrder.additional_details,
+        updated_at: new Date().toISOString()
+      };
 
-      if (updateError) throw updateError;
+      console.log('Sending update with data:', updateData);
+
+      const { data, error } = await supabase
+        .from('orders')
+        .update(updateData)
+        .eq('id', order.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating order:', error);
+        throw error;
+      }
+
+      console.log('Order updated successfully:', data);
 
       toast({
         title: "Success",
