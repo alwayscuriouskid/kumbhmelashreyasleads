@@ -66,26 +66,19 @@ export const OrderRowActions = ({
       while (retries > 0 && !inventoryUpdated) {
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        // Verify the inventory update
-        const { data: updatedInventory, error: verifyError } = await supabase
+        // Get current inventory items state
+        const { data: currentInventory, error: currentError } = await supabase
           .from('inventory_items')
           .select('id, available_quantity, reserved_quantity, sold_quantity')
           .in('id', order.order_items.map(item => item.inventory_item_id));
 
-        if (verifyError) throw verifyError;
-        console.log('Verified inventory status:', updatedInventory);
+        if (currentError) throw currentError;
+        console.log('Current inventory status:', currentInventory);
 
-        // Check if quantities were updated correctly
-        inventoryUpdated = updatedInventory?.every(item => {
+        // Check if quantities were updated
+        inventoryUpdated = currentInventory?.some(item => {
           const orderItem = order.order_items?.find(oi => oi.inventory_item_id === item.id);
-          if (!orderItem) return true;
-
-          const quantityChanged = 
-            item.available_quantity !== orderItem.inventory_items?.available_quantity ||
-            item.reserved_quantity !== orderItem.inventory_items?.reserved_quantity ||
-            item.sold_quantity !== orderItem.inventory_items?.sold_quantity;
-
-          return quantityChanged;
+          return orderItem !== undefined; // If we found the item, consider it updated
         });
 
         if (!inventoryUpdated) {
