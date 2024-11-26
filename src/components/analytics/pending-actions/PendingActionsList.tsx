@@ -1,8 +1,6 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, EyeOff } from "lucide-react";
-import { format } from "date-fns";
 import { useTeamMemberOptions } from "@/hooks/useTeamMemberOptions";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -38,7 +36,7 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
   const [actionToComplete, setActionToComplete] = useState<string | null>(null);
   
   const currentTeamMemberId = teamMembers[0]?.id;
-  
+
   const handleCompleteClick = (actionId: string) => {
     setActionToComplete(actionId);
     setCompleteDialogOpen(true);
@@ -86,31 +84,37 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
     }
 
     try {
-      const { data: currentAction, error: fetchError } = await supabase
-        .from('activities')
-        .select('hidden_by')
-        .eq('id', actionId)
-        .single();
-
-      if (fetchError) throw fetchError;
-
-      const currentHiddenBy = currentAction?.hidden_by || [];
-
-      if (!currentHiddenBy.includes(currentTeamMemberId)) {
-        const { error: updateError } = await supabase
-          .from('activities')
-          .update({ hidden_by: [...currentHiddenBy, currentTeamMemberId] })
-          .eq('id', actionId);
-
-        if (updateError) throw updateError;
-
-        await queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
-        
-        toast({
-          title: "Action hidden",
-          description: "The action has been hidden from your view",
+      // First update the local state through query invalidation
+      queryClient.setQueryData(['pending-actions'], (oldData: any) => {
+        if (!oldData) return oldData;
+        return oldData.map((action: PendingAction) => {
+          if (action.id === actionId) {
+            return {
+              ...action,
+              hidden_by: [...(action.hidden_by || []), currentTeamMemberId]
+            };
+          }
+          return action;
         });
-      }
+      });
+
+      // Then update the database
+      const { error: updateError } = await supabase
+        .from('activities')
+        .update({ 
+          hidden_by: supabase.sql`array_append(COALESCE(hidden_by, ARRAY[]::text[]), ${currentTeamMemberId})`
+        })
+        .eq('id', actionId);
+
+      if (updateError) throw updateError;
+
+      // Invalidate the query to ensure data consistency
+      await queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
+      
+      toast({
+        title: "Action hidden",
+        description: "The action has been hidden from your view",
+      });
     } catch (error) {
       console.error('Error hiding action:', error);
       toast({
@@ -118,6 +122,8 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
         description: "Failed to hide the action",
         variant: "destructive",
       });
+      // Invalidate query to revert optimistic update
+      await queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
     }
   };
 
@@ -126,7 +132,8 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
   }
 
   const visibleActions = initialActions.filter(action => {
-    return !action.hidden_by?.includes(currentTeamMemberId);
+    const isHidden = Array.isArray(action.hidden_by) && action.hidden_by.includes(currentTeamMemberId);
+    return !isHidden;
   });
 
   return (

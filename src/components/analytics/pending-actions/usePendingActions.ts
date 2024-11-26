@@ -57,8 +57,6 @@ export const usePendingActions = (
         throw error;
       }
 
-      console.log("Fetched pending actions:", data);
-
       return data.map(action => ({
         id: action.id,
         type: action.type,
@@ -70,7 +68,7 @@ export const usePendingActions = (
         outcome: action.outcome,
         notes: action.notes,
         is_completed: action.is_completed,
-        hidden_by: action.hidden_by
+        hidden_by: action.hidden_by || []
       }));
     },
     staleTime: 0,
