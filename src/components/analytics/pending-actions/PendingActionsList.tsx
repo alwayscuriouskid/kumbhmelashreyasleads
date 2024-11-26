@@ -48,30 +48,30 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
     if (!actionToDelete) return;
 
     try {
-      console.log('Deleting activity with ID:', actionToDelete);
+      console.log('Marking activity as completed:', actionToDelete);
       
       const { error } = await supabase
         .from('activities')
-        .delete()
+        .update({ is_completed: true })
         .eq('id', actionToDelete);
 
       if (error) throw error;
 
-      console.log('Activity deleted successfully');
+      console.log('Activity marked as completed successfully');
 
       // Invalidate the query to trigger a refetch
       await queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
-      console.log('Query cache invalidated after deletion');
+      console.log('Query cache invalidated after completion');
 
       toast({
-        title: "Action deleted",
-        description: "The action has been deleted successfully",
+        title: "Action completed",
+        description: "The action has been marked as completed",
       });
     } catch (error) {
-      console.error('Error deleting activity:', error);
+      console.error('Error marking activity as completed:', error);
       toast({
         title: "Error",
-        description: "Failed to delete the action",
+        description: "Failed to complete the action",
         variant: "destructive",
       });
     } finally {
@@ -143,8 +143,8 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
         onConfirm={handleConfirmDelete}
-        title="Delete Action"
-        description="Are you sure you want to delete this action? This cannot be undone."
+        title="Complete Action"
+        description="Are you sure you want to mark this action as completed? This will remove it from the pending actions list."
       />
     </>
   );
