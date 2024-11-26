@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { useTeamMemberOptions } from "@/hooks/useTeamMemberOptions";
-import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface PendingAction {
   id: string;
@@ -26,34 +28,52 @@ interface PendingActionsListProps {
 
 const PendingActionsList = ({ actions, isLoading }: PendingActionsListProps) => {
   const { data: teamMembers = [] } = useTeamMemberOptions();
-  const [visibleActions, setVisibleActions] = useState<string[]>(
-    actions.map(action => action.id)
-  );
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   const getTeamMemberName = (id: string) => {
     const member = teamMembers.find(m => m.id === id);
     return member ? member.name : 'Unassigned';
   };
 
-  const handleDelete = (actionId: string) => {
-    console.log('Removing action from UI:', actionId);
-    setVisibleActions(prev => prev.filter(id => id !== actionId));
+  const handleDelete = async (actionId: string) => {
+    try {
+      console.log('Marking action as completed:', actionId);
+      
+      const { error } = await supabase
+        .from('activities')
+        .update({ is_completed: true })
+        .eq('id', actionId);
+
+      if (error) throw error;
+
+      // Invalidate the pending-actions query to refresh the list
+      queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
+
+      toast({
+        title: "Action completed",
+        description: "The action has been marked as completed",
+      });
+    } catch (error) {
+      console.error('Error completing action:', error);
+      toast({
+        title: "Error",
+        description: "Failed to complete the action",
+        variant: "destructive",
+      });
+    }
   };
 
   if (isLoading) {
     return <div>Loading pending actions...</div>;
   }
 
-  const visibleActionsList = actions.filter(action => 
-    visibleActions.includes(action.id)
-  );
-
   return (
     <div className="space-y-4">
-      {visibleActionsList?.length === 0 ? (
+      {actions?.length === 0 ? (
         <p className="text-muted-foreground">No pending actions found</p>
       ) : (
-        visibleActionsList?.map((action) => (
+        actions?.map((action) => (
           <div
             key={action.id}
             className="flex items-start space-x-4 p-4 rounded-lg border animate-fade-in"

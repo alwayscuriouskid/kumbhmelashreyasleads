@@ -17,6 +17,7 @@ export type Database = {
           created_at: string | null
           end_time: string | null
           id: string
+          is_completed: boolean | null
           is_followup: boolean | null
           lead_id: string | null
           location: string | null
@@ -36,6 +37,7 @@ export type Database = {
           created_at?: string | null
           end_time?: string | null
           id?: string
+          is_completed?: boolean | null
           is_followup?: boolean | null
           lead_id?: string | null
           location?: string | null
@@ -55,6 +57,7 @@ export type Database = {
           created_at?: string | null
           end_time?: string | null
           id?: string
+          is_completed?: boolean | null
           is_followup?: boolean | null
           lead_id?: string | null
           location?: string | null
