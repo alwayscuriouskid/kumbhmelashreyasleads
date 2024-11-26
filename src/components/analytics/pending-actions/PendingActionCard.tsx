@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, EyeOff } from "lucide-react";
+import { EyeOff } from "lucide-react";
 import { format } from "date-fns";
 
 interface PendingAction {
@@ -17,11 +17,10 @@ interface PendingAction {
 
 interface PendingActionCardProps {
   action: PendingAction;
-  onComplete: () => void;
   onHide: () => void;
 }
 
-export const PendingActionCard = ({ action, onComplete, onHide }: PendingActionCardProps) => {
+export const PendingActionCard = ({ action, onHide }: PendingActionCardProps) => {
   return (
     <div className="flex items-start space-x-4 p-4 rounded-lg border animate-fade-in">
       <div className="flex-1 space-y-2">
@@ -32,25 +31,14 @@ export const PendingActionCard = ({ action, onComplete, onHide }: PendingActionC
               {action.type === 'follow_up' ? 'Follow Up' : 'Action'}
             </Badge>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onHide}
-              className="h-8 text-muted-foreground hover:text-red-600"
-            >
-              <EyeOff className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onComplete}
-              className="h-8 text-muted-foreground hover:text-green-600 flex items-center gap-1"
-            >
-              <CheckCircle2 className="h-4 w-4" />
-              <span>Mark Complete</span>
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onHide}
+            className="h-8 text-muted-foreground hover:text-red-600"
+          >
+            <EyeOff className="h-4 w-4" />
+          </Button>
         </div>
         {action.notes && (
           <p className="text-sm text-muted-foreground">

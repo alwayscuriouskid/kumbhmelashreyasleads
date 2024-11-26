@@ -36,7 +36,6 @@ export const usePendingActions = (
           next_action_date,
           assigned_to,
           contact_person,
-          is_completed,
           hidden_by,
           lead:leads (
             id,
@@ -45,10 +44,7 @@ export const usePendingActions = (
         `)
         .not('next_action', 'is', null)
         .not('next_action', 'eq', '')
-        .eq('is_completed', false);
-
-      // Filter out activities where current team member is in hidden_by array
-      query = query.filter('hidden_by', 'not.cs', `{${currentTeamMemberId}}`);
+        .filter('hidden_by', 'not.cs', `{${currentTeamMemberId}}`);
 
       if (selectedTeamMember !== 'all') {
         query = query.eq('assigned_to', selectedTeamMember);
@@ -82,7 +78,6 @@ export const usePendingActions = (
         teamMemberId: action.assigned_to || '',
         outcome: action.outcome,
         notes: action.notes,
-        is_completed: action.is_completed,
         hidden_by: action.hidden_by || []
       }));
     },
