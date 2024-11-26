@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, EyeOff } from "lucide-react";
 import { format } from "date-fns";
 import { useTeamMemberOptions } from "@/hooks/useTeamMemberOptions";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,9 +34,9 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
   const queryClient = useQueryClient();
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
   const [actionToComplete, setActionToComplete] = useState<string | null>(null);
+  const [hiddenActions, setHiddenActions] = useState<Set<string>>(new Set());
   
-  // Filter out completed actions
-  const actions = initialActions.filter(action => !action.is_completed);
+  const actions = initialActions.filter(action => !hiddenActions.has(action.id));
   
   const getTeamMemberName = (id: string) => {
     const member = teamMembers.find(m => m.id === id);
@@ -61,8 +61,10 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
 
       if (error) throw error;
 
-      console.log('Activity marked as completed successfully');
+      // Hide the action from UI immediately
+      setHiddenActions(prev => new Set([...prev, actionToComplete]));
 
+      console.log('Activity marked as completed successfully');
       await queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
       console.log('Query cache invalidated after completion');
 
@@ -81,6 +83,14 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
       setCompleteDialogOpen(false);
       setActionToComplete(null);
     }
+  };
+
+  const handleHideAction = (actionId: string) => {
+    setHiddenActions(prev => new Set([...prev, actionId]));
+    toast({
+      title: "Action hidden",
+      description: "The action has been hidden from view",
+    });
   };
 
   if (isLoading) {
@@ -106,15 +116,25 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
                       {action.type === 'follow_up' ? 'Follow Up' : 'Action'}
                     </Badge>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleCompleteClick(action.id)}
-                    className="h-8 text-muted-foreground hover:text-green-600 flex items-center gap-1"
-                  >
-                    <CheckCircle2 className="h-4 w-4" />
-                    <span>Mark Complete</span>
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleHideAction(action.id)}
+                      className="h-8 text-muted-foreground hover:text-red-600"
+                    >
+                      <EyeOff className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleCompleteClick(action.id)}
+                      className="h-8 text-muted-foreground hover:text-green-600 flex items-center gap-1"
+                    >
+                      <CheckCircle2 className="h-4 w-4" />
+                      <span>Mark Complete</span>
+                    </Button>
+                  </div>
                 </div>
                 {action.notes && (
                   <p className="text-sm text-muted-foreground">
