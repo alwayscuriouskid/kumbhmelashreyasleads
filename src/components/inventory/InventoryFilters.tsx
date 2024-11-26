@@ -11,8 +11,6 @@ interface InventoryFiltersProps {
   onTypeFilterChange: (value: string) => void;
   zoneFilter: string;
   onZoneFilterChange: (value: string) => void;
-  statusFilter: string;
-  onStatusFilterChange: (value: string) => void;
   visibleColumns: Record<string, boolean>;
   onToggleColumn: (columnKey: string) => void;
 }
@@ -24,8 +22,6 @@ export const InventoryFilters = ({
   onTypeFilterChange,
   zoneFilter,
   onZoneFilterChange,
-  statusFilter,
-  onStatusFilterChange,
   visibleColumns,
   onToggleColumn,
 }: InventoryFiltersProps) => {
@@ -42,7 +38,6 @@ export const InventoryFilters = ({
     { key: "dimensions", label: "Dimensions" },
     { key: "totalQuantity", label: "Total Quantity" },
     { key: "availableQuantity", label: "Available Quantity" },
-    { key: "status", label: "Status" },
     { key: "sku", label: "SKU" },
   ];
 
@@ -82,18 +77,6 @@ export const InventoryFilters = ({
                   {zone.name}
                 </SelectItem>
               ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={statusFilter} onValueChange={onStatusFilterChange}>
-            <SelectTrigger className="w-[180px] bg-background">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="available">Available</SelectItem>
-              <SelectItem value="booked">Booked</SelectItem>
-              <SelectItem value="sold">Sold</SelectItem>
             </SelectContent>
           </Select>
         </div>

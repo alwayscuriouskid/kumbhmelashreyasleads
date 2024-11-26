@@ -14,7 +14,6 @@ export const InventoryTable = () => {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [zoneFilter, setZoneFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
   const [visibleColumns, setVisibleColumns] = useState({
     type: true,
     zone: true,
@@ -44,7 +43,6 @@ export const InventoryTable = () => {
         .update({
           current_price: editedValues.current_price,
           min_price: editedValues.min_price,
-          status: editedValues.status,
           ltc: editedValues.ltc,
           dimensions: editedValues.dimensions,
           quantity: editedValues.quantity,
@@ -107,9 +105,8 @@ export const InventoryTable = () => {
 
     const matchesType = typeFilter === "all" || item.type_id === typeFilter;
     const matchesZone = zoneFilter === "all" || item.sectors?.zones?.id === zoneFilter;
-    const matchesStatus = statusFilter === "all" || item.status === statusFilter;
 
-    return matchesSearch && matchesType && matchesZone && matchesStatus;
+    return matchesSearch && matchesType && matchesZone;
   });
 
   return (
@@ -121,8 +118,6 @@ export const InventoryTable = () => {
         onTypeFilterChange={setTypeFilter}
         zoneFilter={zoneFilter}
         onZoneFilterChange={setZoneFilter}
-        statusFilter={statusFilter}
-        onStatusFilterChange={setStatusFilter}
         visibleColumns={visibleColumns}
         onToggleColumn={(key) => setVisibleColumns(prev => ({ ...prev, [key]: !prev[key] }))}
       />
