@@ -33,6 +33,22 @@ export const OrderRowActions = ({
         newPaymentStatus: editedOrder.payment_status
       });
 
+      // First verify the order exists
+      const { data: existingOrder, error: fetchError } = await supabase
+        .from('orders')
+        .select('id')
+        .eq('id', order.id)
+        .maybeSingle();
+
+      if (fetchError) {
+        console.error('Error fetching order:', fetchError);
+        throw fetchError;
+      }
+
+      if (!existingOrder) {
+        throw new Error('Order not found');
+      }
+
       const updateData = {
         status: editedOrder.status,
         payment_status: editedOrder.payment_status,
@@ -45,17 +61,33 @@ export const OrderRowActions = ({
 
       console.log('Sending update with data:', updateData);
 
-      const { error } = await supabase
+      const { error: updateError } = await supabase
         .from('orders')
         .update(updateData)
         .eq('id', order.id);
 
-      if (error) {
-        console.error('Error updating order:', error);
-        throw error;
+      if (updateError) {
+        console.error('Error updating order:', updateError);
+        throw updateError;
       }
 
-      console.log('Order updated successfully');
+      // Verify the update was successful
+      const { data: updatedOrder, error: verifyError } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('id', order.id)
+        .maybeSingle();
+
+      if (verifyError) {
+        console.error('Error verifying update:', verifyError);
+        throw verifyError;
+      }
+
+      if (!updatedOrder) {
+        throw new Error('Failed to verify order update');
+      }
+
+      console.log('Order updated successfully:', updatedOrder);
       
       toast({
         title: "Success",
