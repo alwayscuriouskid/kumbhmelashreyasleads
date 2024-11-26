@@ -57,7 +57,14 @@ const EditNoteDialog = ({
     }
 
     try {
-      onUpdateNote(editedNote);
+      // Ensure we keep the original id and timestamps
+      const updatedNote = {
+        ...editedNote,
+        title: editedNote.title.trim(),
+        content: editedNote.content.trim(),
+      };
+      
+      onUpdateNote(updatedNote);
       console.log("Note update successful");
       onOpenChange(false);
       
