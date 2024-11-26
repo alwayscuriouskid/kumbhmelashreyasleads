@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { DeleteConfirmDialog } from "@/components/inventory/DeleteConfirmDialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface PendingAction {
   id: string;
@@ -28,13 +28,24 @@ interface PendingActionsListProps {
   isLoading: boolean;
 }
 
+const HIDDEN_ACTIONS_KEY = 'hiddenPendingActions';
+
 const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActionsListProps) => {
   const { data: teamMembers = [] } = useTeamMemberOptions();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
   const [actionToComplete, setActionToComplete] = useState<string | null>(null);
-  const [hiddenActions, setHiddenActions] = useState<Set<string>>(new Set());
+  const [hiddenActions, setHiddenActions] = useState<Set<string>>(() => {
+    // Initialize from localStorage
+    const saved = localStorage.getItem(HIDDEN_ACTIONS_KEY);
+    return new Set(saved ? JSON.parse(saved) : []);
+  });
+  
+  // Save to localStorage whenever hiddenActions changes
+  useEffect(() => {
+    localStorage.setItem(HIDDEN_ACTIONS_KEY, JSON.stringify([...hiddenActions]));
+  }, [hiddenActions]);
   
   const actions = initialActions.filter(action => !hiddenActions.has(action.id));
   
