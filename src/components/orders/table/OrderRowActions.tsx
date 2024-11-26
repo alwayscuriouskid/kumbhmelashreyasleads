@@ -25,70 +25,87 @@ export const OrderRowActions = ({
 }: OrderRowActionsProps) => {
   const handleSave = async () => {
     try {
-      console.log('Starting order update:', {
-        orderId: order.id,
-        currentStatus: order.status,
-        newStatus: editedOrder.status,
-        currentPaymentStatus: order.payment_status,
-        newPaymentStatus: editedOrder.payment_status
-      });
-
-      // First verify the order exists
-      const { data: existingOrder, error: fetchError } = await supabase
-        .from('orders')
-        .select('id')
-        .eq('id', order.id)
-        .maybeSingle();
-
-      if (fetchError) {
-        console.error('Error fetching order:', fetchError);
-        throw fetchError;
+      // Only proceed if status has changed
+      if (order.status === editedOrder.status && 
+          order.payment_status === editedOrder.payment_status) {
+        toast({
+          title: "No changes",
+          description: "No changes were made to the order status",
+        });
+        onCancel();
+        return;
       }
 
-      if (!existingOrder) {
-        throw new Error('Order not found');
-      }
-
-      const updateData = {
-        status: editedOrder.status,
-        payment_status: editedOrder.payment_status,
-        payment_confirmation: editedOrder.payment_confirmation,
-        next_payment_date: editedOrder.next_payment_date,
-        next_payment_details: editedOrder.next_payment_details,
-        additional_details: editedOrder.additional_details,
-        updated_at: new Date().toISOString()
-      };
-
-      console.log('Sending update with data:', updateData);
-
-      const { error: updateError } = await supabase
+      // First update order status
+      const { error: orderError } = await supabase
         .from('orders')
-        .update(updateData)
+        .update({
+          status: editedOrder.status,
+          payment_status: editedOrder.payment_status,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', order.id);
 
-      if (updateError) {
-        console.error('Error updating order:', updateError);
-        throw updateError;
+      if (orderError) throw orderError;
+
+      // Then update inventory quantities based on order items
+      const { data: orderItems } = await supabase
+        .from('order_items')
+        .select(`
+          quantity,
+          inventory_item_id,
+          inventory_items (
+            id,
+            available_quantity,
+            reserved_quantity,
+            sold_quantity
+          )
+        `)
+        .eq('order_id', order.id);
+
+      if (!orderItems?.length) {
+        throw new Error('No order items found');
       }
 
-      // Verify the update was successful
-      const { data: updatedOrder, error: verifyError } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('id', order.id)
-        .maybeSingle();
+      // Update each inventory item
+      for (const item of orderItems) {
+        const quantity = item.quantity;
+        const inventoryItem = item.inventory_items;
+        
+        let updates = {};
+        
+        // Handle different status transitions
+        if (editedOrder.status === 'approved' && order.status !== 'approved') {
+          updates = {
+            available_quantity: inventoryItem.available_quantity - quantity,
+            reserved_quantity: (inventoryItem.reserved_quantity || 0) + quantity
+          };
+        } else if (editedOrder.status === 'rejected' && order.status === 'approved') {
+          updates = {
+            available_quantity: inventoryItem.available_quantity + quantity,
+            reserved_quantity: (inventoryItem.reserved_quantity || 0) - quantity
+          };
+        }
 
-      if (verifyError) {
-        console.error('Error verifying update:', verifyError);
-        throw verifyError;
+        // Handle payment status changes
+        if (editedOrder.payment_status === 'finished' && 
+            order.payment_status !== 'finished') {
+          updates = {
+            reserved_quantity: (inventoryItem.reserved_quantity || 0) - quantity,
+            sold_quantity: (inventoryItem.sold_quantity || 0) + quantity
+          };
+        }
+
+        if (Object.keys(updates).length > 0) {
+          const { error: inventoryError } = await supabase
+            .from('inventory_items')
+            .update(updates)
+            .eq('id', item.inventory_item_id);
+
+          if (inventoryError) throw inventoryError;
+        }
       }
 
-      if (!updatedOrder) {
-        throw new Error('Failed to verify order update');
-      }
-
-      console.log('Order updated successfully:', updatedOrder);
-      
       toast({
         title: "Success",
         description: "Order updated successfully",

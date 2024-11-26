@@ -8,16 +8,9 @@ interface OrderStatusCellProps {
 }
 
 export const OrderStatusCell = ({ value, isEditing, onChange }: OrderStatusCellProps) => {
-  console.log('OrderStatusCell render:', { value, isEditing });
-  
-  const handleStatusChange = (newValue: string) => {
-    console.log('Updating status to:', newValue);
-    onChange(newValue);
-  };
-  
   if (isEditing) {
     return (
-      <Select value={value} onValueChange={handleStatusChange}>
+      <Select value={value} onValueChange={onChange}>
         <SelectTrigger className="w-[140px]">
           <SelectValue />
         </SelectTrigger>
@@ -33,7 +26,7 @@ export const OrderStatusCell = ({ value, isEditing, onChange }: OrderStatusCellP
   return (
     <Badge variant={
       value === "approved" 
-        ? "default" 
+        ? "success" 
         : value === "rejected" 
         ? "destructive" 
         : "secondary"
