@@ -38,7 +38,6 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
   const [actionToComplete, setActionToComplete] = useState<string | null>(null);
   
   const currentTeamMemberId = teamMembers[0]?.id;
-  console.log('Current team member ID:', currentTeamMemberId);
   
   const handleCompleteClick = (actionId: string) => {
     setActionToComplete(actionId);
@@ -49,8 +48,6 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
     if (!actionToComplete) return;
 
     try {
-      console.log('Marking activity as completed:', actionToComplete);
-      
       const { error } = await supabase
         .from('activities')
         .update({ is_completed: true })
@@ -58,9 +55,7 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
 
       if (error) throw error;
 
-      console.log('Activity marked as completed successfully');
       await queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
-      console.log('Query cache invalidated after completion');
 
       toast({
         title: "Action completed",
@@ -91,48 +86,31 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
     }
 
     try {
-      console.log('Hiding action:', actionId, 'for team member:', currentTeamMemberId);
-      
       const { data: currentAction, error: fetchError } = await supabase
         .from('activities')
         .select('hidden_by')
         .eq('id', actionId)
         .single();
 
-      if (fetchError) {
-        console.error('Error fetching current action:', fetchError);
-        throw fetchError;
-      }
+      if (fetchError) throw fetchError;
 
-      console.log('Current action data:', currentAction);
       const currentHiddenBy = currentAction?.hidden_by || [];
-      console.log('Current hidden_by array:', currentHiddenBy);
 
-      if (currentHiddenBy.includes(currentTeamMemberId)) {
-        console.log('Action already hidden for this team member');
-        return;
+      if (!currentHiddenBy.includes(currentTeamMemberId)) {
+        const { error: updateError } = await supabase
+          .from('activities')
+          .update({ hidden_by: [...currentHiddenBy, currentTeamMemberId] })
+          .eq('id', actionId);
+
+        if (updateError) throw updateError;
+
+        await queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
+        
+        toast({
+          title: "Action hidden",
+          description: "The action has been hidden from your view",
+        });
       }
-
-      const updatedHiddenBy = [...currentHiddenBy, currentTeamMemberId];
-      console.log('Updated hidden_by array:', updatedHiddenBy);
-
-      const { error: updateError } = await supabase
-        .from('activities')
-        .update({ hidden_by: updatedHiddenBy })
-        .eq('id', actionId);
-
-      if (updateError) {
-        console.error('Error updating hidden_by:', updateError);
-        throw updateError;
-      }
-
-      console.log('Successfully updated hidden_by array');
-      await queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
-      
-      toast({
-        title: "Action hidden",
-        description: "The action has been hidden from view",
-      });
     } catch (error) {
       console.error('Error hiding action:', error);
       toast({
@@ -147,19 +125,9 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
     return <div>Loading pending actions...</div>;
   }
 
-  // Filter out actions that are hidden by the current team member
   const visibleActions = initialActions.filter(action => {
-    console.log('Checking visibility for action:', action.id);
-    console.log('Action hidden_by:', action.hidden_by);
-    console.log('Current team member ID:', currentTeamMemberId);
-    
-    const isHidden = action.hidden_by?.includes(currentTeamMemberId);
-    console.log('Is action hidden?', isHidden);
-    
-    return !isHidden;
+    return !action.hidden_by?.includes(currentTeamMemberId);
   });
-
-  console.log('Visible actions count:', visibleActions.length);
 
   return (
     <>
