@@ -9,6 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { DeleteConfirmDialog } from "@/components/inventory/DeleteConfirmDialog";
 import { useState } from "react";
+import { PendingActionCard } from "./PendingActionCard";
+import { usePendingActionsContext } from "./PendingActionsContext";
 
 interface PendingAction {
   id: string;
@@ -36,11 +38,9 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
   const [actionToComplete, setActionToComplete] = useState<string | null>(null);
   
-  const getTeamMemberName = (id: string) => {
-    const member = teamMembers.find(m => m.id === id);
-    return member ? member.name : 'Unassigned';
-  };
-
+  const currentTeamMemberId = teamMembers[0]?.id;
+  console.log('Current team member ID:', currentTeamMemberId);
+  
   const handleCompleteClick = (actionId: string) => {
     setActionToComplete(actionId);
     setCompleteDialogOpen(true);
@@ -81,8 +81,18 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
   };
 
   const handleHideAction = async (actionId: string) => {
+    if (!currentTeamMemberId) {
+      console.error('No team member ID available');
+      toast({
+        title: "Error",
+        description: "Unable to hide action - no team member ID found",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      console.log('Hiding action:', actionId);
+      console.log('Hiding action:', actionId, 'for team member:', currentTeamMemberId);
       
       const { data: currentAction, error: fetchError } = await supabase
         .from('activities')
@@ -90,18 +100,34 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
         .eq('id', actionId)
         .single();
 
-      if (fetchError) throw fetchError;
+      if (fetchError) {
+        console.error('Error fetching current action:', fetchError);
+        throw fetchError;
+      }
 
-      const currentHiddenBy = currentAction.hidden_by || [];
+      console.log('Current action data:', currentAction);
+      const currentHiddenBy = currentAction?.hidden_by || [];
+      console.log('Current hidden_by array:', currentHiddenBy);
+
+      if (currentHiddenBy.includes(currentTeamMemberId)) {
+        console.log('Action already hidden for this team member');
+        return;
+      }
+
+      const updatedHiddenBy = [...currentHiddenBy, currentTeamMemberId];
+      console.log('Updated hidden_by array:', updatedHiddenBy);
+
       const { error: updateError } = await supabase
         .from('activities')
-        .update({ 
-          hidden_by: [...currentHiddenBy, teamMembers[0]?.id].filter(Boolean)
-        })
+        .update({ hidden_by: updatedHiddenBy })
         .eq('id', actionId);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('Error updating hidden_by:', updateError);
+        throw updateError;
+      }
 
+      console.log('Successfully updated hidden_by array');
       await queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
       
       toast({
@@ -124,9 +150,17 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
 
   // Filter out actions that are hidden by the current team member
   const visibleActions = initialActions.filter(action => {
-    const currentTeamMemberId = teamMembers[0]?.id;
-    return !action.hidden_by?.includes(currentTeamMemberId);
+    console.log('Checking visibility for action:', action.id);
+    console.log('Action hidden_by:', action.hidden_by);
+    console.log('Current team member ID:', currentTeamMemberId);
+    
+    const isHidden = action.hidden_by?.includes(currentTeamMemberId);
+    console.log('Is action hidden?', isHidden);
+    
+    return !isHidden;
   });
+
+  console.log('Visible actions count:', visibleActions.length);
 
   return (
     <>
@@ -135,61 +169,12 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
           <p className="text-muted-foreground">No pending actions found</p>
         ) : (
           visibleActions.map((action) => (
-            <div
+            <PendingActionCard
               key={action.id}
-              className="flex items-start space-x-4 p-4 rounded-lg border animate-fade-in"
-            >
-              <div className="flex-1 space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium">{action.description}</p>
-                    <Badge variant={action.type === 'follow_up' ? 'default' : 'secondary'}>
-                      {action.type === 'follow_up' ? 'Follow Up' : 'Action'}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleHideAction(action.id)}
-                      className="h-8 text-muted-foreground hover:text-red-600"
-                    >
-                      <EyeOff className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleCompleteClick(action.id)}
-                      className="h-8 text-muted-foreground hover:text-green-600 flex items-center gap-1"
-                    >
-                      <CheckCircle2 className="h-4 w-4" />
-                      <span>Mark Complete</span>
-                    </Button>
-                  </div>
-                </div>
-                {action.notes && (
-                  <p className="text-sm text-muted-foreground">
-                    Notes: {action.notes}
-                  </p>
-                )}
-                {action.outcome && (
-                  <p className="text-sm text-muted-foreground">
-                    Outcome: {action.outcome}
-                  </p>
-                )}
-                <p className="text-sm text-muted-foreground">
-                  Client: {action.clientName}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Assigned to: {getTeamMemberName(action.teamMemberId)}
-                </p>
-                {action.dueDate && (
-                  <p className="text-sm text-muted-foreground">
-                    Due: {format(new Date(action.dueDate), 'PPP')}
-                  </p>
-                )}
-              </div>
-            </div>
+              action={action}
+              onComplete={() => handleCompleteClick(action.id)}
+              onHide={() => handleHideAction(action.id)}
+            />
           ))
         )}
       </div>
