@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { format } from "date-fns";
 import { useTeamMemberOptions } from "@/hooks/useTeamMemberOptions";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,35 +31,34 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
   const { data: teamMembers = [] } = useTeamMemberOptions();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [actionToDelete, setActionToDelete] = useState<string | null>(null);
+  const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
+  const [actionToComplete, setActionToComplete] = useState<string | null>(null);
   
   const getTeamMemberName = (id: string) => {
     const member = teamMembers.find(m => m.id === id);
     return member ? member.name : 'Unassigned';
   };
 
-  const handleDeleteClick = (actionId: string) => {
-    setActionToDelete(actionId);
-    setDeleteDialogOpen(true);
+  const handleCompleteClick = (actionId: string) => {
+    setActionToComplete(actionId);
+    setCompleteDialogOpen(true);
   };
 
-  const handleConfirmDelete = async () => {
-    if (!actionToDelete) return;
+  const handleConfirmComplete = async () => {
+    if (!actionToComplete) return;
 
     try {
-      console.log('Marking activity as completed:', actionToDelete);
+      console.log('Marking activity as completed:', actionToComplete);
       
       const { error } = await supabase
         .from('activities')
         .update({ is_completed: true })
-        .eq('id', actionToDelete);
+        .eq('id', actionToComplete);
 
       if (error) throw error;
 
       console.log('Activity marked as completed successfully');
 
-      // Invalidate the query to trigger a refetch
       await queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
       console.log('Query cache invalidated after completion');
 
@@ -75,8 +74,8 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
         variant: "destructive",
       });
     } finally {
-      setDeleteDialogOpen(false);
-      setActionToDelete(null);
+      setCompleteDialogOpen(false);
+      setActionToComplete(null);
     }
   };
 
@@ -105,11 +104,12 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
                   </div>
                   <Button
                     variant="ghost"
-                    size="icon"
-                    onClick={() => handleDeleteClick(action.id)}
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                    size="sm"
+                    onClick={() => handleCompleteClick(action.id)}
+                    className="h-8 text-muted-foreground hover:text-green-600 flex items-center gap-1"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <CheckCircle2 className="h-4 w-4" />
+                    <span>Mark Complete</span>
                   </Button>
                 </div>
                 {action.notes && (
@@ -140,9 +140,9 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
       </div>
 
       <DeleteConfirmDialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-        onConfirm={handleConfirmDelete}
+        open={completeDialogOpen}
+        onOpenChange={setCompleteDialogOpen}
+        onConfirm={handleConfirmComplete}
         title="Complete Action"
         description="Are you sure you want to mark this action as completed? This will remove it from the pending actions list."
       />
