@@ -47,8 +47,8 @@ export const usePendingActions = (
         .not('next_action', 'eq', '')
         .eq('is_completed', false);
 
-      // Explicitly filter out activities where current team member is in hidden_by array
-      query = query.not('hidden_by', '@>', `["${currentTeamMemberId}"]`);
+      // Filter out activities where current team member is in hidden_by array
+      query = query.filter('hidden_by', 'not.cs', `{${currentTeamMemberId}}`);
 
       if (selectedTeamMember !== 'all') {
         query = query.eq('assigned_to', selectedTeamMember);
@@ -72,13 +72,7 @@ export const usePendingActions = (
 
       console.log("Fetched pending actions:", data);
 
-      // Additional client-side filtering to ensure hidden actions are removed
-      const filteredData = data.filter(action => {
-        const hiddenBy = action.hidden_by || [];
-        return !hiddenBy.includes(currentTeamMemberId) && !action.is_completed;
-      });
-
-      return filteredData.map(action => ({
+      return data.map(action => ({
         id: action.id,
         type: action.type,
         description: action.next_action,
