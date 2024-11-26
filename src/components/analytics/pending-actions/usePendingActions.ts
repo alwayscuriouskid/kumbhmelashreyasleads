@@ -20,6 +20,11 @@ export const usePendingActions = (
         currentTeamMemberId
       });
 
+      if (!currentTeamMemberId) {
+        console.log("No team member ID available");
+        return [];
+      }
+
       let query = supabase
         .from('activities')
         .select(`
@@ -42,10 +47,8 @@ export const usePendingActions = (
         .not('next_action', 'eq', '')
         .eq('is_completed', false);
 
-      // Filter out activities that are either hidden or completed
-      if (currentTeamMemberId) {
-        query = query.not('hidden_by', 'cs', `{${currentTeamMemberId}}`);
-      }
+      // Explicitly filter out activities where current team member is in hidden_by array
+      query = query.not('hidden_by', '@>', `["${currentTeamMemberId}"]`);
 
       if (selectedTeamMember !== 'all') {
         query = query.eq('assigned_to', selectedTeamMember);
@@ -69,7 +72,13 @@ export const usePendingActions = (
 
       console.log("Fetched pending actions:", data);
 
-      return data.map(action => ({
+      // Additional client-side filtering to ensure hidden actions are removed
+      const filteredData = data.filter(action => {
+        const hiddenBy = action.hidden_by || [];
+        return !hiddenBy.includes(currentTeamMemberId) && !action.is_completed;
+      });
+
+      return filteredData.map(action => ({
         id: action.id,
         type: action.type,
         description: action.next_action,
@@ -83,7 +92,7 @@ export const usePendingActions = (
         hidden_by: action.hidden_by || []
       }));
     },
-    staleTime: 0, // Always fetch fresh data
+    staleTime: 0,
     gcTime: 0,
   });
 };

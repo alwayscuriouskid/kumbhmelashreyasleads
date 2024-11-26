@@ -57,8 +57,6 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
 
       if (error) throw error;
 
-      await queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
-
       toast({
         title: "Action completed",
         description: "The action has been marked as completed",
@@ -105,8 +103,6 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
 
       if (updateError) throw updateError;
 
-      await queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
-      
       toast({
         title: "Action hidden",
         description: "The action has been hidden from your view",
