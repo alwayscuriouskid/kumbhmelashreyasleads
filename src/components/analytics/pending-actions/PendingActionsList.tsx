@@ -10,7 +10,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { DeleteConfirmDialog } from "@/components/inventory/DeleteConfirmDialog";
 import { useState } from "react";
 import { PendingActionCard } from "./PendingActionCard";
-import { usePendingActionsContext } from "./PendingActionsContext";
 
 interface PendingAction {
   id: string;
