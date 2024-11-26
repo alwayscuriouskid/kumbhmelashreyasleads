@@ -30,18 +30,11 @@ export const OrderRowActions = ({
     
     try {
       setLoading(true);
-      console.log('Updating order status:', editedOrder.status);
-
+      
+      // Simple status update - nothing else
       const { error } = await supabase
         .from('orders')
-        .update({ 
-          status: editedOrder.status,
-          payment_status: editedOrder.payment_status,
-          payment_confirmation: editedOrder.payment_confirmation,
-          next_payment_date: editedOrder.next_payment_date,
-          next_payment_details: editedOrder.next_payment_details,
-          updated_at: new Date().toISOString()
-        })
+        .update({ status: editedOrder.status })
         .eq('id', order.id);
 
       if (error) throw error;
