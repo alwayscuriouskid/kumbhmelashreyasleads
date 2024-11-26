@@ -26,6 +26,7 @@ export const usePendingActions = (
           next_action_date,
           assigned_to,
           contact_person,
+          is_completed,
           lead:leads (
             id,
             client_name
@@ -66,10 +67,10 @@ export const usePendingActions = (
         teamMember: action.assigned_to || 'Unassigned',
         teamMemberId: action.assigned_to || '',
         outcome: action.outcome,
-        notes: action.notes
+        notes: action.notes,
+        is_completed: action.is_completed
       }));
     },
-    // Add staleTime and cacheTime to ensure proper cache invalidation
     staleTime: 0,
     gcTime: 0,
   });

@@ -20,6 +20,7 @@ interface PendingAction {
   teamMemberId: string;
   outcome?: string;
   notes?: string;
+  is_completed?: boolean;
 }
 
 interface PendingActionsListProps {
@@ -33,6 +34,9 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
   const queryClient = useQueryClient();
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
   const [actionToComplete, setActionToComplete] = useState<string | null>(null);
+  
+  // Filter out completed actions
+  const actions = initialActions.filter(action => !action.is_completed);
   
   const getTeamMemberName = (id: string) => {
     const member = teamMembers.find(m => m.id === id);
@@ -86,10 +90,10 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
   return (
     <>
       <div className="space-y-4">
-        {initialActions?.length === 0 ? (
+        {actions.length === 0 ? (
           <p className="text-muted-foreground">No pending actions found</p>
         ) : (
-          initialActions?.map((action) => (
+          actions.map((action) => (
             <div
               key={action.id}
               className="flex items-start space-x-4 p-4 rounded-lg border animate-fade-in"
