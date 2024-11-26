@@ -1,5 +1,4 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
@@ -36,7 +35,7 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
     return member ? member.name : 'Unassigned';
   };
 
-  const handleDelete = async (actionId: string) => {
+  const handleComplete = async (actionId: string) => {
     try {
       console.log('Marking action as completed:', actionId);
       
@@ -77,10 +76,6 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
             key={action.id}
             className="flex items-start space-x-4 p-4 rounded-lg border animate-fade-in"
           >
-            <Checkbox 
-              id={action.id}
-              onCheckedChange={() => handleDelete(action.id)}
-            />
             <div className="flex-1 space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -92,7 +87,7 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => handleDelete(action.id)}
+                  onClick={() => handleComplete(action.id)}
                   className="h-8 w-8 text-muted-foreground hover:text-destructive"
                 >
                   <Trash2 className="h-4 w-4" />
