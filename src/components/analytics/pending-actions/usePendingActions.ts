@@ -27,6 +27,7 @@ export const usePendingActions = (
           assigned_to,
           contact_person,
           is_completed,
+          hidden_by,
           lead:leads (
             id,
             client_name
@@ -68,7 +69,8 @@ export const usePendingActions = (
         teamMemberId: action.assigned_to || '',
         outcome: action.outcome,
         notes: action.notes,
-        is_completed: action.is_completed
+        is_completed: action.is_completed,
+        hidden_by: action.hidden_by
       }));
     },
     staleTime: 0,

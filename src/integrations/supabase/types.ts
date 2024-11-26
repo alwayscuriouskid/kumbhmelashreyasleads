@@ -16,6 +16,7 @@ export type Database = {
           contact_person: string | null
           created_at: string | null
           end_time: string | null
+          hidden_by: string[] | null
           id: string
           is_completed: boolean | null
           is_followup: boolean | null
@@ -36,6 +37,7 @@ export type Database = {
           contact_person?: string | null
           created_at?: string | null
           end_time?: string | null
+          hidden_by?: string[] | null
           id?: string
           is_completed?: boolean | null
           is_followup?: boolean | null
@@ -56,6 +58,7 @@ export type Database = {
           contact_person?: string | null
           created_at?: string | null
           end_time?: string | null
+          hidden_by?: string[] | null
           id?: string
           is_completed?: boolean | null
           is_followup?: boolean | null

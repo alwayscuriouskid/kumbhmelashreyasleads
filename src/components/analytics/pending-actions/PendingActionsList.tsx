@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { DeleteConfirmDialog } from "@/components/inventory/DeleteConfirmDialog";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 interface PendingAction {
   id: string;
@@ -21,6 +21,7 @@ interface PendingAction {
   outcome?: string;
   notes?: string;
   is_completed?: boolean;
+  hidden_by?: string[];
 }
 
 interface PendingActionsListProps {
@@ -28,26 +29,12 @@ interface PendingActionsListProps {
   isLoading: boolean;
 }
 
-const HIDDEN_ACTIONS_KEY = 'hiddenPendingActions';
-
 const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActionsListProps) => {
   const { data: teamMembers = [] } = useTeamMemberOptions();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
   const [actionToComplete, setActionToComplete] = useState<string | null>(null);
-  const [hiddenActions, setHiddenActions] = useState<Set<string>>(() => {
-    // Initialize from localStorage
-    const saved = localStorage.getItem(HIDDEN_ACTIONS_KEY);
-    return new Set(saved ? JSON.parse(saved) : []);
-  });
-  
-  // Save to localStorage whenever hiddenActions changes
-  useEffect(() => {
-    localStorage.setItem(HIDDEN_ACTIONS_KEY, JSON.stringify([...hiddenActions]));
-  }, [hiddenActions]);
-  
-  const actions = initialActions.filter(action => !hiddenActions.has(action.id));
   
   const getTeamMemberName = (id: string) => {
     const member = teamMembers.find(m => m.id === id);
@@ -72,9 +59,6 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
 
       if (error) throw error;
 
-      // Hide the action from UI immediately
-      setHiddenActions(prev => new Set([...prev, actionToComplete]));
-
       console.log('Activity marked as completed successfully');
       await queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
       console.log('Query cache invalidated after completion');
@@ -96,25 +80,61 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
     }
   };
 
-  const handleHideAction = (actionId: string) => {
-    setHiddenActions(prev => new Set([...prev, actionId]));
-    toast({
-      title: "Action hidden",
-      description: "The action has been hidden from view",
-    });
+  const handleHideAction = async (actionId: string) => {
+    try {
+      console.log('Hiding action:', actionId);
+      
+      const { data: currentAction, error: fetchError } = await supabase
+        .from('activities')
+        .select('hidden_by')
+        .eq('id', actionId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      const currentHiddenBy = currentAction.hidden_by || [];
+      const { error: updateError } = await supabase
+        .from('activities')
+        .update({ 
+          hidden_by: [...currentHiddenBy, teamMembers[0]?.id].filter(Boolean)
+        })
+        .eq('id', actionId);
+
+      if (updateError) throw updateError;
+
+      await queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
+      
+      toast({
+        title: "Action hidden",
+        description: "The action has been hidden from view",
+      });
+    } catch (error) {
+      console.error('Error hiding action:', error);
+      toast({
+        title: "Error",
+        description: "Failed to hide the action",
+        variant: "destructive",
+      });
+    }
   };
 
   if (isLoading) {
     return <div>Loading pending actions...</div>;
   }
 
+  // Filter out actions that are hidden by the current team member
+  const visibleActions = initialActions.filter(action => {
+    const currentTeamMemberId = teamMembers[0]?.id;
+    return !action.hidden_by?.includes(currentTeamMemberId);
+  });
+
   return (
     <>
       <div className="space-y-4">
-        {actions.length === 0 ? (
+        {visibleActions.length === 0 ? (
           <p className="text-muted-foreground">No pending actions found</p>
         ) : (
-          actions.map((action) => (
+          visibleActions.map((action) => (
             <div
               key={action.id}
               className="flex items-start space-x-4 p-4 rounded-lg border animate-fade-in"
