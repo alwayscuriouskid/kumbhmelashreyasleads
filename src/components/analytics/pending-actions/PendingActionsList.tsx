@@ -98,12 +98,25 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
         });
       });
 
+      // Get current hidden_by array
+      const { data: currentAction, error: fetchError } = await supabase
+        .from('activities')
+        .select('hidden_by')
+        .eq('id', actionId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Update with new array
+      const updatedHiddenBy = [...(currentAction?.hidden_by || [])];
+      if (!updatedHiddenBy.includes(currentTeamMemberId)) {
+        updatedHiddenBy.push(currentTeamMemberId);
+      }
+
       // Then update the database
       const { error: updateError } = await supabase
         .from('activities')
-        .update({ 
-          hidden_by: supabase.sql`array_append(COALESCE(hidden_by, ARRAY[]::text[]), ${currentTeamMemberId})`
-        })
+        .update({ hidden_by: updatedHiddenBy })
         .eq('id', actionId);
 
       if (updateError) throw updateError;
