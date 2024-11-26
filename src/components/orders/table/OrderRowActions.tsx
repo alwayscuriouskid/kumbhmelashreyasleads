@@ -30,16 +30,9 @@ export const OrderRowActions = ({
     
     try {
       setLoading(true);
-      console.log('Updating order:', { 
-        orderId: order.id, 
-        currentStatus: order.status, 
-        newStatus: editedOrder.status,
-        currentPaymentStatus: order.payment_status,
-        newPaymentStatus: editedOrder.payment_status
-      });
+      console.log('Updating order status:', editedOrder.status);
 
-      // Update order with new status
-      const { error: updateError } = await supabase
+      const { error } = await supabase
         .from('orders')
         .update({ 
           status: editedOrder.status,
@@ -51,7 +44,7 @@ export const OrderRowActions = ({
         })
         .eq('id', order.id);
 
-      if (updateError) throw updateError;
+      if (error) throw error;
 
       toast({
         title: "Success",
