@@ -12,6 +12,7 @@ interface PendingAction {
   teamMember: string;
   outcome?: string;
   notes?: string;
+  hidden_by?: string[];
 }
 
 interface PendingActionCardProps {

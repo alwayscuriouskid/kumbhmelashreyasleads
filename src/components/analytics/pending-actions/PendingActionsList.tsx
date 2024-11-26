@@ -11,7 +11,6 @@ interface PendingAction {
   dueDate: string;
   clientName: string;
   teamMember: string;
-  teamMemberId: string;
   outcome?: string;
   notes?: string;
   hidden_by?: string[];
