@@ -1,18 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useTeamMemberOptions } from "@/hooks/useTeamMemberOptions";
 
 export const usePendingActions = (
   selectedTeamMember: string,
   selectedActionType: string,
   selectedDate?: Date
 ) => {
+  const { data: teamMembers = [] } = useTeamMemberOptions();
+  const currentTeamMemberId = teamMembers[0]?.id;
+
   return useQuery({
-    queryKey: ['pending-actions', selectedTeamMember, selectedActionType, selectedDate],
+    queryKey: ['pending-actions', selectedTeamMember, selectedActionType, selectedDate, currentTeamMemberId],
     queryFn: async () => {
       console.log("Fetching pending actions with filters:", {
         teamMember: selectedTeamMember,
         actionType: selectedActionType,
-        date: selectedDate
+        date: selectedDate,
+        currentTeamMemberId
       });
 
       let query = supabase
@@ -37,6 +42,11 @@ export const usePendingActions = (
         .not('next_action', 'eq', '')
         .eq('is_completed', false);
 
+      // Filter out activities where current team member is in hidden_by array
+      if (currentTeamMemberId) {
+        query = query.not('hidden_by', 'cs', `{${currentTeamMemberId}}`);
+      }
+
       if (selectedTeamMember !== 'all') {
         query = query.eq('assigned_to', selectedTeamMember);
       }
@@ -56,6 +66,8 @@ export const usePendingActions = (
         console.error("Error fetching pending actions:", error);
         throw error;
       }
+
+      console.log("Fetched pending actions:", data);
 
       return data.map(action => ({
         id: action.id,

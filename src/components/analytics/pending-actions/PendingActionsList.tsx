@@ -1,6 +1,4 @@
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { useTeamMemberOptions } from "@/hooks/useTeamMemberOptions";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -84,44 +82,16 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
     }
 
     try {
-      // First update the local state through query invalidation
-      queryClient.setQueryData(['pending-actions'], (oldData: any) => {
-        if (!oldData) return oldData;
-        return oldData.map((action: PendingAction) => {
-          if (action.id === actionId) {
-            return {
-              ...action,
-              hidden_by: [...(action.hidden_by || []), currentTeamMemberId]
-            };
-          }
-          return action;
-        });
-      });
-
-      // Get current hidden_by array
-      const { data: currentAction, error: fetchError } = await supabase
-        .from('activities')
-        .select('hidden_by')
-        .eq('id', actionId)
-        .single();
-
-      if (fetchError) throw fetchError;
-
-      // Update with new array
-      const updatedHiddenBy = [...(currentAction?.hidden_by || [])];
-      if (!updatedHiddenBy.includes(currentTeamMemberId)) {
-        updatedHiddenBy.push(currentTeamMemberId);
-      }
-
-      // Then update the database
       const { error: updateError } = await supabase
         .from('activities')
-        .update({ hidden_by: updatedHiddenBy })
+        .update({ 
+          hidden_by: [currentTeamMemberId]  // Simply set the current team member as hidden_by
+        })
         .eq('id', actionId);
 
       if (updateError) throw updateError;
 
-      // Invalidate the query to ensure data consistency
+      // Invalidate the query to refresh the data
       await queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
       
       toast({
@@ -135,7 +105,6 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
         description: "Failed to hide the action",
         variant: "destructive",
       });
-      // Invalidate query to revert optimistic update
       await queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
     }
   };
@@ -144,18 +113,13 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
     return <div>Loading pending actions...</div>;
   }
 
-  const visibleActions = initialActions.filter(action => {
-    const isHidden = Array.isArray(action.hidden_by) && action.hidden_by.includes(currentTeamMemberId);
-    return !isHidden;
-  });
-
   return (
     <>
       <div className="space-y-4">
-        {visibleActions.length === 0 ? (
+        {initialActions.length === 0 ? (
           <p className="text-muted-foreground">No pending actions found</p>
         ) : (
-          visibleActions.map((action) => (
+          initialActions.map((action) => (
             <PendingActionCard
               key={action.id}
               action={action}
