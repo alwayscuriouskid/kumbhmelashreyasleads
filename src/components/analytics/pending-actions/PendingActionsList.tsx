@@ -48,7 +48,7 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
     if (!actionToDelete) return;
 
     try {
-      console.log('Deleting action:', actionToDelete);
+      console.log('Deleting activity with ID:', actionToDelete);
       
       const { error } = await supabase
         .from('activities')
@@ -57,7 +57,9 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
 
       if (error) throw error;
 
-      // Immediately invalidate the pending-actions query to trigger a refetch
+      console.log('Activity deleted successfully');
+
+      // Invalidate the query to trigger a refetch
       await queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
       console.log('Query cache invalidated after deletion');
 
@@ -66,7 +68,7 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
         description: "The action has been deleted successfully",
       });
     } catch (error) {
-      console.error('Error deleting action:', error);
+      console.error('Error deleting activity:', error);
       toast({
         title: "Error",
         description: "Failed to delete the action",
