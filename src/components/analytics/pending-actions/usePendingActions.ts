@@ -33,7 +33,7 @@ export const usePendingActions = (
         `)
         .not('next_action', 'is', null)
         .not('next_action', 'eq', '')
-        .eq('is_completed', false); // Explicitly filter out completed actions
+        .eq('is_completed', false);
 
       if (selectedTeamMember !== 'all') {
         query = query.eq('assigned_to', selectedTeamMember);
@@ -69,7 +69,5 @@ export const usePendingActions = (
         notes: action.notes
       }));
     },
-    refetchOnWindowFocus: true,
-    staleTime: 0,
   });
 };
