@@ -45,20 +45,18 @@ export const OrderRowActions = ({
 
       console.log('Sending update with data:', updateData);
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('orders')
         .update(updateData)
-        .eq('id', order.id)
-        .select()
-        .single();
+        .eq('id', order.id);
 
       if (error) {
         console.error('Error updating order:', error);
         throw error;
       }
 
-      console.log('Order updated successfully:', data);
-
+      console.log('Order updated successfully');
+      
       toast({
         title: "Success",
         description: "Order updated successfully",
