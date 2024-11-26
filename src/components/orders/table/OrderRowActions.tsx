@@ -26,6 +26,8 @@ export const OrderRowActions = ({
   const [loading, setLoading] = useState(false);
 
   const handleSave = async () => {
+    if (loading) return;
+    
     try {
       setLoading(true);
       console.log('Starting order update:', { 
@@ -70,53 +72,9 @@ export const OrderRowActions = ({
       if (orderError) throw orderError;
       console.log('Order status updated successfully');
 
-      // Handle inventory updates based on status changes
-      if (orderItems && orderItems.length > 0) {
-        for (const item of orderItems) {
-          const inventoryItem = item.inventory_items;
-          const quantity = item.quantity;
-          let updates = {};
-
-          // Calculate inventory updates based on status changes
-          if (editedOrder.status === 'approved' && order.status !== 'approved') {
-            console.log('Updating inventory for approved order');
-            updates = {
-              available_quantity: inventoryItem.available_quantity - quantity,
-              reserved_quantity: (inventoryItem.reserved_quantity || 0) + quantity
-            };
-          } else if (editedOrder.status === 'rejected' && order.status === 'approved') {
-            console.log('Updating inventory for rejected order');
-            updates = {
-              available_quantity: inventoryItem.available_quantity + quantity,
-              reserved_quantity: Math.max(0, (inventoryItem.reserved_quantity || 0) - quantity)
-            };
-          }
-
-          // Handle payment status changes
-          if (editedOrder.payment_status === 'finished' && order.payment_status !== 'finished') {
-            console.log('Updating inventory for completed payment');
-            updates = {
-              reserved_quantity: Math.max(0, (inventoryItem.reserved_quantity || 0) - quantity),
-              sold_quantity: (inventoryItem.sold_quantity || 0) + quantity
-            };
-          }
-
-          // Only update if there are changes to make
-          if (Object.keys(updates).length > 0) {
-            console.log('Applying inventory updates:', { 
-              itemId: item.inventory_item_id, 
-              updates 
-            });
-            
-            const { error: inventoryError } = await supabase
-              .from('inventory_items')
-              .update(updates)
-              .eq('id', item.inventory_item_id);
-
-            if (inventoryError) throw inventoryError;
-          }
-        }
-      }
+      // The database trigger handle_order_status_change will handle inventory updates
+      // Let's wait a moment to ensure the trigger has time to process
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       toast({
         title: "Success",

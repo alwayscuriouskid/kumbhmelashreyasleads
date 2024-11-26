@@ -8,6 +8,8 @@ interface OrderStatusCellProps {
 }
 
 export const OrderStatusCell = ({ value, isEditing, onChange }: OrderStatusCellProps) => {
+  console.log('Updating status to:', value);
+  
   if (isEditing) {
     return (
       <Select value={value} onValueChange={onChange}>
@@ -26,7 +28,7 @@ export const OrderStatusCell = ({ value, isEditing, onChange }: OrderStatusCellP
   return (
     <Badge variant={
       value === "approved" 
-        ? "default"  // Using default (usually green) for approved
+        ? "default"
         : value === "rejected" 
         ? "destructive" 
         : "secondary"
