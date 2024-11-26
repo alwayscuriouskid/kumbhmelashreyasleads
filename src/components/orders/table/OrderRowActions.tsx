@@ -72,9 +72,17 @@ export const OrderRowActions = ({
       if (orderError) throw orderError;
       console.log('Order status updated successfully');
 
-      // The database trigger handle_order_status_change will handle inventory updates
-      // Let's wait a moment to ensure the trigger has time to process
+      // Wait for trigger to process
       await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Verify the inventory update
+      const { data: updatedInventory, error: verifyError } = await supabase
+        .from('inventory_items')
+        .select('id, available_quantity, reserved_quantity, sold_quantity')
+        .in('id', orderItems?.map(item => item.inventory_item_id) || []);
+
+      if (verifyError) throw verifyError;
+      console.log('Verified inventory status:', updatedInventory);
 
       toast({
         title: "Success",
