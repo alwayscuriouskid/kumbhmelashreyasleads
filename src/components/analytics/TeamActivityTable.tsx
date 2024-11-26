@@ -125,18 +125,20 @@ const TeamActivityTable = () => {
         onNextActionDateSelect={setNextActionDateFilter}
       />
 
-      <Table>
-        <TeamActivityTableHeader visibleColumns={visibleColumns} />
-        <TableBody>
-          {filteredActivities.map((activity) => (
-            <TeamActivityRow 
-              key={activity.id}
-              activity={activity}
-              visibleColumns={visibleColumns}
-            />
-          ))}
-        </TableBody>
-      </Table>
+      <div className="table-container">
+        <Table>
+          <TeamActivityTableHeader visibleColumns={visibleColumns} />
+          <TableBody>
+            {filteredActivities.map((activity) => (
+              <TeamActivityRow 
+                key={activity.id}
+                activity={activity}
+                visibleColumns={visibleColumns}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 };
