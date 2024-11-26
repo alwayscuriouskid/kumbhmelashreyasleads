@@ -44,6 +44,12 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
     if (!actionToComplete) return;
 
     try {
+      // Optimistically update UI
+      queryClient.setQueryData(['pending-actions'], (oldData: any) => {
+        if (!oldData) return oldData;
+        return oldData.filter((action: PendingAction) => action.id !== actionToComplete);
+      });
+
       const { error } = await supabase
         .from('activities')
         .update({ is_completed: true })
@@ -64,6 +70,8 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
         description: "Failed to complete the action",
         variant: "destructive",
       });
+      // Refresh data in case of error
+      await queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
     } finally {
       setCompleteDialogOpen(false);
       setActionToComplete(null);
@@ -82,16 +90,21 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
     }
 
     try {
+      // Optimistically update UI
+      queryClient.setQueryData(['pending-actions'], (oldData: any) => {
+        if (!oldData) return oldData;
+        return oldData.filter((action: PendingAction) => action.id !== actionId);
+      });
+
       const { error: updateError } = await supabase
         .from('activities')
         .update({ 
-          hidden_by: [currentTeamMemberId]  // Simply set the current team member as hidden_by
+          hidden_by: [currentTeamMemberId]
         })
         .eq('id', actionId);
 
       if (updateError) throw updateError;
 
-      // Invalidate the query to refresh the data
       await queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
       
       toast({
@@ -105,6 +118,7 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
         description: "Failed to hide the action",
         variant: "destructive",
       });
+      // Refresh data in case of error
       await queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
     }
   };

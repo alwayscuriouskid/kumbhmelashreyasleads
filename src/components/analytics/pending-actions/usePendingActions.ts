@@ -42,7 +42,7 @@ export const usePendingActions = (
         .not('next_action', 'eq', '')
         .eq('is_completed', false);
 
-      // Filter out activities where current team member is in hidden_by array
+      // Filter out activities that are either hidden or completed
       if (currentTeamMemberId) {
         query = query.not('hidden_by', 'cs', `{${currentTeamMemberId}}`);
       }
@@ -83,7 +83,7 @@ export const usePendingActions = (
         hidden_by: action.hidden_by || []
       }));
     },
-    staleTime: 0,
+    staleTime: 0, // Always fetch fresh data
     gcTime: 0,
   });
 };
