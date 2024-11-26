@@ -8,6 +8,7 @@ import { useTeamMemberOptions } from "@/hooks/useTeamMemberOptions";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 
 interface PendingAction {
   id: string;
@@ -26,10 +27,11 @@ interface PendingActionsListProps {
   isLoading: boolean;
 }
 
-const PendingActionsList = ({ actions, isLoading }: PendingActionsListProps) => {
+const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActionsListProps) => {
   const { data: teamMembers = [] } = useTeamMemberOptions();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [actions, setActions] = useState(initialActions);
   
   const getTeamMemberName = (id: string) => {
     const member = teamMembers.find(m => m.id === id);
@@ -47,7 +49,10 @@ const PendingActionsList = ({ actions, isLoading }: PendingActionsListProps) => 
 
       if (error) throw error;
 
-      // Immediately invalidate and refetch the pending-actions query
+      // Update local state to remove the completed action
+      setActions(prevActions => prevActions.filter(action => action.id !== actionId));
+
+      // Invalidate and refetch the pending-actions query
       await queryClient.invalidateQueries({ 
         queryKey: ['pending-actions'],
         refetchType: 'active',
