@@ -43,8 +43,12 @@ export const usePendingActions = (
           )
         `)
         .not('next_action', 'is', null)
-        .not('next_action', 'eq', '')
-        .not('hidden_by', 'cs', `{${currentTeamMemberId}}`);
+        .not('next_action', 'eq', '');
+
+      // Filter out activities where current team member is in hidden_by array
+      if (currentTeamMemberId) {
+        query = query.not('hidden_by', 'cs', `[${currentTeamMemberId}]`);
+      }
 
       if (selectedTeamMember !== 'all') {
         query = query.eq('assigned_to', selectedTeamMember);
@@ -59,6 +63,7 @@ export const usePendingActions = (
         query = query.eq('next_action_date', dateStr);
       }
 
+      console.log("Executing Supabase query...");
       const { data, error } = await query;
 
       if (error) {
@@ -75,7 +80,6 @@ export const usePendingActions = (
         dueDate: action.next_action_date,
         clientName: action.lead?.client_name || 'Unknown Client',
         teamMember: action.assigned_to || 'Unassigned',
-        teamMemberId: action.assigned_to || '',
         outcome: action.outcome,
         notes: action.notes,
         hidden_by: action.hidden_by || []
