@@ -81,7 +81,10 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
             key={action.id}
             className="flex items-start space-x-4 p-4 rounded-lg border animate-fade-in"
           >
-            <Checkbox id={action.id} />
+            <Checkbox 
+              id={action.id}
+              onCheckedChange={() => handleDelete(action.id)}
+            />
             <div className="flex-1 space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
