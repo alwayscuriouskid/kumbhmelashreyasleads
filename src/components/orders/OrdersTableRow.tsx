@@ -44,8 +44,19 @@ export const OrdersTableRow = ({
         newPaymentStatus: editedOrder.payment_status
       });
 
+      // First fetch current order to ensure we have latest data
+      const { data: currentOrder, error: fetchError } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('id', order.id)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      console.log('Current order state:', currentOrder);
+
       // Update order in database
-      const { error: updateError } = await supabase
+      const { data: updatedOrder, error: updateError } = await supabase
         .from('orders')
         .update({ 
           status: editedOrder.status,
@@ -56,9 +67,13 @@ export const OrdersTableRow = ({
           additional_details: editedOrder.additional_details,
           updated_at: new Date().toISOString()
         })
-        .eq('id', order.id);
+        .eq('id', order.id)
+        .select()
+        .single();
 
       if (updateError) throw updateError;
+
+      console.log('Order updated successfully:', updatedOrder);
 
       setIsEditing(false);
       onOrderUpdate();
