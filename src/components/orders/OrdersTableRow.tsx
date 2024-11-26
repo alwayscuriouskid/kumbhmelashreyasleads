@@ -9,7 +9,7 @@ import { InventoryItemsCell } from "./cells/InventoryItemsCell";
 import { OrderStatusCell } from "./cells/OrderStatusCell";
 import { PaymentStatusCell } from "./cells/PaymentStatusCell";
 import { toast } from "@/components/ui/use-toast";
-import { updateOrderStatus, updateOrderPaymentStatus } from "./utils/orderStatusManager";
+import { supabase } from "@/integrations/supabase/client";
 
 interface OrdersTableRowProps {
   order: Order;
@@ -44,22 +44,21 @@ export const OrdersTableRow = ({
         newPaymentStatus: editedOrder.payment_status
       });
 
-      // Handle order status change
-      if (order.status !== editedOrder.status) {
-        await updateOrderStatus(
-          order.id, 
-          editedOrder.status as 'pending' | 'approved' | 'rejected',
-          order.status
-        );
-      }
+      // Update order in database
+      const { error: updateError } = await supabase
+        .from('orders')
+        .update({ 
+          status: editedOrder.status,
+          payment_status: editedOrder.payment_status,
+          payment_confirmation: editedOrder.payment_confirmation,
+          next_payment_date: editedOrder.next_payment_date,
+          next_payment_details: editedOrder.next_payment_details,
+          additional_details: editedOrder.additional_details,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', order.id);
 
-      // Handle payment status change
-      if (order.payment_status !== editedOrder.payment_status) {
-        await updateOrderPaymentStatus(
-          order.id,
-          editedOrder.payment_status as 'pending' | 'partially_pending' | 'finished'
-        );
-      }
+      if (updateError) throw updateError;
 
       setIsEditing(false);
       onOrderUpdate();
