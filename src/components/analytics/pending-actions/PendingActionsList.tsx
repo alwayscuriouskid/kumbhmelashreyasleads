@@ -46,7 +46,8 @@ const PendingActionsList = ({ actions: initialActions, isLoading }: PendingActio
 
       if (error) throw error;
 
-      queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
+      // Immediately invalidate the pending-actions query to refresh the list
+      await queryClient.invalidateQueries({ queryKey: ['pending-actions'] });
 
       toast({
         title: "Action completed",
