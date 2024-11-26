@@ -45,22 +45,25 @@ export const usePendingActions = (
         .not('next_action', 'is', null)
         .not('next_action', 'eq', '');
 
-      // Filter out activities where current team member is in hidden_by array
-      if (currentTeamMemberId) {
-        query = query.not('hidden_by', 'cs', `[${currentTeamMemberId}]`);
-      }
-
+      // Filter by team member if selected
       if (selectedTeamMember !== 'all') {
         query = query.eq('assigned_to', selectedTeamMember);
       }
 
+      // Filter by action type if selected
       if (selectedActionType !== 'all') {
         query = query.eq('type', selectedActionType);
       }
 
+      // Filter by date if selected
       if (selectedDate) {
         const dateStr = selectedDate.toISOString().split('T')[0];
         query = query.eq('next_action_date', dateStr);
+      }
+
+      // Filter out hidden actions for current team member
+      if (currentTeamMemberId) {
+        query = query.not('hidden_by', 'cs', `{${currentTeamMemberId}}`);
       }
 
       console.log("Executing Supabase query...");
@@ -80,6 +83,7 @@ export const usePendingActions = (
         dueDate: action.next_action_date,
         clientName: action.lead?.client_name || 'Unknown Client',
         teamMember: action.assigned_to || 'Unassigned',
+        teamMemberId: action.assigned_to,
         outcome: action.outcome,
         notes: action.notes,
         hidden_by: action.hidden_by || []
