@@ -38,25 +38,7 @@ export const OrderRowActions = ({
         newPaymentStatus: editedOrder.payment_status
       });
 
-      // First get order items to calculate quantities
-      const { data: orderItems, error: itemsError } = await supabase
-        .from('order_items')
-        .select(`
-          quantity,
-          inventory_item_id,
-          inventory_items (
-            id,
-            available_quantity,
-            reserved_quantity,
-            sold_quantity
-          )
-        `)
-        .eq('order_id', order.id);
-
-      if (itemsError) throw itemsError;
-      console.log('Retrieved order items:', orderItems);
-
-      // Update order status first
+      // Update order status
       const { error: orderError } = await supabase
         .from('orders')
         .update({
@@ -73,32 +55,16 @@ export const OrderRowActions = ({
       console.log('Order status updated successfully');
 
       // Wait for trigger to process
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Verify the inventory update
       const { data: updatedInventory, error: verifyError } = await supabase
         .from('inventory_items')
         .select('id, available_quantity, reserved_quantity, sold_quantity')
-        .in('id', orderItems?.map(item => item.inventory_item_id) || []);
+        .in('id', order.order_items?.map(item => item.inventory_item_id) || []);
 
       if (verifyError) throw verifyError;
       console.log('Verified inventory status:', updatedInventory);
-
-      // Double check if quantities were updated correctly
-      const inventoryUpdated = updatedInventory?.every(item => {
-        const orderItem = orderItems?.find(oi => oi.inventory_item_id === item.id);
-        if (!orderItem) return true;
-
-        if (editedOrder.status === 'approved') {
-          return item.reserved_quantity > 0 || item.available_quantity < orderItem.inventory_items.available_quantity;
-        }
-        return true;
-      });
-
-      if (!inventoryUpdated) {
-        console.warn('Inventory quantities may not have updated correctly');
-        // Optionally throw an error here if you want to force a retry
-      }
 
       toast({
         title: "Success",
