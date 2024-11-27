@@ -7,7 +7,6 @@ import {
   FolderKanban,
   ListTodo,
   Users,
-  FileStack,
   Activity,
   Package,
   ShoppingCart,
@@ -37,7 +36,6 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }: SidebarProps) => {
     { path: "/templates", icon: FolderKanban, label: "Templates" },
     { path: "/trash", icon: Trash2, label: "Trash" },
     { path: "/todo", icon: ListTodo, label: "Todo" },
-    { path: "/files", icon: FileStack, label: "Files" },
     { path: "/inventory", icon: Package, label: "Inventory" },
     { path: "/inventory/orders", icon: ShoppingCart, label: "Orders" },
   ];
