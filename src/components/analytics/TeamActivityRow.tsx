@@ -21,6 +21,7 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
 
   useEffect(() => {
     console.log('Activity update changed:', activity.update);
+    console.log('Activity completion status:', activity.is_completed);
     if (activity.update !== updateText) {
       setUpdateText(activity.update || "");
     }

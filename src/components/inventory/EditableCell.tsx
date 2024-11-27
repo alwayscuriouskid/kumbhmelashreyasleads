@@ -20,7 +20,7 @@ export const EditableCell = ({
   onChange,
   onEditToggle,
   type = "text",
-  placeholder = "Click to edit",
+  placeholder = "Click to add update",
   isDone,
   onMarkDone
 }: EditableCellProps) => {
@@ -28,6 +28,7 @@ export const EditableCell = ({
 
   useEffect(() => {
     console.log("EditableCell value changed:", value);
+    console.log("EditableCell isDone status:", isDone);
     if (value?.toString() !== inputValue) {
       setInputValue(value?.toString() || "");
     }
@@ -58,7 +59,10 @@ export const EditableCell = ({
           <Button 
             size="sm" 
             variant="outline"
-            onClick={() => onMarkDone()}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMarkDone();
+            }}
             className={isDone ? "bg-green-500 text-white hover:bg-green-600" : ""}
           >
             <Check className="h-4 w-4" />
