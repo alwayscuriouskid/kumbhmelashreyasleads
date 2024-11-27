@@ -28,12 +28,7 @@ export const ManageTypeDialog = ({ children }: ManageTypeDialogProps) => {
     try {
       await deleteType.mutateAsync(selectedTypeId);
       setDeleteDialogOpen(false);
-      await refetch(); // Wait for refetch to complete
-      setOpen(false); // Close the main dialog after successful deletion
-      toast({
-        title: "Success",
-        description: "Type deleted successfully",
-      });
+      setOpen(false);
     } catch (error: any) {
       console.error('Error deleting type:', error);
       toast({

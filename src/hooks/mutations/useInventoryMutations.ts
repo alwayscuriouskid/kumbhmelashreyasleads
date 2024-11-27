@@ -60,8 +60,14 @@ export const useDeleteInventoryType = () => {
         .eq('id', id);
       
       if (error) throw error;
+      return id;
     },
-    onSuccess: () => {
+    onSuccess: (deletedId) => {
+      // Immediately update the cache to remove the deleted item
+      queryClient.setQueryData(['inventory_types'], (oldData: any) => {
+        return oldData?.filter((type: any) => type.id !== deletedId);
+      });
+      // Also invalidate the query to refetch fresh data
       queryClient.invalidateQueries({ queryKey: ["inventory_types"] });
       toast({
         title: "Success",
