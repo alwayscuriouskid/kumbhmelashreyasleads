@@ -8,6 +8,7 @@ import * as XLSX from 'xlsx';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Upload } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ImportLeadsDialogProps {
   open: boolean;
@@ -21,19 +22,21 @@ const ImportLeadsDialog = ({ open, onOpenChange, onImportComplete }: ImportLeads
   const { toast } = useToast();
 
   const validateLeadData = (data: any): Partial<Lead> => {
+    console.log("Validating lead data:", data);
     const requiredFields = ['clientName', 'location', 'contactPerson', 'phone', 'email'];
     const lead: Partial<Lead> = {
-      clientName: data['Client Name'] || data['clientName'],
-      location: data['Location'] || data['location'],
-      contactPerson: data['Contact Person'] || data['contactPerson'],
-      phone: data['Phone'] || data['phone'],
-      email: data['Email'] || data['email'],
+      clientName: data['Client Name'] || data['clientName'] || '',
+      location: data['Location'] || data['location'] || '',
+      contactPerson: data['Contact Person'] || data['contactPerson'] || '',
+      phone: data['Phone'] || data['phone'] || '',
+      email: data['Email'] || data['email'] || '',
       status: data['Status'] || data['status'] || 'pending',
-      requirement: {},
-      remarks: data['Remarks'] || data['remarks'],
-      budget: data['Budget'] || data['budget'],
-      leadRef: data['Lead Reference'] || data['leadRef'],
-      leadSource: data['Lead Source'] || data['leadSource'],
+      requirement: data['Requirement'] || data['requirement'] || {},
+      remarks: data['Remarks'] || data['remarks'] || '',
+      budget: data['Budget'] || data['budget'] || '',
+      leadRef: data['Lead Reference'] || data['leadRef'] || '',
+      leadSource: data['Lead Source'] || data['leadSource'] || '',
+      date: new Date().toISOString().split('T')[0],
     };
 
     const missingFields = requiredFields.filter(field => !lead[field as keyof Lead]);
@@ -48,6 +51,7 @@ const ImportLeadsDialog = ({ open, onOpenChange, onImportComplete }: ImportLeads
     const file = event.target.files?.[0];
     if (!file) return;
 
+    console.log("Processing file upload:", file.name);
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
@@ -56,16 +60,20 @@ const ImportLeadsDialog = ({ open, onOpenChange, onImportComplete }: ImportLeads
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        console.log("Parsed Excel data:", jsonData);
 
         const validatedData = jsonData.map((row: any) => validateLeadData(row));
+        console.log("Validated lead data:", validatedData);
         setPreviewData(validatedData);
         setError("");
       } catch (err) {
+        console.error("Error parsing Excel file:", err);
         setError(err instanceof Error ? err.message : 'Failed to parse Excel file');
         setPreviewData([]);
       }
     };
     reader.onerror = () => {
+      console.error("Error reading file");
       setError('Failed to read file');
     };
     reader.readAsBinaryString(file);
@@ -73,16 +81,31 @@ const ImportLeadsDialog = ({ open, onOpenChange, onImportComplete }: ImportLeads
 
   const handleImport = async () => {
     try {
-      const { data, error } = await fetch('/api/leads/import', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ leads: previewData }),
-      }).then(res => res.json());
+      console.log("Starting lead import process");
+      const { data: insertedLeads, error: insertError } = await supabase
+        .from('leads')
+        .insert(previewData.map(lead => ({
+          client_name: lead.clientName,
+          location: lead.location,
+          contact_person: lead.contactPerson,
+          phone: lead.phone,
+          email: lead.email,
+          requirement: lead.requirement || {},
+          status: lead.status || 'pending',
+          remarks: lead.remarks,
+          budget: lead.budget,
+          lead_ref: lead.leadRef,
+          lead_source: lead.leadSource,
+          date: lead.date || new Date().toISOString().split('T')[0],
+        })))
+        .select();
 
-      if (error) throw new Error(error);
+      if (insertError) {
+        console.error("Error inserting leads:", insertError);
+        throw insertError;
+      }
 
+      console.log("Successfully imported leads:", insertedLeads);
       toast({
         title: "Import Successful",
         description: `Successfully imported ${previewData.length} leads`,
@@ -91,6 +114,7 @@ const ImportLeadsDialog = ({ open, onOpenChange, onImportComplete }: ImportLeads
       onOpenChange(false);
       setPreviewData([]);
     } catch (err) {
+      console.error("Error in import process:", err);
       toast({
         title: "Import Failed",
         description: err instanceof Error ? err.message : 'Failed to import leads',
@@ -101,7 +125,7 @@ const ImportLeadsDialog = ({ open, onOpenChange, onImportComplete }: ImportLeads
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Import Leads from Excel</DialogTitle>
         </DialogHeader>
