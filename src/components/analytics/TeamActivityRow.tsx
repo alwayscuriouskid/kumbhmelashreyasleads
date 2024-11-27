@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Activity } from "@/types/leads";
+import { Activity } from "@/types/activity";
 import { format } from "date-fns";
 import { useTeamMemberOptions } from "@/hooks/useTeamMemberOptions";
 
@@ -17,7 +17,7 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
     return member ? member.name : 'Unassigned';
   };
 
-  const formatDate = (dateString?: string) => {
+  const formatDate = (dateString: string) => {
     if (!dateString) return "-";
     try {
       return format(new Date(dateString), 'dd MMM yyyy');
@@ -49,7 +49,7 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
         <TableCell>{activity.nextAction || "-"}</TableCell>
       }
       {visibleColumns.activityNextActionDate && 
-        <TableCell>{formatDate(activity.next_action_date)}</TableCell>
+        <TableCell>{formatDate(activity.next_action_date || '')}</TableCell>
       }
     </TableRow>
   );

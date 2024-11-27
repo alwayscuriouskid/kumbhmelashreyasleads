@@ -4,7 +4,7 @@ export interface Activity {
   id: string;
   type: ActivityType;
   date: string;
-  created_at?: string;
+  created_at: string;  // Changed from optional to required since we're using it for filtering
   notes?: string;
   outcome?: string;
   startTime?: string;
