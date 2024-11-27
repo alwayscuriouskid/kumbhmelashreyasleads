@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Lead } from "@/types/leads";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { ChevronDown, ChevronUp, MoreHorizontal } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import LeadRowContent from "./LeadRowContent";
 import LeadRowExpanded from "./LeadRowExpanded";
 import { Button } from "../ui/button";
@@ -16,7 +16,7 @@ import {
 interface LeadRowProps {
   lead: Lead;
   visibleColumns: Record<string, boolean>;
-  onUpdate?: (updatedLead: Lead) => void;
+  onUpdate?: (updatedLead: Lead) => void | Promise<void>;
   customStatuses: string[];
 }
 
@@ -33,19 +33,25 @@ const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProp
 
   const handleSave = async () => {
     try {
+      console.log("Attempting to save lead:", editedLead);
+      
       // Convert 'pending' status to 'suspect' before saving
       const leadToUpdate = {
         ...editedLead,
         status: editedLead.status === 'pending' ? 'suspect' : editedLead.status
       };
       
-      await onUpdate?.(leadToUpdate);
-      setIsEditing(false);
-      console.log("Saving changes for lead:", leadToUpdate);
-      toast({
-        title: "Lead Updated",
-        description: "The lead information has been successfully updated.",
-      });
+      if (onUpdate) {
+        await onUpdate(leadToUpdate);
+        setIsEditing(false);
+        console.log("Successfully saved lead:", leadToUpdate);
+        toast({
+          title: "Lead Updated",
+          description: "The lead information has been successfully updated.",
+        });
+      } else {
+        throw new Error("Update function not provided");
+      }
     } catch (error) {
       console.error("Error saving lead:", error);
       toast({
