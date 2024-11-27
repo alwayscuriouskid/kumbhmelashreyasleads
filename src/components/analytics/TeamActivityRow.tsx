@@ -18,7 +18,6 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
   const [updateText, setUpdateText] = useState(activity.update || "");
   const { toast } = useToast();
 
-  // Update local state when activity changes
   useEffect(() => {
     console.log('Activity update changed:', activity.update);
     if (activity.update !== updateText) {
@@ -44,15 +43,17 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
     try {
       console.log('Saving update:', value, 'for activity:', activity.id);
       
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('activities')
         .update({ update: value })
         .eq('id', activity.id)
-        .select();
+        .select()
+        .single();
 
       if (error) throw error;
 
-      setUpdateText(value);
+      console.log('Update saved successfully:', data);
+      setUpdateText(data.update || "");
       setIsEditing(false);
       
       toast({
@@ -61,7 +62,6 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
       });
     } catch (error) {
       console.error("Error saving update:", error);
-      // Revert to previous state on error
       setUpdateText(activity.update || "");
       toast({
         title: "Error",

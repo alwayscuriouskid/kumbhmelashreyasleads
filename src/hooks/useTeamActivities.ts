@@ -89,6 +89,7 @@ export const useTeamActivities = (
     },
     staleTime: 0,
     refetchOnWindowFocus: true,
-    refetchOnMount: true
+    refetchOnMount: true,
+    refetchInterval: 5000 // Poll for updates every 5 seconds
   });
 };

@@ -20,10 +20,11 @@ export const EditableCell = ({
 }: EditableCellProps) => {
   const [inputValue, setInputValue] = useState(value?.toString() || "");
 
-  // Update local state when value prop changes
   useEffect(() => {
     console.log("EditableCell value changed:", value);
-    setInputValue(value?.toString() || "");
+    if (value?.toString() !== inputValue) {
+      setInputValue(value?.toString() || "");
+    }
   }, [value]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,10 +32,8 @@ export const EditableCell = ({
   };
 
   const handleBlur = () => {
-    console.log("EditableCell blur - current value:", inputValue, "original value:", value);
-    if (inputValue !== value?.toString()) {
-      onChange(inputValue);
-    }
+    console.log("EditableCell blur - current value:", inputValue);
+    onChange(inputValue);
     onEditToggle?.();
   };
 
