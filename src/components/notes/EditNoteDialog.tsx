@@ -66,7 +66,6 @@ const EditNoteDialog = ({
       
       onUpdateNote(updatedNote);
       console.log("Note update successful");
-      onOpenChange(false);
       
       toast({
         title: "Success",

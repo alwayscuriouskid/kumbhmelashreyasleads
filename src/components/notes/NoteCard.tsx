@@ -33,7 +33,7 @@ const NoteCard = ({
     try {
       onUpdate(updatedNote);
       setEditedNote(updatedNote);
-      setIsEditing(false);
+      setIsEditDialogOpen(false);
       console.log("Note update handler called successfully");
     } catch (error) {
       console.error("Error in handleUpdateNote:", error);
@@ -42,6 +42,7 @@ const NoteCard = ({
 
   const handleEditClick = () => {
     console.log("Edit button clicked for note:", note.id);
+    setEditedNote(note); // Reset to original note data when opening dialog
     setIsEditDialogOpen(true);
   };
 

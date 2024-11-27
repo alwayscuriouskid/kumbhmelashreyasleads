@@ -149,6 +149,11 @@ export const useNotesOperations = (
         setTags(prev => [...new Set([...prev, ...updatedNote.tags!])]);
       }
 
+      toast({
+        title: "Success",
+        description: "Note updated successfully",
+      });
+
       return formattedNote;
     } catch (error) {
       console.error("Error in updateNote:", error);
