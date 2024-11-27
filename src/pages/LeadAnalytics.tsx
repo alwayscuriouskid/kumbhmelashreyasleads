@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import ActivityFilters from "@/components/analytics/ActivityFilters";
+import { startOfDay, endOfDay, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
 
 interface Filters {
   timeRange: string;
@@ -20,13 +21,59 @@ const LeadAnalytics = () => {
     timeRange: "today",
   });
 
+  const getDateRange = (timeRange: string, startDate?: Date, endDate?: Date) => {
+    const now = new Date();
+    
+    switch (timeRange) {
+      case "today":
+        return {
+          start: startOfDay(now),
+          end: endOfDay(now)
+        };
+      case "yesterday":
+        const yesterday = subDays(now, 1);
+        return {
+          start: startOfDay(yesterday),
+          end: endOfDay(yesterday)
+        };
+      case "thisWeek":
+        return {
+          start: startOfWeek(now),
+          end: endOfWeek(now)
+        };
+      case "lastWeek":
+        const lastWeek = subDays(now, 7);
+        return {
+          start: startOfWeek(lastWeek),
+          end: endOfWeek(lastWeek)
+        };
+      case "thisMonth":
+        return {
+          start: startOfMonth(now),
+          end: endOfMonth(now)
+        };
+      case "custom":
+        if (startDate && endDate) {
+          return {
+            start: startOfDay(startDate),
+            end: endOfDay(endDate)
+          };
+        }
+        return null;
+      default:
+        return null;
+    }
+  };
+
   const { data: analyticsData, isLoading } = useQuery({
     queryKey: ['lead-analytics', filters],
     queryFn: async () => {
       console.log("Fetching analytics data with filters:", filters);
       
-      // Fetch leads with related activities and team members
-      const { data: leads, error } = await supabase
+      const dateRange = getDateRange(filters.timeRange, filters.startDate, filters.endDate);
+      console.log("Calculated date range:", dateRange);
+
+      let query = supabase
         .from('leads')
         .select(`
           *,
@@ -41,41 +88,21 @@ const LeadAnalytics = () => {
           )
         `);
 
+      if (dateRange) {
+        query = query
+          .gte('created_at', dateRange.start.toISOString())
+          .lte('created_at', dateRange.end.toISOString());
+      }
+
+      const { data: leads, error } = await query;
+
       if (error) {
         console.error("Error fetching analytics data:", error);
         throw error;
       }
 
-      // Filter based on timeRange
-      const filteredLeads = leads?.filter(lead => {
-        const leadDate = new Date(lead.created_at || '');
-        const today = new Date();
-        
-        switch (filters.timeRange) {
-          case "today":
-            return leadDate.toDateString() === today.toDateString();
-          case "thisWeek": {
-            const weekAgo = new Date();
-            weekAgo.setDate(weekAgo.getDate() - 7);
-            return leadDate >= weekAgo;
-          }
-          case "thisMonth": {
-            const monthAgo = new Date();
-            monthAgo.setMonth(monthAgo.getMonth() - 1);
-            return leadDate >= monthAgo;
-          }
-          case "custom":
-            if (filters.startDate && filters.endDate) {
-              return leadDate >= filters.startDate && leadDate <= filters.endDate;
-            }
-            return true;
-          default:
-            return true;
-        }
-      });
-
-      console.log("Filtered analytics data:", filteredLeads);
-      return filteredLeads || [];
+      console.log("Fetched leads data:", leads);
+      return leads || [];
     }
   });
 

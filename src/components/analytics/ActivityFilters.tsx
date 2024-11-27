@@ -1,6 +1,6 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface ActivityFiltersProps {
   onFilterChange: (filters: {
@@ -15,20 +15,18 @@ const ActivityFilters = ({ onFilterChange }: ActivityFiltersProps) => {
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
 
-  const handleFilterChange = () => {
+  useEffect(() => {
+    console.log("Filters changed:", { timeRange, startDate, endDate });
     onFilterChange({
       timeRange,
       startDate,
       endDate,
     });
-  };
+  }, [timeRange, startDate, endDate, onFilterChange]);
 
   return (
     <div className="flex flex-wrap items-center gap-4 mb-6">
-      <Select value={timeRange} onValueChange={(value) => {
-        setTimeRange(value);
-        handleFilterChange();
-      }}>
+      <Select value={timeRange} onValueChange={setTimeRange}>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="Select time range" />
         </SelectTrigger>
@@ -46,18 +44,12 @@ const ActivityFilters = ({ onFilterChange }: ActivityFiltersProps) => {
         <div className="flex gap-2">
           <DatePicker
             selected={startDate}
-            onSelect={(date) => {
-              setStartDate(date);
-              handleFilterChange();
-            }}
+            onSelect={setStartDate}
             placeholderText="Start date"
           />
           <DatePicker
             selected={endDate}
-            onSelect={(date) => {
-              setEndDate(date);
-              handleFilterChange();
-            }}
+            onSelect={setEndDate}
             placeholderText="End date"
           />
         </div>
