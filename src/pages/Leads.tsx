@@ -8,9 +8,11 @@ import LeadsTable from "@/components/leads/LeadsTable";
 import LeadForm from "@/components/leads/LeadForm";
 import ImportLeadsDialog from "@/components/leads/ImportLeadsDialog";
 import { useLeads } from "@/hooks/useLeads";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Leads = () => {
   const { leads, isLoading, addLead, updateLead } = useLeads();
+  const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [dateFilter, setDateFilter] = useState<Date>();
@@ -102,8 +104,7 @@ const Leads = () => {
         open={showImportDialog}
         onOpenChange={setShowImportDialog}
         onImportComplete={() => {
-          // Refetch leads after import
-          updateLead.invalidate();
+          queryClient.invalidateQueries({ queryKey: ['leads'] });
         }}
       />
 

@@ -16,9 +16,19 @@ export default async function handler(req: Request) {
       throw new Error('Invalid leads data');
     }
 
+    // Convert leads to DB format and ensure required fields
+    const dbLeads = leads.map(lead => {
+      const dbLead = frontendToDB(lead);
+      if (!dbLead.client_name || !dbLead.location || !dbLead.contact_person || 
+          !dbLead.phone || !dbLead.email) {
+        throw new Error('Missing required fields');
+      }
+      return dbLead;
+    });
+
     const { data, error } = await supabase
       .from('leads')
-      .insert(leads.map(lead => frontendToDB(lead)))
+      .insert(dbLeads)
       .select();
 
     if (error) throw error;
