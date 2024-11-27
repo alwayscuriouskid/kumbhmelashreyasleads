@@ -29,7 +29,8 @@ export const useTeamActivities = (
             id,
             client_name
           )
-        `);
+        `)
+        .order('created_at', { ascending: false });
 
       if (selectedTeamMember !== 'all') {
         query = query.eq('assigned_to', selectedTeamMember);
@@ -63,32 +64,30 @@ export const useTeamActivities = (
 
       console.log("Fetched activities:", data);
 
-      return data.map((item): Activity => {
-        // Log the next_action_date to debug
-        console.log("Activity next_action_date:", item.next_action_date);
-        
-        return {
-          id: item.id,
-          type: item.type as Activity['type'],
-          date: item.created_at,
-          time: format(new Date(item.created_at), 'HH:mm'),
-          notes: item.notes || '',
-          outcome: item.outcome || '',
-          startTime: item.start_time,
-          endTime: item.end_time,
-          assignedTo: item.assigned_to || '',
-          nextAction: item.next_action || '',
-          next_action_date: item.next_action_date,
-          contactPerson: item.contact_person || '',
-          description: `Lead activity for ${item.lead?.client_name}`,
-          teamMember: item.assigned_to || 'System',
-          leadName: item.lead?.client_name,
-          activityType: item.type,
-          activityOutcome: item.outcome,
-          activityNextAction: item.next_action,
-          activityNextActionDate: item.next_action_date
-        };
-      });
-    }
+      return data.map((item): Activity => ({
+        id: item.id,
+        type: item.type as Activity['type'],
+        date: item.created_at,
+        time: format(new Date(item.created_at), 'HH:mm'),
+        notes: item.notes || '',
+        outcome: item.outcome || '',
+        startTime: item.start_time,
+        endTime: item.end_time,
+        assignedTo: item.assigned_to || '',
+        nextAction: item.next_action || '',
+        next_action_date: item.next_action_date,
+        contactPerson: item.contact_person || '',
+        description: `Lead activity for ${item.lead?.client_name}`,
+        teamMember: item.assigned_to || 'System',
+        leadName: item.lead?.client_name,
+        activityType: item.type,
+        activityOutcome: item.outcome,
+        activityNextAction: item.next_action,
+        activityNextActionDate: item.next_action_date,
+        update: item.update
+      }));
+    },
+    staleTime: 0, // Always fetch fresh data
+    refetchOnWindowFocus: true // Refetch when window regains focus
   });
 };

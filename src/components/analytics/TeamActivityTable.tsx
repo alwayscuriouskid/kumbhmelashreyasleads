@@ -35,12 +35,12 @@ const TeamActivityTable = () => {
     nextActionDateFilter
   );
 
-  // Add real-time subscription for both activities and leads updates
+  // Add real-time subscription for activities updates
   useEffect(() => {
-    console.log("Setting up real-time subscriptions for team activities");
+    console.log("Setting up real-time subscription for activities");
     
-    const activitiesChannel = supabase
-      .channel('team-activities-changes')
+    const channel = supabase
+      .channel('activities-changes')
       .on(
         'postgres_changes',
         {
@@ -48,32 +48,16 @@ const TeamActivityTable = () => {
           schema: 'public',
           table: 'activities'
         },
-        () => {
-          console.log('Activity update detected, refetching data...');
-          refetch();
-        }
-      )
-      .subscribe();
-
-    const leadsChannel = supabase
-      .channel('team-leads-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'leads'
-        },
-        () => {
-          console.log('Lead update detected, refetching data...');
+        (payload) => {
+          console.log('Activity update received:', payload);
           refetch();
         }
       )
       .subscribe();
 
     return () => {
-      supabase.removeChannel(activitiesChannel);
-      supabase.removeChannel(leadsChannel);
+      console.log("Cleaning up real-time subscription");
+      supabase.removeChannel(channel);
     };
   }, [refetch]);
 
