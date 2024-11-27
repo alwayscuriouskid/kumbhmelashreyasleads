@@ -87,7 +87,7 @@ export const useTeamActivities = (
         update: item.update
       }));
     },
-    staleTime: 0, // Always fetch fresh data
-    refetchOnWindowFocus: true // Refetch when window regains focus
+    staleTime: 0,
+    refetchOnWindowFocus: true
   });
 };

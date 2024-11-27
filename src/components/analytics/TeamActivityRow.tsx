@@ -17,7 +17,7 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
   const [isEditing, setIsEditing] = useState(false);
   const [updateText, setUpdateText] = useState(activity.update || "");
   const { toast } = useToast();
-  
+
   // Update local state when activity changes
   useEffect(() => {
     console.log('Activity update changed:', activity.update);
@@ -47,10 +47,7 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
         .update({ update: value })
         .eq('id', activity.id);
 
-      if (error) {
-        console.error('Error saving update:', error);
-        throw error;
-      }
+      if (error) throw error;
 
       console.log('Update saved successfully');
       setUpdateText(value);
@@ -99,6 +96,7 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
             isEditing={isEditing}
             onChange={handleUpdateChange}
             onEditToggle={() => setIsEditing(!isEditing)}
+            placeholder="Click to add update"
           />
         </TableCell>
       }

@@ -7,6 +7,7 @@ interface EditableCellProps {
   onChange: (value: string) => void;
   onEditToggle?: () => void;
   type?: "text" | "number";
+  placeholder?: string;
 }
 
 export const EditableCell = ({
@@ -15,6 +16,7 @@ export const EditableCell = ({
   onChange,
   onEditToggle,
   type = "text",
+  placeholder = "Click to edit"
 }: EditableCellProps) => {
   const [inputValue, setInputValue] = useState(value);
 
@@ -27,7 +29,9 @@ export const EditableCell = ({
   };
 
   const handleBlur = () => {
-    onChange(inputValue.toString());
+    if (inputValue !== value) {
+      onChange(inputValue.toString());
+    }
     onEditToggle?.();
   };
 
@@ -49,7 +53,7 @@ export const EditableCell = ({
       onClick={onEditToggle}
       className="cursor-pointer p-2 hover:bg-accent rounded"
     >
-      {value || "Click to add update"}
+      {value || placeholder}
     </div>
   );
 };
