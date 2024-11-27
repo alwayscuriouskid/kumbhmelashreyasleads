@@ -16,7 +16,7 @@ export const EditableCell = ({
   onChange,
   onEditToggle,
   type = "text",
-  placeholder = "Click to add update"
+  placeholder = ""
 }: EditableCellProps) => {
   const [inputValue, setInputValue] = useState(value?.toString() || "");
 
@@ -28,10 +28,7 @@ export const EditableCell = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
-  };
-
-  const handleBlur = () => {
-    onChange(inputValue);
+    onChange(e.target.value);
   };
 
   if (isEditing) {
@@ -40,8 +37,7 @@ export const EditableCell = ({
         type={type}
         value={inputValue}
         onChange={handleChange}
-        onBlur={handleBlur}
-        className="w-full"
+        className="w-full h-8 px-2"
         autoFocus
       />
     );
@@ -50,9 +46,9 @@ export const EditableCell = ({
   return (
     <div 
       onClick={onEditToggle}
-      className="cursor-pointer p-2 hover:bg-accent rounded"
+      className="cursor-pointer p-2 hover:bg-accent rounded min-h-[32px] flex items-center"
     >
-      <span>{value || placeholder}</span>
+      {value || placeholder}
     </div>
   );
 };
