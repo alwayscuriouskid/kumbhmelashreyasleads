@@ -15,8 +15,8 @@ interface TeamActivityRowProps {
 
 const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => {
   const { data: teamMembers = [] } = useTeamMemberOptions();
-  const [updateText, setUpdateText] = useState(activity.update || "");
   const [isEditing, setIsEditing] = useState(false);
+  const [updateText, setUpdateText] = useState(activity.update || "");
   const { toast } = useToast();
   
   const getTeamMemberName = (id: string) => {
@@ -29,15 +29,12 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
     try {
       return format(new Date(dateString), 'dd MMM yyyy');
     } catch (error) {
-      console.error("Error formatting date:", error, "Date string:", dateString);
       return "-";
     }
   };
 
   const handleUpdateSave = async () => {
     try {
-      console.log("Saving update for activity:", activity.id, "Text:", updateText);
-      
       const { error } = await supabase
         .from('activities')
         .update({ update: updateText })
@@ -45,11 +42,10 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
 
       if (error) throw error;
 
-      console.log("Update saved successfully");
       setIsEditing(false);
       toast({
         title: "Success",
-        description: "Activity update saved successfully",
+        description: "Update saved successfully",
       });
     } catch (error) {
       console.error("Error saving update:", error);
@@ -62,7 +58,7 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
   };
 
   return (
-    <TableRow className="group">
+    <TableRow>
       {visibleColumns.time && <TableCell>{activity.time}</TableCell>}
       {visibleColumns.type && 
         <TableCell className="capitalize">{activity.type.replace('_', ' ')}</TableCell>
@@ -86,30 +82,24 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
       {visibleColumns.update && 
         <TableCell>
           {isEditing ? (
-            <div className="flex flex-col gap-2">
+            <div className="space-y-2">
               <Input
                 value={updateText}
                 onChange={(e) => setUpdateText(e.target.value)}
                 placeholder="Add update..."
-                className="min-h-[60px]"
               />
               <div className="flex gap-2">
                 <Button 
                   variant="default" 
                   size="sm" 
                   onClick={handleUpdateSave}
-                  className="w-20"
                 >
                   Save
                 </Button>
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  onClick={() => {
-                    setUpdateText(activity.update || "");
-                    setIsEditing(false);
-                  }}
-                  className="w-20"
+                  onClick={() => setIsEditing(false)}
                 >
                   Cancel
                 </Button>
@@ -117,8 +107,8 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
             </div>
           ) : (
             <div 
-              className="group-hover:bg-accent p-2 rounded-md cursor-pointer min-h-[40px]"
               onClick={() => setIsEditing(true)}
+              className="cursor-pointer min-h-[40px] p-2 hover:bg-accent rounded"
             >
               {activity.update || "Click to add update"}
             </div>
