@@ -15,6 +15,7 @@ interface TeamActivityRowProps {
 const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => {
   const { data: teamMembers = [] } = useTeamMemberOptions();
   const [isEditing, setIsEditing] = useState(false);
+  // Initialize with activity.update instead of empty string
   const [updateText, setUpdateText] = useState(activity.update || "");
   const { toast } = useToast();
   
@@ -34,6 +35,7 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
 
   const handleUpdateChange = async (value: string) => {
     try {
+      console.log('Saving update:', value, 'for activity:', activity.id);
       const { error } = await supabase
         .from('activities')
         .update({ update: value })
