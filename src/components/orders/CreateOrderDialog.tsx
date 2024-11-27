@@ -23,6 +23,17 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
     try {
       console.log("Creating order with data:", formData);
 
+      // Calculate GST (18%) and total amount with GST
+      const subtotal = formData.totalAmount;
+      const gstAmount = subtotal * 0.18;
+      const totalWithGst = subtotal + gstAmount;
+
+      console.log("Order amounts:", {
+        subtotal,
+        gstAmount,
+        totalWithGst
+      });
+
       // First create the order
       const { data: order, error: orderError } = await supabase
         .from("orders")
@@ -35,13 +46,13 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
             team_member_id: formData.teamMemberId,
             payment_method: formData.paymentMethod,
             notes: formData.notes,
-            total_amount: formData.totalAmount,
+            total_amount: totalWithGst, // Save total amount including GST
             status: "pending",
             payment_status: "pending",
             payment_confirmation: formData.paymentConfirmation,
             next_payment_date: formData.nextPaymentDate,
             next_payment_details: formData.nextPaymentDetails,
-            additional_details: formData.additionalDetails,
+            additional_details: `Subtotal: ₹${subtotal}, GST (18%): ₹${gstAmount}, Total: ₹${totalWithGst}`,
             lead_id: formData.leadId || null
           },
         ])

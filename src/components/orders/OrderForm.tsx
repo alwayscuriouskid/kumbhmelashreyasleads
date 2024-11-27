@@ -41,11 +41,20 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
   });
 
   const calculateTotalAmount = () => {
-    return selectedItems.reduce((total, itemId) => {
+    const subtotal = selectedItems.reduce((total, itemId) => {
       const item = inventoryItems?.find((item) => item.id === itemId);
       const quantity = quantities[itemId] || 1;
       return total + (item?.current_price || 0) * quantity;
     }, 0);
+
+    const gstAmount = subtotal * 0.18;
+    const totalWithGst = subtotal + gstAmount;
+
+    return {
+      subtotal,
+      gstAmount,
+      totalWithGst
+    };
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,6 +68,8 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
       return;
     }
 
+    const { subtotal, gstAmount, totalWithGst } = calculateTotalAmount();
+
     const orderData = {
       ...formData,
       selectedItems: selectedItems.map((itemId) => ({
@@ -66,7 +77,7 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
         quantity: quantities[itemId] || 1,
         price: inventoryItems?.find((i) => i.id === itemId)?.current_price || 0,
       })),
-      totalAmount: calculateTotalAmount(),
+      totalAmount: totalWithGst,
       leadId: selectedLeadId || null,
     };
 
@@ -84,6 +95,8 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
   const handleFormChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
+
+  const { subtotal, gstAmount, totalWithGst } = calculateTotalAmount();
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -119,8 +132,12 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
           />
 
           <div className="space-y-2">
-            <Label>Total Amount</Label>
-            <div className="text-lg font-semibold">₹{calculateTotalAmount()}</div>
+            <Label>Amount Details</Label>
+            <div className="space-y-1">
+              <div className="text-sm text-gray-600">Subtotal: ₹{subtotal}</div>
+              <div className="text-sm text-gray-600">GST (18%): ₹{gstAmount}</div>
+              <div className="text-lg font-semibold">Total Amount: ₹{totalWithGst}</div>
+            </div>
           </div>
 
           <div className="space-y-2">
