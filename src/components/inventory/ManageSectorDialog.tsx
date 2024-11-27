@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Settings2 } from "lucide-react";
 import { useSectors, useDeleteSector } from "@/hooks/useInventory";
 import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
+import { toast } from "@/components/ui/use-toast";
 
 interface ManageSectorDialogProps {
   children?: React.ReactNode;
@@ -19,7 +20,7 @@ export const ManageSectorDialog = ({ children }: ManageSectorDialogProps) => {
   const [open, setOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedSectorId, setSelectedSectorId] = useState<string | null>(null);
-  const { data: sectors } = useSectors();
+  const { data: sectors, refetch } = useSectors();
   const deleteSector = useDeleteSector();
 
   const handleDelete = async () => {
@@ -27,8 +28,18 @@ export const ManageSectorDialog = ({ children }: ManageSectorDialogProps) => {
     try {
       await deleteSector.mutateAsync(selectedSectorId);
       setDeleteDialogOpen(false);
+      refetch();
+      toast({
+        title: "Success",
+        description: "Sector deleted successfully",
+      });
     } catch (error: any) {
       console.error('Error deleting sector:', error);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -43,7 +54,7 @@ export const ManageSectorDialog = ({ children }: ManageSectorDialogProps) => {
             </Button>
           )}
         </DialogTrigger>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Manage Sectors</DialogTitle>
           </DialogHeader>

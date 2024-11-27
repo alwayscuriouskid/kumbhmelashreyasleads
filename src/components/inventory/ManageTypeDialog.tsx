@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Settings2 } from "lucide-react";
 import { useInventoryTypes, useDeleteInventoryType } from "@/hooks/useInventory";
 import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
+import { toast } from "@/components/ui/use-toast";
 
 interface ManageTypeDialogProps {
   children?: React.ReactNode;
@@ -19,7 +20,7 @@ export const ManageTypeDialog = ({ children }: ManageTypeDialogProps) => {
   const [open, setOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedTypeId, setSelectedTypeId] = useState<string | null>(null);
-  const { data: types } = useInventoryTypes();
+  const { data: types, refetch } = useInventoryTypes();
   const deleteType = useDeleteInventoryType();
 
   const handleDelete = async () => {
@@ -27,8 +28,18 @@ export const ManageTypeDialog = ({ children }: ManageTypeDialogProps) => {
     try {
       await deleteType.mutateAsync(selectedTypeId);
       setDeleteDialogOpen(false);
+      refetch();
+      toast({
+        title: "Success",
+        description: "Type deleted successfully",
+      });
     } catch (error: any) {
       console.error('Error deleting type:', error);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -43,7 +54,7 @@ export const ManageTypeDialog = ({ children }: ManageTypeDialogProps) => {
             </Button>
           )}
         </DialogTrigger>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Manage Inventory Types</DialogTitle>
           </DialogHeader>

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Settings2 } from "lucide-react";
 import { useZones, useDeleteZone } from "@/hooks/useInventory";
 import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
+import { toast } from "@/components/ui/use-toast";
 
 interface ManageZoneDialogProps {
   children?: React.ReactNode;
@@ -19,7 +20,7 @@ export const ManageZoneDialog = ({ children }: ManageZoneDialogProps) => {
   const [open, setOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
-  const { data: zones } = useZones();
+  const { data: zones, refetch } = useZones();
   const deleteZone = useDeleteZone();
 
   const handleDelete = async () => {
@@ -27,8 +28,18 @@ export const ManageZoneDialog = ({ children }: ManageZoneDialogProps) => {
     try {
       await deleteZone.mutateAsync(selectedZoneId);
       setDeleteDialogOpen(false);
+      refetch();
+      toast({
+        title: "Success",
+        description: "Zone deleted successfully",
+      });
     } catch (error: any) {
       console.error('Error deleting zone:', error);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -43,7 +54,7 @@ export const ManageZoneDialog = ({ children }: ManageZoneDialogProps) => {
             </Button>
           )}
         </DialogTrigger>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Manage Zones</DialogTitle>
           </DialogHeader>
