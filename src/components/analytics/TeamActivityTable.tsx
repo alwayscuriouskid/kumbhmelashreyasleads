@@ -27,7 +27,7 @@ const TeamActivityTable = () => {
     applyFilters
   } = useActivityFilters();
 
-  const { data: activities, refetch } = useTeamActivities(
+  const { data: activities = [], refetch } = useTeamActivities(
     selectedTeamMember,
     activityType,
     leadSearch,
