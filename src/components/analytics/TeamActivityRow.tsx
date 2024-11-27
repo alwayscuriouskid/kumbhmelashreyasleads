@@ -46,13 +46,16 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
         .from('activities')
         .update({ update: value })
         .eq('id', activity.id)
-        .select()
-        .single();
+        .select();
 
       if (error) throw error;
 
-      console.log('Update saved successfully:', data);
-      setUpdateText(data.update || "");
+      if (!data || data.length === 0) {
+        throw new Error('No activity found with the given ID');
+      }
+
+      console.log('Update saved successfully:', data[0]);
+      setUpdateText(data[0].update || "");
       setIsEditing(false);
       
       toast({
