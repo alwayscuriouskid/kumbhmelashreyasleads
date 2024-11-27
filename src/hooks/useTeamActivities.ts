@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
+import { format, startOfDay, endOfDay } from "date-fns";
 import { Activity } from "@/types/activity";
 
 export const useTeamActivities = (
@@ -41,9 +41,11 @@ export const useTeamActivities = (
       }
 
       if (selectedDate) {
-        const dateStr = format(selectedDate, 'yyyy-MM-dd');
-        query = query.gte('created_at', `${dateStr}T00:00:00`)
-                    .lt('created_at', `${dateStr}T23:59:59`);
+        const start = startOfDay(selectedDate);
+        const end = endOfDay(selectedDate);
+        console.log('Filtering by date range:', { start, end });
+        query = query.gte('created_at', start.toISOString())
+                    .lte('created_at', end.toISOString());
       }
 
       if (nextActionDateFilter) {
@@ -90,6 +92,6 @@ export const useTeamActivities = (
     staleTime: 0,
     refetchOnWindowFocus: true,
     refetchOnMount: true,
-    refetchInterval: 5000 // Poll for updates every 5 seconds
+    refetchInterval: 5000
   });
 };

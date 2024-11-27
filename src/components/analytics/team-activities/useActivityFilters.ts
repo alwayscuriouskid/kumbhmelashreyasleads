@@ -1,5 +1,6 @@
 import { Activity } from "@/types/activity";
 import { useState } from "react";
+import { startOfDay, isSameDay } from "date-fns";
 
 export const useActivityFilters = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
@@ -32,9 +33,8 @@ export const useActivityFilters = () => {
     }
 
     if (selectedDate) {
-      const dateStr = selectedDate.toISOString().split('T')[0];
       filtered = filtered.filter(activity => 
-        activity.created_at.toString().includes(dateStr)
+        isSameDay(new Date(activity.created_at), selectedDate)
       );
     }
 
