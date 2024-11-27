@@ -2,8 +2,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Lead, LeadDB, dbToFrontend, frontendToDB } from "@/types/leads";
 import { useToast } from "@/hooks/use-toast";
-
-// Move dummy data to a separate file
 import { dummyLeads } from "./dummyData";
 
 export const useLeads = () => {
@@ -39,7 +37,15 @@ export const useLeads = () => {
         
         const { data, error } = await supabase
           .from('leads')
-          .insert(dbLead)
+          .insert({
+            ...dbLead,
+            client_name: newLead.clientName || '',
+            contact_person: newLead.contactPerson || '',
+            location: newLead.location || '',
+            phone: newLead.phone || '',
+            email: newLead.email || '',
+            requirement: newLead.requirement || {}
+          })
           .select()
           .single();
 
@@ -83,7 +89,15 @@ export const useLeads = () => {
 
         const { data, error } = await supabase
           .from('leads')
-          .update(dbLead)
+          .update({
+            ...dbLead,
+            client_name: updatedLead.clientName,
+            contact_person: updatedLead.contactPerson,
+            location: updatedLead.location,
+            phone: updatedLead.phone,
+            email: updatedLead.email,
+            requirement: updatedLead.requirement
+          })
           .eq('id', updatedLead.id)
           .select()
           .single();

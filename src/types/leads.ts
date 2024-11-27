@@ -1,6 +1,5 @@
-import { Activity } from './activity';
-
 export interface Requirement {
+  [key: string]: string | number | null;
   hoardings?: number;
   entryGates?: number;
   electricPoles?: number;
@@ -41,10 +40,8 @@ export interface Lead {
   activityOutcome?: string;
   activityNextAction?: string;
   activityNextActionDate?: string;
-  activities?: Activity[];
 }
 
-// Database types for mapping
 export interface LeadDB {
   id: string;
   date: string;
@@ -68,9 +65,10 @@ export interface LeadDB {
   activity_outcome?: string;
   activity_next_action?: string;
   activity_next_action_date?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
-// Mapping functions
 export const dbToFrontend = (dbLead: LeadDB): Lead => ({
   id: dbLead.id,
   date: dbLead.date,
@@ -121,4 +119,4 @@ export const frontendToDB = (lead: Partial<Lead>): Partial<LeadDB> => ({
   activity_next_action_date: lead.activityNextActionDate
 });
 
-export type { Activity };
+export type { Activity } from './activity';

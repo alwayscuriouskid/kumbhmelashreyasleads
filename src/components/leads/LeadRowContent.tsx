@@ -47,18 +47,18 @@ const LeadRowContent = ({
   };
 
   const getConversionBadge = () => {
-    if (!lead.conversion_status) return null;
+    if (!lead.conversionStatus) return null;
 
-    const icon = lead.conversion_type === 'order' ? <ShoppingCart className="w-3 h-3 mr-1" /> : <Calendar className="w-3 h-3 mr-1" />;
+    const icon = lead.conversionType === 'order' ? <ShoppingCart className="w-3 h-3 mr-1" /> : <Calendar className="w-3 h-3 mr-1" />;
     
     return (
       <div className="mt-1">
         <Badge variant="outline" className="flex items-center gap-1 text-xs">
           {icon}
-          Converted to {lead.conversion_type}
-          {lead.conversion_date && (
+          Converted to {lead.conversionType}
+          {lead.conversionDate && (
             <span className="ml-1 text-muted-foreground">
-              ({format(new Date(lead.conversion_date), 'dd MMM yyyy')})
+              ({format(new Date(lead.conversionDate), 'dd MMM yyyy')})
             </span>
           )}
         </Badge>
