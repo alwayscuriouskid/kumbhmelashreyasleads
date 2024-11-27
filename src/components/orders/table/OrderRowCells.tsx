@@ -60,6 +60,20 @@ export const OrderRowCells = ({
           {teamMembers?.find(member => member.id === order.team_member_id)?.name || order.team_member_name}
         </TableCell>
       )}
+      {visibleColumns.discountedPrice && (
+        <TableCell>
+          {isEditing ? (
+            <Input
+              type="number"
+              value={editedOrder.discounted_price || ''}
+              onChange={(e) => onChange('discounted_price', parseFloat(e.target.value))}
+              className="w-full"
+            />
+          ) : (
+            order.discounted_price ? `₹${order.discounted_price}` : '-'
+          )}
+        </TableCell>
+      )}
       {visibleColumns.totalAmount && (
         <TableCell>₹{order.total_amount}</TableCell>
       )}

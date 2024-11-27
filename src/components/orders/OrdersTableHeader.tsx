@@ -11,6 +11,7 @@ export const OrdersTableHeader = ({ visibleColumns }: OrdersTableHeaderProps) =>
       {visibleColumns.date && <TableHead>Date</TableHead>}
       {visibleColumns.customer && <TableHead>Customer</TableHead>}
       {visibleColumns.teamMember && <TableHead>Team Member</TableHead>}
+      {visibleColumns.discountedPrice && <TableHead>Discounted Price</TableHead>}
       {visibleColumns.totalAmount && <TableHead>Total Amount</TableHead>}
       {visibleColumns.paymentStatus && <TableHead>Payment Status</TableHead>}
       {visibleColumns.orderStatus && <TableHead>Order Status</TableHead>}
