@@ -24,16 +24,12 @@ const NoteCard = ({
   tags,
   onAddCategory,
 }: NoteCardProps) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedNote, setEditedNote] = useState<Note>(note);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-  const handleUpdateNote = (updatedNote: Note) => {
+  const handleUpdateNote = async (updatedNote: Note) => {
     console.log("Updating note:", updatedNote);
     try {
-      onUpdate(updatedNote);
-      setEditedNote(updatedNote);
-      setIsEditDialogOpen(false);
+      await onUpdate(updatedNote);
       console.log("Note update handler called successfully");
     } catch (error) {
       console.error("Error in handleUpdateNote:", error);
@@ -42,7 +38,6 @@ const NoteCard = ({
 
   const handleEditClick = () => {
     console.log("Edit button clicked for note:", note.id);
-    setEditedNote(note); // Reset to original note data when opening dialog
     setIsEditDialogOpen(true);
   };
 

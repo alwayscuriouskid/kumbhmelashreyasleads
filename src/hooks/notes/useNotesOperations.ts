@@ -136,7 +136,7 @@ export const useNotesOperations = (
       console.log("Note updated successfully in Supabase:", data);
       const formattedNote = dbToNote(data);
       
-      // Update local state
+      // Update local state immediately
       setNotes(prev => prev.map(note => 
         note.id === formattedNote.id ? formattedNote : note
       ));
@@ -148,6 +148,9 @@ export const useNotesOperations = (
       if (updatedNote.tags?.length) {
         setTags(prev => [...new Set([...prev, ...updatedNote.tags!])]);
       }
+
+      // Fetch fresh data to ensure consistency
+      await fetchNotes();
 
       toast({
         title: "Success",

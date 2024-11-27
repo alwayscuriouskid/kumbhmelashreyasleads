@@ -43,7 +43,7 @@ const EditNoteDialog = ({
     }
   }, [note, open]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Submitting edited note:", editedNote);
     
@@ -64,8 +64,9 @@ const EditNoteDialog = ({
         updated_at: new Date().toISOString(),
       };
       
-      onUpdateNote(updatedNote);
+      await onUpdateNote(updatedNote);
       console.log("Note update successful");
+      onOpenChange(false);
       
       toast({
         title: "Success",
