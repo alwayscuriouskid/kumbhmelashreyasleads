@@ -1,4 +1,4 @@
-import { Activity } from "@/types/leads";
+import { Activity } from "@/types/activity";
 import { useState } from "react";
 
 export const useActivityFilters = () => {
@@ -34,7 +34,7 @@ export const useActivityFilters = () => {
     if (selectedDate) {
       const dateStr = selectedDate.toISOString().split('T')[0];
       filtered = filtered.filter(activity => 
-        activity.created_at?.toString().includes(dateStr)
+        activity.created_at.toString().includes(dateStr)
       );
     }
 

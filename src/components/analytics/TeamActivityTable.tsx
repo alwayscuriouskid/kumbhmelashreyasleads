@@ -5,7 +5,7 @@ import TeamActivityRow from "./TeamActivityRow";
 import { useTeamActivities } from "@/hooks/useTeamActivities";
 import { useActivityFilters } from "./team-activities/useActivityFilters";
 import { useState, useEffect } from "react";
-import { Activity } from "@/types/leads";
+import { Activity } from "@/types/activity";
 import { supabase } from "@/integrations/supabase/client";
 
 const TeamActivityTable = () => {
@@ -65,13 +65,13 @@ const TeamActivityTable = () => {
     return [...activities].sort((a, b) => {
       switch (sortBy) {
         case "date_asc":
-          return new Date(a.date).getTime() - new Date(b.date).getTime();
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
         case "date_desc":
-          return new Date(b.date).getTime() - new Date(a.date).getTime();
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
         case "next_action_asc":
-          return new Date(a.activityNextActionDate || 0).getTime() - new Date(b.activityNextActionDate || 0).getTime();
+          return new Date(a.next_action_date || 0).getTime() - new Date(b.next_action_date || 0).getTime();
         case "next_action_desc":
-          return new Date(b.activityNextActionDate || 0).getTime() - new Date(a.activityNextActionDate || 0).getTime();
+          return new Date(b.next_action_date || 0).getTime() - new Date(a.next_action_date || 0).getTime();
         default:
           return 0;
       }
