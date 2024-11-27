@@ -35,10 +35,15 @@ const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProp
     try {
       console.log("Attempting to save lead:", editedLead);
       
+      if (!editedLead.id || typeof editedLead.id !== 'string') {
+        throw new Error("Invalid lead ID format");
+      }
+
       // Convert 'pending' status to 'suspect' before saving
       const leadToUpdate = {
         ...editedLead,
-        status: editedLead.status === 'pending' ? 'suspect' : editedLead.status
+        status: editedLead.status === 'pending' ? 'suspect' : editedLead.status,
+        id: editedLead.id.toString() // Ensure ID is in string format
       };
       
       if (onUpdate) {

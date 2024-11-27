@@ -84,6 +84,10 @@ export const useLeads = () => {
     mutationFn: async (updatedLead: Lead) => {
       console.log("Updating lead:", updatedLead);
       try {
+        if (!updatedLead.id || typeof updatedLead.id !== 'string') {
+          throw new Error("Invalid lead ID format");
+        }
+
         const dbLead = frontendToDB(updatedLead);
         console.log("Converted lead for DB update:", dbLead);
 
