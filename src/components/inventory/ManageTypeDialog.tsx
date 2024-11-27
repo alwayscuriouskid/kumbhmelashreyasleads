@@ -27,23 +27,17 @@ export const ManageTypeDialog = ({ children }: ManageTypeDialogProps) => {
   const handleDelete = async () => {
     if (!selectedTypeId) return;
     
-    setDeleteDialogOpen(false); // Close delete dialog first
+    setDeleteDialogOpen(false);
     
     try {
-      console.log('Starting deletion of inventory type:', selectedTypeId);
       await deleteType.mutateAsync(selectedTypeId);
-      console.log('Deletion successful, refetching data...');
-      
-      // Wait for refetch to complete
       await refetch();
       
+      setSelectedTypeId(null);
       toast({
         title: "Success",
         description: "Type deleted successfully",
       });
-      
-      // Reset selected type
-      setSelectedTypeId(null);
     } catch (error: any) {
       console.error('Error deleting type:', error);
       toast({
@@ -69,7 +63,7 @@ export const ManageTypeDialog = ({ children }: ManageTypeDialogProps) => {
           <DialogHeader>
             <DialogTitle>Manage Inventory Types</DialogTitle>
             <DialogDescription>
-              Manage your inventory types here. Deleting a type will remove it permanently.
+              Manage your inventory types here. You cannot delete a type that has associated inventory items.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -80,7 +74,6 @@ export const ManageTypeDialog = ({ children }: ManageTypeDialogProps) => {
                   variant="destructive"
                   size="sm"
                   onClick={() => {
-                    console.log('Setting selected type for deletion:', type.id);
                     setSelectedTypeId(type.id);
                     setDeleteDialogOpen(true);
                   }}

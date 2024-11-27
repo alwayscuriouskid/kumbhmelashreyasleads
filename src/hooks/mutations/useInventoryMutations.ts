@@ -53,24 +53,41 @@ export const useDeleteInventoryType = () => {
   
   return useMutation({
     mutationFn: async (id: string) => {
-      console.log('Starting deletion mutation for inventory type:', id);
-      const { error } = await supabase
+      console.log('Starting deletion check for inventory type:', id);
+      
+      // First check if there are any inventory items using this type
+      const { data: items, error: checkError } = await supabase
+        .from('inventory_items')
+        .select('id')
+        .eq('type_id', id);
+      
+      if (checkError) {
+        console.error('Error checking inventory items:', checkError);
+        throw checkError;
+      }
+      
+      if (items && items.length > 0) {
+        throw new Error('Cannot delete this type because it has associated inventory items. Please delete the items first.');
+      }
+      
+      console.log('No associated items found, proceeding with deletion');
+      
+      const { error: deleteError } = await supabase
         .from('inventory_types')
         .delete()
         .eq('id', id);
       
-      if (error) {
-        console.error('Error in deletion mutation:', error);
-        throw error;
+      if (deleteError) {
+        console.error('Error in deletion:', deleteError);
+        throw deleteError;
       }
-      console.log('Deletion mutation completed successfully');
+      
+      console.log('Type deleted successfully');
       return id;
     },
-    onSuccess: (deletedId) => {
-      console.log('Mutation success, invalidating queries...');
-      // Invalidate all related queries
+    onSuccess: () => {
+      console.log('Invalidating queries after successful deletion');
       queryClient.invalidateQueries({ queryKey: ["inventory_types"] });
-      queryClient.invalidateQueries({ queryKey: ["inventory_items"] });
     },
   });
 };
