@@ -1,6 +1,16 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Lead, frontendToDB } from "@/types/leads";
 
+type RequiredLeadFields = {
+  client_name: string;
+  location: string;
+  contact_person: string;
+  phone: string;
+  email: string;
+  requirement: Record<string, any>;
+  status: string;
+};
+
 export default async function handler(req: Request) {
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
@@ -18,12 +28,26 @@ export default async function handler(req: Request) {
 
     // Convert leads to DB format and ensure required fields
     const dbLeads = leads.map(lead => {
-      const dbLead = frontendToDB(lead);
+      const dbLead = frontendToDB(lead) as RequiredLeadFields;
+      
       if (!dbLead.client_name || !dbLead.location || !dbLead.contact_person || 
           !dbLead.phone || !dbLead.email) {
         throw new Error('Missing required fields');
       }
-      return dbLead;
+
+      return {
+        client_name: dbLead.client_name,
+        location: dbLead.location,
+        contact_person: dbLead.contact_person,
+        phone: dbLead.phone,
+        email: dbLead.email,
+        requirement: dbLead.requirement || {},
+        status: dbLead.status || 'pending',
+        budget: lead.budget,
+        lead_ref: lead.leadRef,
+        lead_source: lead.leadSource,
+        remarks: lead.remarks,
+      };
     });
 
     const { data, error } = await supabase
