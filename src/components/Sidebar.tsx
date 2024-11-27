@@ -3,16 +3,12 @@ import { ScrollArea } from "./ui/scroll-area";
 import { Button } from "./ui/button";
 import {
   BarChart,
-  FileText,
-  FolderKanban,
-  ListTodo,
   Users,
   Activity,
   Package,
   ShoppingCart,
   ChevronLeft,
   ChevronRight,
-  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -32,10 +28,6 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }: SidebarProps) => {
     { path: "/leads", icon: Users, label: "Leads" },
     { path: "/leads/analytics", icon: BarChart, label: "Lead Analytics" },
     { path: "/team-activities", icon: Activity, label: "Team Activities" },
-    { path: "/notes", icon: FileText, label: "Notes" },
-    { path: "/templates", icon: FolderKanban, label: "Templates" },
-    { path: "/trash", icon: Trash2, label: "Trash" },
-    { path: "/todo", icon: ListTodo, label: "Todo" },
     { path: "/inventory", icon: Package, label: "Inventory" },
     { path: "/inventory/orders", icon: ShoppingCart, label: "Orders" },
   ];
