@@ -24,4 +24,5 @@ export interface Activity {
   time?: string;
   location?: string;
   callType?: 'incoming' | 'outgoing';
+  is_completed?: boolean;
 }
