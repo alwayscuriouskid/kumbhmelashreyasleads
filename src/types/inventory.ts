@@ -70,6 +70,7 @@ export interface Order {
   next_payment_details?: string;
   additional_details?: string;
   order_items?: OrderItem[];
+  discounted_price?: number;
 }
 
 export interface OrderItem {
