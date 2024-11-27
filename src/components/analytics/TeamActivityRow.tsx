@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Card } from "@/components/ui/card";
 
 interface TeamActivityRowProps {
   activity: Activity;
@@ -37,6 +36,8 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
 
   const handleUpdateSave = async () => {
     try {
+      console.log("Saving update for activity:", activity.id, "Text:", updateText);
+      
       const { error } = await supabase
         .from('activities')
         .update({ update: updateText })
@@ -44,6 +45,7 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
 
       if (error) throw error;
 
+      console.log("Update saved successfully");
       setIsEditing(false);
       toast({
         title: "Success",
@@ -103,7 +105,10 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  onClick={() => setIsEditing(false)}
+                  onClick={() => {
+                    setUpdateText(activity.update || "");
+                    setIsEditing(false);
+                  }}
                   className="w-20"
                 >
                   Cancel
