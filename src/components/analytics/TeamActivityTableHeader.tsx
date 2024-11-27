@@ -16,7 +16,6 @@ const TeamActivityTableHeader = ({ visibleColumns }: TeamActivityTableHeaderProp
         {visibleColumns.activityOutcome && <TableHead>Activity Outcome</TableHead>}
         {visibleColumns.activityNextAction && <TableHead>Next Action</TableHead>}
         {visibleColumns.activityNextActionDate && <TableHead>Next Action Date</TableHead>}
-        {visibleColumns.update && <TableHead>Update</TableHead>}
       </TableRow>
     </TableHeader>
   );

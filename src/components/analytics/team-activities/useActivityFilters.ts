@@ -14,8 +14,7 @@ export const useActivityFilters = () => {
     leadName: true,
     activityOutcome: true,
     activityNextAction: true,
-    activityNextActionDate: true,
-    update: true
+    activityNextActionDate: true
   });
 
   const applyFilters = (activities: Activity[]) => {
