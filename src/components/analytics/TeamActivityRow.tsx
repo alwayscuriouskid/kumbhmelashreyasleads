@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Card } from "@/components/ui/card";
 
 interface TeamActivityRowProps {
   activity: Activity;
@@ -16,6 +17,7 @@ interface TeamActivityRowProps {
 const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => {
   const { data: teamMembers = [] } = useTeamMemberOptions();
   const [updateText, setUpdateText] = useState(activity.update || "");
+  const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
   
   const getTeamMemberName = (id: string) => {
@@ -42,6 +44,7 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
 
       if (error) throw error;
 
+      setIsEditing(false);
       toast({
         title: "Success",
         description: "Activity update saved successfully",
@@ -57,7 +60,7 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
   };
 
   return (
-    <TableRow>
+    <TableRow className="group">
       {visibleColumns.time && <TableCell>{activity.time}</TableCell>}
       {visibleColumns.type && 
         <TableCell className="capitalize">{activity.type.replace('_', ' ')}</TableCell>
@@ -80,21 +83,43 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
       }
       {visibleColumns.update && 
         <TableCell>
-          <div className="flex gap-2">
-            <Input
-              value={updateText}
-              onChange={(e) => setUpdateText(e.target.value)}
-              placeholder="Add update..."
-            />
-            <Button variant="outline" size="sm" onClick={handleUpdateSave}>
-              Save
-            </Button>
-          </div>
+          {isEditing ? (
+            <div className="flex flex-col gap-2">
+              <Input
+                value={updateText}
+                onChange={(e) => setUpdateText(e.target.value)}
+                placeholder="Add update..."
+                className="min-h-[60px]"
+              />
+              <div className="flex gap-2">
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  onClick={handleUpdateSave}
+                  className="w-20"
+                >
+                  Save
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setIsEditing(false)}
+                  className="w-20"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div 
+              className="group-hover:bg-accent p-2 rounded-md cursor-pointer min-h-[40px]"
+              onClick={() => setIsEditing(true)}
+            >
+              {activity.update || "Click to add update"}
+            </div>
+          )}
         </TableCell>
       }
-      <TableCell className="sticky right-0 bg-background/80 backdrop-blur-sm">
-        {/* Actions cell content */}
-      </TableCell>
     </TableRow>
   );
 };
