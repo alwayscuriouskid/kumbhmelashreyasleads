@@ -6,6 +6,7 @@ import LeadsHeader from "@/components/leads/LeadsHeader";
 import LeadsFilters from "@/components/leads/LeadsFilters";
 import LeadsTable from "@/components/leads/LeadsTable";
 import LeadForm from "@/components/leads/LeadForm";
+import ImportLeadsDialog from "@/components/leads/ImportLeadsDialog";
 import { useLeads } from "@/hooks/useLeads";
 
 const Leads = () => {
@@ -15,6 +16,7 @@ const Leads = () => {
   const [dateFilter, setDateFilter] = useState<Date>();
   const [locationFilter, setLocationFilter] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showImportDialog, setShowImportDialog] = useState(false);
   const [customStatuses, setCustomStatuses] = useState<string[]>([]);
   const [visibleColumns, setVisibleColumns] = useState({
     date: true,
@@ -96,7 +98,19 @@ const Leads = () => {
         </DialogContent>
       </Dialog>
 
-      <LeadsHeader onAddNew={() => setShowAddForm(true)} />
+      <ImportLeadsDialog
+        open={showImportDialog}
+        onOpenChange={setShowImportDialog}
+        onImportComplete={() => {
+          // Refetch leads after import
+          updateLead.invalidate();
+        }}
+      />
+
+      <LeadsHeader 
+        onAddNew={() => setShowAddForm(true)}
+        onImport={() => setShowImportDialog(true)}
+      />
 
       <LeadsFilters
         statusFilter={statusFilter}
