@@ -57,11 +57,11 @@ const EditNoteDialog = ({
     }
 
     try {
-      // Ensure we keep the original id and timestamps
       const updatedNote = {
         ...editedNote,
         title: editedNote.title.trim(),
         content: editedNote.content.trim(),
+        updated_at: new Date().toISOString(),
       };
       
       onUpdateNote(updatedNote);

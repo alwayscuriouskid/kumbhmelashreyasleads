@@ -4,6 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { NoteCardActions } from "./NoteCardActions";
 import EditNoteDialog from "./EditNoteDialog";
+import { NoteCardContent } from "./NoteCardContent";
+import { NoteHeader } from "./NoteHeader";
 
 interface NoteCardProps {
   note: Note;
@@ -22,12 +24,16 @@ const NoteCard = ({
   tags,
   onAddCategory,
 }: NoteCardProps) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedNote, setEditedNote] = useState<Note>(note);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const handleUpdateNote = (updatedNote: Note) => {
-    console.log("Updating note from NoteCard:", updatedNote);
+    console.log("Updating note:", updatedNote);
     try {
       onUpdate(updatedNote);
+      setEditedNote(updatedNote);
+      setIsEditing(false);
       console.log("Note update handler called successfully");
     } catch (error) {
       console.error("Error in handleUpdateNote:", error);
