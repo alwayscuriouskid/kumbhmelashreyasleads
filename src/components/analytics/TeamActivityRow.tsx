@@ -16,17 +16,13 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
   const { data: teamMembers = [] } = useTeamMemberOptions();
   const [isEditing, setIsEditing] = useState(false);
   const [updateText, setUpdateText] = useState(activity.update || "");
-  const [isDone, setIsDone] = useState(activity.is_completed || false);
   const { toast } = useToast();
 
   useEffect(() => {
-    console.log('Activity update changed:', activity.update);
-    console.log('Activity completion status:', activity.is_completed);
     if (activity.update !== updateText) {
       setUpdateText(activity.update || "");
     }
-    setIsDone(activity.is_completed || false);
-  }, [activity.update, activity.is_completed]);
+  }, [activity.update]);
 
   const getTeamMemberName = (id: string) => {
     const member = teamMembers.find(m => m.id === id);
@@ -74,40 +70,6 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
     }
   };
 
-  const handleMarkDone = async () => {
-    try {
-      const newDoneState = !isDone;
-      console.log('Marking activity as done:', activity.id, newDoneState);
-      
-      const { data, error } = await supabase
-        .from('activities')
-        .update({ 
-          is_completed: newDoneState,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', activity.id)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      console.log('Done status updated successfully:', data);
-      setIsDone(newDoneState);
-      
-      toast({
-        title: "Success",
-        description: newDoneState ? "Activity marked as done" : "Activity marked as not done",
-      });
-    } catch (error) {
-      console.error("Error updating done status:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update activity status",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <TableRow>
       {visibleColumns.time && <TableCell>{activity.time}</TableCell>}
@@ -138,8 +100,6 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
             onChange={handleUpdateChange}
             onEditToggle={() => setIsEditing(!isEditing)}
             placeholder="Click to add update"
-            isDone={isDone}
-            onMarkDone={handleMarkDone}
           />
         </TableCell>
       }

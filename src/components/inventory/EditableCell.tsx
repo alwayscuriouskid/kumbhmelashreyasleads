@@ -1,7 +1,5 @@
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 
 interface EditableCellProps {
   value: string | number;
@@ -10,8 +8,6 @@ interface EditableCellProps {
   onEditToggle?: () => void;
   type?: "text" | "number";
   placeholder?: string;
-  isDone?: boolean;
-  onMarkDone?: () => void;
 }
 
 export const EditableCell = ({
@@ -20,9 +16,7 @@ export const EditableCell = ({
   onChange,
   onEditToggle,
   type = "text",
-  placeholder = "Click to add update",
-  isDone,
-  onMarkDone
+  placeholder = "Click to add update"
 }: EditableCellProps) => {
   const [inputValue, setInputValue] = useState(value?.toString() || "");
 
@@ -42,53 +36,23 @@ export const EditableCell = ({
 
   if (isEditing) {
     return (
-      <div className="flex gap-2 items-center">
-        <Input
-          type={type}
-          value={inputValue}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          className="w-full"
-          autoFocus
-        />
-        {onMarkDone && (
-          <Button 
-            size="sm" 
-            variant={isDone ? "default" : "outline"}
-            onClick={(e) => {
-              e.stopPropagation();
-              onMarkDone();
-            }}
-            className={isDone ? "bg-green-500 hover:bg-green-600" : ""}
-          >
-            <Check className="h-4 w-4" />
-          </Button>
-        )}
-      </div>
+      <Input
+        type={type}
+        value={inputValue}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        className="w-full"
+        autoFocus
+      />
     );
   }
 
   return (
     <div 
       onClick={onEditToggle}
-      className={`cursor-pointer p-2 rounded flex items-center justify-between gap-2 ${
-        isDone ? "text-green-500" : "hover:bg-accent"
-      }`}
+      className="cursor-pointer p-2 hover:bg-accent rounded"
     >
       <span>{value || placeholder}</span>
-      {value && onMarkDone && (
-        <Button
-          size="sm"
-          variant={isDone ? "default" : "outline"}
-          onClick={(e) => {
-            e.stopPropagation();
-            onMarkDone();
-          }}
-          className={isDone ? "bg-green-500 hover:bg-green-600" : ""}
-        >
-          <Check className="h-4 w-4" />
-        </Button>
-      )}
     </div>
   );
 };
