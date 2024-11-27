@@ -31,14 +31,29 @@ const LeadRow = ({ lead, visibleColumns, onUpdate, customStatuses }: LeadRowProp
     console.log("Editing mode enabled for lead:", lead.id);
   };
 
-  const handleSave = () => {
-    onUpdate?.(editedLead);
-    setIsEditing(false);
-    console.log("Saving changes for lead:", editedLead);
-    toast({
-      title: "Lead Updated",
-      description: "The lead information has been successfully updated.",
-    });
+  const handleSave = async () => {
+    try {
+      // Convert 'pending' status to 'suspect' before saving
+      const leadToUpdate = {
+        ...editedLead,
+        status: editedLead.status === 'pending' ? 'suspect' : editedLead.status
+      };
+      
+      await onUpdate?.(leadToUpdate);
+      setIsEditing(false);
+      console.log("Saving changes for lead:", leadToUpdate);
+      toast({
+        title: "Lead Updated",
+        description: "The lead information has been successfully updated.",
+      });
+    } catch (error) {
+      console.error("Error saving lead:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update lead. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleCancel = () => {

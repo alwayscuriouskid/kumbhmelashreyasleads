@@ -56,6 +56,12 @@ const LeadFormStatus = ({ status, onStatusChange, customStatuses, onAddCustomSta
       .join(' ');
   };
 
+  // If status is 'pending', automatically change it to 'suspect'
+  if (status === 'pending') {
+    console.log('Converting pending status to suspect');
+    onStatusChange('suspect');
+  }
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
