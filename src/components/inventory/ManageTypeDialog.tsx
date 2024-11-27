@@ -26,15 +26,24 @@ export const ManageTypeDialog = ({ children }: ManageTypeDialogProps) => {
 
   const handleDelete = async () => {
     if (!selectedTypeId) return;
+    
+    setDeleteDialogOpen(false); // Close delete dialog first
+    
     try {
-      console.log('Deleting inventory type:', selectedTypeId);
+      console.log('Starting deletion of inventory type:', selectedTypeId);
       await deleteType.mutateAsync(selectedTypeId);
-      await refetch(); // Explicitly refetch after deletion
-      setDeleteDialogOpen(false);
+      console.log('Deletion successful, refetching data...');
+      
+      // Wait for refetch to complete
+      await refetch();
+      
       toast({
         title: "Success",
         description: "Type deleted successfully",
       });
+      
+      // Reset selected type
+      setSelectedTypeId(null);
     } catch (error: any) {
       console.error('Error deleting type:', error);
       toast({
@@ -71,6 +80,7 @@ export const ManageTypeDialog = ({ children }: ManageTypeDialogProps) => {
                   variant="destructive"
                   size="sm"
                   onClick={() => {
+                    console.log('Setting selected type for deletion:', type.id);
                     setSelectedTypeId(type.id);
                     setDeleteDialogOpen(true);
                   }}

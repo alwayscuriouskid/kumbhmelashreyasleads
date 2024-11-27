@@ -53,26 +53,24 @@ export const useDeleteInventoryType = () => {
   
   return useMutation({
     mutationFn: async (id: string) => {
-      console.log('Deleting inventory type:', id);
+      console.log('Starting deletion mutation for inventory type:', id);
       const { error } = await supabase
         .from('inventory_types')
         .delete()
         .eq('id', id);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error in deletion mutation:', error);
+        throw error;
+      }
+      console.log('Deletion mutation completed successfully');
       return id;
     },
     onSuccess: (deletedId) => {
-      // Immediately update the cache to remove the deleted item
-      queryClient.setQueryData(['inventory_types'], (oldData: any) => {
-        return oldData?.filter((type: any) => type.id !== deletedId);
-      });
-      // Also invalidate the query to refetch fresh data
+      console.log('Mutation success, invalidating queries...');
+      // Invalidate all related queries
       queryClient.invalidateQueries({ queryKey: ["inventory_types"] });
-      toast({
-        title: "Success",
-        description: "Inventory type deleted successfully",
-      });
+      queryClient.invalidateQueries({ queryKey: ["inventory_items"] });
     },
   });
 };
