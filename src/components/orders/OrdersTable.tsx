@@ -6,15 +6,23 @@ import { OrdersTableHeader } from "./OrdersTableHeader";
 import { OrdersTableRow } from "./OrdersTableRow";
 import { Order } from "@/types/inventory";
 import { exportToExcel } from "@/utils/exportUtils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface OrdersTableProps {
   orders: Order[];
   teamMembers: any[];
   visibleColumns: Record<string, boolean>;
   onOrderUpdate: () => void;
+  isLoading?: boolean;
 }
 
-export const OrdersTable = ({ orders, teamMembers, visibleColumns, onOrderUpdate }: OrdersTableProps) => {
+export const OrdersTable = ({ 
+  orders, 
+  teamMembers, 
+  visibleColumns, 
+  onOrderUpdate,
+  isLoading 
+}: OrdersTableProps) => {
   const handleExport = () => {
     try {
       const exportData = orders.map(order => ({
@@ -47,6 +55,35 @@ export const OrdersTable = ({ orders, teamMembers, visibleColumns, onOrderUpdate
       });
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-end">
+          <Skeleton className="h-10 w-32" />
+        </div>
+        <div className="rounded-md border">
+          <Table>
+            <OrdersTableHeader visibleColumns={visibleColumns} />
+            <tbody>
+              {[1, 2, 3].map((i) => (
+                <tr key={i}>
+                  {Object.keys(visibleColumns).map((key) => (
+                    <td key={key} className="p-4">
+                      <Skeleton className="h-4 w-full" />
+                    </td>
+                  ))}
+                  <td className="p-4">
+                    <Skeleton className="h-4 w-[100px]" />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
