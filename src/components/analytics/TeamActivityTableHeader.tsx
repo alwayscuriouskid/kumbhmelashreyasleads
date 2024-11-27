@@ -8,6 +8,7 @@ const TeamActivityTableHeader = ({ visibleColumns }: TeamActivityTableHeaderProp
   return (
     <TableHeader>
       <TableRow>
+        {visibleColumns.date && <TableHead>Date</TableHead>}
         {visibleColumns.time && <TableHead>Time</TableHead>}
         {visibleColumns.type && <TableHead>Type</TableHead>}
         {visibleColumns.notes && <TableHead>Notes</TableHead>}

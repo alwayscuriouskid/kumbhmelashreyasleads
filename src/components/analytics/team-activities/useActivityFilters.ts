@@ -7,6 +7,7 @@ export const useActivityFilters = () => {
   const [activityType, setActivityType] = useState<string>('all');
   const [leadSearch, setLeadSearch] = useState<string>('');
   const [visibleColumns, setVisibleColumns] = useState({
+    date: true,
     time: true,
     type: true,
     notes: true,
@@ -33,7 +34,7 @@ export const useActivityFilters = () => {
     if (selectedDate) {
       const dateStr = selectedDate.toISOString().split('T')[0];
       filtered = filtered.filter(activity => 
-        activity.date.toString().includes(dateStr)
+        activity.created_at?.toString().includes(dateStr)
       );
     }
 

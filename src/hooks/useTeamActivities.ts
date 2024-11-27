@@ -68,6 +68,7 @@ export const useTeamActivities = (
         id: item.id,
         type: item.type as Activity['type'],
         date: item.created_at,
+        created_at: item.created_at,
         time: format(new Date(item.created_at), 'HH:mm'),
         notes: item.notes || '',
         outcome: item.outcome || '',
@@ -83,8 +84,7 @@ export const useTeamActivities = (
         activityType: item.type,
         activityOutcome: item.outcome,
         activityNextAction: item.next_action,
-        activityNextActionDate: item.next_action_date,
-        update: item.update
+        activityNextActionDate: item.next_action_date
       }));
     },
     staleTime: 0,

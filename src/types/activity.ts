@@ -4,6 +4,7 @@ export interface Activity {
   id: string;
   type: ActivityType;
   date: string;
+  created_at?: string;
   notes?: string;
   outcome?: string;
   startTime?: string;
@@ -20,7 +21,6 @@ export interface Activity {
   activityNextAction?: string;
   activityNextActionDate?: string;
   next_action_date?: string;
-  update?: string;
   time?: string;
   location?: string;
   callType?: 'incoming' | 'outgoing';

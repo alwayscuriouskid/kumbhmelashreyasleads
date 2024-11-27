@@ -28,6 +28,9 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
 
   return (
     <TableRow>
+      {visibleColumns.date && 
+        <TableCell>{formatDate(activity.created_at)}</TableCell>
+      }
       {visibleColumns.time && <TableCell>{activity.time}</TableCell>}
       {visibleColumns.type && 
         <TableCell className="capitalize">{activity.type.replace('_', ' ')}</TableCell>
