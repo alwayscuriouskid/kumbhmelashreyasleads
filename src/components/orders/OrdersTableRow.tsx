@@ -33,50 +33,52 @@ export const OrdersTableRow = ({
     setEditedOrder(order);
   };
 
-  const handleChange = async (field: keyof Order, value: any) => {
-    console.log(`Updating ${field} to:`, value);
-    
-    // Special handling for status changes to ensure inventory updates
-    if (field === 'status' || field === 'payment_status') {
-      try {
-        setIsUpdating(true);
-        
-        const { error } = await supabase
-          .from('orders')
-          .update({ [field]: value })
-          .eq('id', order.id);
-
-        if (error) throw error;
-
-        toast({
-          title: "Success",
-          description: `Order ${field.replace('_', ' ')} updated successfully`,
-        });
-
-        onOrderUpdate();
-      } catch (error: any) {
-        console.error('Error updating order:', error);
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive",
-        });
-      } finally {
-        setIsUpdating(false);
-        setIsEditing(false);
-      }
-    } else {
-      // For other fields, just update the local state
-      setEditedOrder(prev => ({
-        ...prev,
-        [field]: value
-      }));
-    }
+  const handleInputChange = (field: keyof Order, value: any) => {
+    setEditedOrder(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
-  const handleSuccess = () => {
-    setIsEditing(false);
-    onOrderUpdate();
+  const handleSave = async () => {
+    try {
+      setIsUpdating(true);
+      console.log('Saving order changes:', editedOrder);
+
+      const { error } = await supabase
+        .from('orders')
+        .update({
+          customer_name: editedOrder.customer_name,
+          discounted_price: editedOrder.discounted_price,
+          payment_status: editedOrder.payment_status,
+          status: editedOrder.status,
+          payment_confirmation: editedOrder.payment_confirmation,
+          next_payment_date: editedOrder.next_payment_date,
+          next_payment_details: editedOrder.next_payment_details,
+          additional_details: editedOrder.additional_details,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', order.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Order updated successfully",
+      });
+
+      setIsEditing(false);
+      onOrderUpdate();
+    } catch (error) {
+      console.error('Error updating order:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update order",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   return (
@@ -87,7 +89,7 @@ export const OrdersTableRow = ({
         isEditing={isEditing}
         visibleColumns={visibleColumns}
         teamMembers={teamMembers}
-        onChange={handleChange}
+        onChange={handleInputChange}
       />
       <OrderRowActions
         order={order}
@@ -96,7 +98,7 @@ export const OrdersTableRow = ({
         isUpdating={isUpdating}
         onEdit={handleEdit}
         onCancel={handleCancel}
-        onSuccess={handleSuccess}
+        onSuccess={handleSave}
       />
     </TableRow>
   );

@@ -5,9 +5,7 @@ import { OrderStatusCell } from "../cells/OrderStatusCell";
 import { InventoryItemsCell } from "../cells/InventoryItemsCell";
 import { NextPaymentDateCell } from "../cells/NextPaymentDateCell";
 import { Order } from "@/types/inventory";
-import { updateOrderPaymentStatus } from "../utils/paymentStatusManager";
 import { Input } from "@/components/ui/input";
-import { useEffect, useState } from "react";
 
 interface OrderRowCellsProps {
   order: Order;
@@ -26,29 +24,6 @@ export const OrderRowCells = ({
   teamMembers,
   onChange,
 }: OrderRowCellsProps) => {
-  const [localEditedOrder, setLocalEditedOrder] = useState(editedOrder);
-
-  useEffect(() => {
-    setLocalEditedOrder(editedOrder);
-  }, [editedOrder]);
-
-  const handlePaymentStatusChange = async (value: string) => {
-    try {
-      await updateOrderPaymentStatus(order.id, value as 'pending' | 'partially_pending' | 'finished');
-      onChange('payment_status', value);
-    } catch (error) {
-      console.error('Failed to update payment status:', error);
-    }
-  };
-
-  const handleChange = (field: keyof Order, value: any) => {
-    setLocalEditedOrder(prev => ({
-      ...prev,
-      [field]: value
-    }));
-    onChange(field, value);
-  };
-
   return (
     <>
       {visibleColumns.orderId && <TableCell>{order.id}</TableCell>}
@@ -61,8 +36,8 @@ export const OrderRowCells = ({
         <TableCell>
           {isEditing ? (
             <Input
-              value={localEditedOrder.customer_name || ''}
-              onChange={(e) => handleChange('customer_name', e.target.value)}
+              value={editedOrder.customer_name || ''}
+              onChange={(e) => onChange('customer_name', e.target.value)}
               className="w-full"
             />
           ) : (
@@ -80,12 +55,12 @@ export const OrderRowCells = ({
           {isEditing ? (
             <Input
               type="number"
-              value={localEditedOrder.discounted_price || ''}
-              onChange={(e) => handleChange('discounted_price', parseFloat(e.target.value))}
+              value={editedOrder.discounted_price || ''}
+              onChange={(e) => onChange('discounted_price', parseFloat(e.target.value))}
               className="w-full"
             />
           ) : (
-            localEditedOrder.discounted_price ? `₹${localEditedOrder.discounted_price}` : '-'
+            editedOrder.discounted_price ? `₹${editedOrder.discounted_price}` : '-'
           )}
         </TableCell>
       )}
@@ -95,18 +70,18 @@ export const OrderRowCells = ({
       {visibleColumns.paymentStatus && (
         <TableCell>
           <PaymentStatusCell
-            value={isEditing ? localEditedOrder.payment_status || 'pending' : order.payment_status || 'pending'}
+            value={isEditing ? editedOrder.payment_status || 'pending' : order.payment_status || 'pending'}
             isEditing={isEditing}
-            onChange={handlePaymentStatusChange}
+            onChange={(value) => onChange('payment_status', value)}
           />
         </TableCell>
       )}
       {visibleColumns.orderStatus && (
         <TableCell>
           <OrderStatusCell
-            value={isEditing ? localEditedOrder.status : order.status}
+            value={isEditing ? editedOrder.status : order.status}
             isEditing={isEditing}
-            onChange={(value) => handleChange('status', value)}
+            onChange={(value) => onChange('status', value)}
           />
         </TableCell>
       )}
@@ -119,8 +94,8 @@ export const OrderRowCells = ({
         <TableCell>
           {isEditing ? (
             <Input
-              value={localEditedOrder.payment_confirmation || ''}
-              onChange={(e) => handleChange('payment_confirmation', e.target.value)}
+              value={editedOrder.payment_confirmation || ''}
+              onChange={(e) => onChange('payment_confirmation', e.target.value)}
               className="w-full"
             />
           ) : (
@@ -132,8 +107,8 @@ export const OrderRowCells = ({
         <TableCell>
           <NextPaymentDateCell
             isEditing={isEditing}
-            value={localEditedOrder.next_payment_date || order.next_payment_date}
-            onChange={(value) => handleChange('next_payment_date', value)}
+            value={editedOrder.next_payment_date || order.next_payment_date}
+            onChange={(value) => onChange('next_payment_date', value)}
           />
         </TableCell>
       )}
@@ -141,8 +116,8 @@ export const OrderRowCells = ({
         <TableCell>
           {isEditing ? (
             <Input
-              value={localEditedOrder.next_payment_details || ''}
-              onChange={(e) => handleChange('next_payment_details', e.target.value)}
+              value={editedOrder.next_payment_details || ''}
+              onChange={(e) => onChange('next_payment_details', e.target.value)}
               className="w-full"
             />
           ) : (
@@ -154,8 +129,8 @@ export const OrderRowCells = ({
         <TableCell>
           {isEditing ? (
             <Input
-              value={localEditedOrder.additional_details || ''}
-              onChange={(e) => handleChange('additional_details', e.target.value)}
+              value={editedOrder.additional_details || ''}
+              onChange={(e) => onChange('additional_details', e.target.value)}
               className="w-full"
             />
           ) : (
