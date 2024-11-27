@@ -88,6 +88,7 @@ export const useTeamActivities = (
       }));
     },
     staleTime: 0,
-    refetchOnWindowFocus: true
+    refetchOnWindowFocus: true,
+    refetchOnMount: true
   });
 };

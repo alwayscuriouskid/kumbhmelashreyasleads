@@ -21,7 +21,9 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
   // Update local state when activity changes
   useEffect(() => {
     console.log('Activity update changed:', activity.update);
-    setUpdateText(activity.update || "");
+    if (activity.update !== updateText) {
+      setUpdateText(activity.update || "");
+    }
   }, [activity.update]);
 
   const getTeamMemberName = (id: string) => {
@@ -45,11 +47,11 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
       const { error } = await supabase
         .from('activities')
         .update({ update: value })
-        .eq('id', activity.id);
+        .eq('id', activity.id)
+        .select();
 
       if (error) throw error;
 
-      console.log('Update saved successfully');
       setUpdateText(value);
       setIsEditing(false);
       
@@ -59,6 +61,8 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
       });
     } catch (error) {
       console.error("Error saving update:", error);
+      // Revert to previous state on error
+      setUpdateText(activity.update || "");
       toast({
         title: "Error",
         description: "Failed to save update",
