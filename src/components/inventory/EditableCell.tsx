@@ -4,6 +4,7 @@ interface EditableCellProps {
   value: string | number;
   isEditing: boolean;
   onChange: (value: string) => void;
+  onEditToggle?: () => void;
   type?: "text" | "number";
 }
 
@@ -11,6 +12,7 @@ export const EditableCell = ({
   value,
   isEditing,
   onChange,
+  onEditToggle,
   type = "text",
 }: EditableCellProps) => {
   if (isEditing) {
@@ -19,10 +21,19 @@ export const EditableCell = ({
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onBlur={onEditToggle}
         className="w-full"
+        autoFocus
       />
     );
   }
 
-  return <span>{value}</span>;
+  return (
+    <div 
+      onClick={onEditToggle}
+      className="cursor-pointer p-2 hover:bg-accent rounded"
+    >
+      {value || "Click to add update"}
+    </div>
+  );
 };

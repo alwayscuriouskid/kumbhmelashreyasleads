@@ -3,8 +3,7 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { Activity } from "@/types/leads";
 import { format } from "date-fns";
 import { useTeamMemberOptions } from "@/hooks/useTeamMemberOptions";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { EditableCell } from "@/components/inventory/EditableCell";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -33,16 +32,16 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
     }
   };
 
-  const handleUpdateSave = async () => {
+  const handleUpdateChange = async (value: string) => {
     try {
       const { error } = await supabase
         .from('activities')
-        .update({ update: updateText })
+        .update({ update: value })
         .eq('id', activity.id);
 
       if (error) throw error;
 
-      setIsEditing(false);
+      setUpdateText(value);
       toast({
         title: "Success",
         description: "Update saved successfully",
@@ -81,38 +80,12 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
       }
       {visibleColumns.update && 
         <TableCell>
-          {isEditing ? (
-            <div className="space-y-2">
-              <Input
-                value={updateText}
-                onChange={(e) => setUpdateText(e.target.value)}
-                placeholder="Add update..."
-              />
-              <div className="flex gap-2">
-                <Button 
-                  variant="default" 
-                  size="sm" 
-                  onClick={handleUpdateSave}
-                >
-                  Save
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => setIsEditing(false)}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div 
-              onClick={() => setIsEditing(true)}
-              className="cursor-pointer min-h-[40px] p-2 hover:bg-accent rounded"
-            >
-              {activity.update || "Click to add update"}
-            </div>
-          )}
+          <EditableCell
+            value={updateText}
+            isEditing={isEditing}
+            onChange={handleUpdateChange}
+            onEditToggle={() => setIsEditing(!isEditing)}
+          />
         </TableCell>
       }
     </TableRow>
