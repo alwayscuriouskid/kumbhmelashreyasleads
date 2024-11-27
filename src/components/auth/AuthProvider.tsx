@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
+import { toast } from "sonner";
 
 interface AuthContextType {
   user: User | null;
@@ -24,8 +25,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log("Setting up auth state...");
+    
     // Check current session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("Current session:", session?.user?.email);
       setUser(session?.user ?? null);
       if (session?.user) {
         checkUserRole(session.user.id);
@@ -36,15 +40,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event);
+      console.log("Auth state changed:", event, session?.user?.email);
       setUser(session?.user ?? null);
+      
       if (session?.user) {
         checkUserRole(session.user.id);
-      }
-      
-      if (event === "SIGNED_IN") {
-        navigate("/leads");
+        if (event === "SIGNED_IN") {
+          toast.success("Successfully signed in");
+          navigate("/leads");
+        }
       } else if (event === "SIGNED_OUT") {
+        toast.info("Signed out");
         navigate("/login");
       }
     });
@@ -58,14 +64,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .from('profiles')
         .select('role')
         .eq('id', userId)
-        .maybeSingle(); // Use maybeSingle() instead of single()
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching user role:", error);
         return;
       }
 
-      // If no profile exists, data will be null
+      console.log("User role:", data?.role);
       setIsAdmin(data?.role === "admin");
     } catch (error) {
       console.error("Error in checkUserRole:", error);

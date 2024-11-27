@@ -11,7 +11,7 @@ const LoginPage = () => {
             Welcome to KumbhMela Leads
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Please sign in to continue
+            Please sign in with your credentials
           </p>
         </div>
         <Auth
@@ -29,6 +29,8 @@ const LoginPage = () => {
           }}
           providers={[]}
           redirectTo={window.location.origin}
+          showLinks={false}
+          view="sign_in"
         />
       </div>
     </div>
