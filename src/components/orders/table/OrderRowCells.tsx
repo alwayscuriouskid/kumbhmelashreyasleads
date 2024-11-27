@@ -3,10 +3,10 @@ import { EditableCell } from "@/components/inventory/EditableCell";
 import { PaymentStatusCell } from "../cells/PaymentStatusCell";
 import { OrderStatusCell } from "../cells/OrderStatusCell";
 import { InventoryItemsCell } from "../cells/InventoryItemsCell";
-import { PaymentConfirmationCell } from "../cells/PaymentConfirmationCell";
 import { NextPaymentDateCell } from "../cells/NextPaymentDateCell";
 import { Order } from "@/types/inventory";
 import { updateOrderPaymentStatus } from "../utils/paymentStatusManager";
+import { Input } from "@/components/ui/input";
 
 interface OrderRowCellsProps {
   order: Order;
@@ -44,11 +44,15 @@ export const OrderRowCells = ({
       )}
       {visibleColumns.customer && (
         <TableCell>
-          <EditableCell
-            value={isEditing ? editedOrder.customer_name || '' : order.customer_name || ''}
-            isEditing={isEditing}
-            onChange={(value) => onChange('customer_name', value)}
-          />
+          {isEditing ? (
+            <Input
+              value={editedOrder.customer_name || ''}
+              onChange={(e) => onChange('customer_name', e.target.value)}
+              className="w-full"
+            />
+          ) : (
+            order.customer_name
+          )}
         </TableCell>
       )}
       {visibleColumns.teamMember && (
@@ -84,11 +88,15 @@ export const OrderRowCells = ({
       )}
       {visibleColumns.paymentConfirmation && (
         <TableCell>
-          <PaymentConfirmationCell
-            isEditing={isEditing}
-            value={editedOrder.payment_confirmation || order.payment_confirmation || ''}
-            onChange={(value) => onChange('payment_confirmation', value)}
-          />
+          {isEditing ? (
+            <Input
+              value={editedOrder.payment_confirmation || ''}
+              onChange={(e) => onChange('payment_confirmation', e.target.value)}
+              className="w-full"
+            />
+          ) : (
+            order.payment_confirmation || '-'
+          )}
         </TableCell>
       )}
       {visibleColumns.nextPaymentDate && (
@@ -102,20 +110,28 @@ export const OrderRowCells = ({
       )}
       {visibleColumns.nextPaymentDetails && (
         <TableCell>
-          <EditableCell
-            value={isEditing ? editedOrder.next_payment_details || '' : order.next_payment_details || ''}
-            isEditing={isEditing}
-            onChange={(value) => onChange('next_payment_details', value)}
-          />
+          {isEditing ? (
+            <Input
+              value={editedOrder.next_payment_details || ''}
+              onChange={(e) => onChange('next_payment_details', e.target.value)}
+              className="w-full"
+            />
+          ) : (
+            order.next_payment_details || '-'
+          )}
         </TableCell>
       )}
       {visibleColumns.additionalDetails && (
         <TableCell>
-          <EditableCell
-            value={isEditing ? editedOrder.additional_details || '' : order.additional_details || ''}
-            isEditing={isEditing}
-            onChange={(value) => onChange('additional_details', value)}
-          />
+          {isEditing ? (
+            <Input
+              value={editedOrder.additional_details || ''}
+              onChange={(e) => onChange('additional_details', e.target.value)}
+              className="w-full"
+            />
+          ) : (
+            order.additional_details || '-'
+          )}
         </TableCell>
       )}
     </>
