@@ -143,4 +143,5 @@ export type Activity = {
   activityNextAction?: string;
   activityNextActionDate?: string;
   update?: string;
+  is_completed?: boolean;
 };
