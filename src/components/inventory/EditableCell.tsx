@@ -27,8 +27,6 @@ export const EditableCell = ({
   const [inputValue, setInputValue] = useState(value?.toString() || "");
 
   useEffect(() => {
-    console.log("EditableCell value changed:", value);
-    console.log("EditableCell isDone status:", isDone);
     if (value?.toString() !== inputValue) {
       setInputValue(value?.toString() || "");
     }
@@ -39,9 +37,7 @@ export const EditableCell = ({
   };
 
   const handleBlur = () => {
-    console.log("EditableCell blur - current value:", inputValue);
     onChange(inputValue);
-    onEditToggle?.();
   };
 
   if (isEditing) {
@@ -58,12 +54,12 @@ export const EditableCell = ({
         {onMarkDone && (
           <Button 
             size="sm" 
-            variant="outline"
+            variant={isDone ? "default" : "outline"}
             onClick={(e) => {
               e.stopPropagation();
               onMarkDone();
             }}
-            className={isDone ? "bg-green-500 text-white hover:bg-green-600" : ""}
+            className={isDone ? "bg-green-500 hover:bg-green-600" : ""}
           >
             <Check className="h-4 w-4" />
           </Button>
@@ -75,12 +71,24 @@ export const EditableCell = ({
   return (
     <div 
       onClick={onEditToggle}
-      className={`cursor-pointer p-2 hover:bg-accent rounded flex items-center justify-between ${
-        isDone ? "text-green-500" : ""
+      className={`cursor-pointer p-2 rounded flex items-center justify-between gap-2 ${
+        isDone ? "text-green-500" : "hover:bg-accent"
       }`}
     >
       <span>{value || placeholder}</span>
-      {isDone && <Check className="h-4 w-4 text-green-500" />}
+      {value && onMarkDone && (
+        <Button
+          size="sm"
+          variant={isDone ? "default" : "outline"}
+          onClick={(e) => {
+            e.stopPropagation();
+            onMarkDone();
+          }}
+          className={isDone ? "bg-green-500 hover:bg-green-600" : ""}
+        >
+          <Check className="h-4 w-4" />
+        </Button>
+      )}
     </div>
   );
 };
