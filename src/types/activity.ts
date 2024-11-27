@@ -8,6 +8,7 @@ export interface Activity {
   outcome?: string;
   startTime?: string;
   endTime?: string;
+  duration?: number;
   assignedTo?: string;
   nextAction?: string;
   contactPerson?: string;
@@ -21,4 +22,6 @@ export interface Activity {
   next_action_date?: string;
   update?: string;
   time?: string;
+  location?: string;
+  callType?: 'incoming' | 'outgoing';
 }
