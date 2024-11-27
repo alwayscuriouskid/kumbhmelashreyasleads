@@ -1,4 +1,5 @@
 import { Input } from "@/components/ui/input";
+import { useEffect, useState } from "react";
 
 interface EditableCellProps {
   value: string | number;
@@ -15,13 +16,28 @@ export const EditableCell = ({
   onEditToggle,
   type = "text",
 }: EditableCellProps) => {
+  const [inputValue, setInputValue] = useState(value);
+
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+  };
+
+  const handleBlur = () => {
+    onChange(inputValue.toString());
+    onEditToggle?.();
+  };
+
   if (isEditing) {
     return (
       <Input
         type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onBlur={onEditToggle}
+        value={inputValue}
+        onChange={handleChange}
+        onBlur={handleBlur}
         className="w-full"
         autoFocus
       />

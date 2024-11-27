@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Activity } from "@/types/leads";
 import { format } from "date-fns";
@@ -15,10 +15,15 @@ interface TeamActivityRowProps {
 const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => {
   const { data: teamMembers = [] } = useTeamMemberOptions();
   const [isEditing, setIsEditing] = useState(false);
-  // Initialize with activity.update instead of empty string
   const [updateText, setUpdateText] = useState(activity.update || "");
   const { toast } = useToast();
   
+  // Update local state when activity changes
+  useEffect(() => {
+    console.log('Activity update changed:', activity.update);
+    setUpdateText(activity.update || "");
+  }, [activity.update]);
+
   const getTeamMemberName = (id: string) => {
     const member = teamMembers.find(m => m.id === id);
     return member ? member.name : 'Unassigned';
@@ -36,14 +41,21 @@ const TeamActivityRow = ({ activity, visibleColumns }: TeamActivityRowProps) => 
   const handleUpdateChange = async (value: string) => {
     try {
       console.log('Saving update:', value, 'for activity:', activity.id);
+      
       const { error } = await supabase
         .from('activities')
         .update({ update: value })
         .eq('id', activity.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error saving update:', error);
+        throw error;
+      }
 
+      console.log('Update saved successfully');
       setUpdateText(value);
+      setIsEditing(false);
+      
       toast({
         title: "Success",
         description: "Update saved successfully",
