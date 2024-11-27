@@ -5,6 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Settings2 } from "lucide-react";
@@ -26,9 +27,10 @@ export const ManageSectorDialog = ({ children }: ManageSectorDialogProps) => {
   const handleDelete = async () => {
     if (!selectedSectorId) return;
     try {
+      console.log('Deleting sector:', selectedSectorId);
       await deleteSector.mutateAsync(selectedSectorId);
+      await refetch(); // Explicitly refetch after deletion
       setDeleteDialogOpen(false);
-      refetch();
       toast({
         title: "Success",
         description: "Sector deleted successfully",
@@ -57,6 +59,9 @@ export const ManageSectorDialog = ({ children }: ManageSectorDialogProps) => {
         <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Manage Sectors</DialogTitle>
+            <DialogDescription>
+              Manage your sectors here. Deleting a sector will remove it permanently.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             {sectors?.map((sector) => (

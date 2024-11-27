@@ -5,6 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Settings2 } from "lucide-react";
@@ -26,9 +27,10 @@ export const ManageZoneDialog = ({ children }: ManageZoneDialogProps) => {
   const handleDelete = async () => {
     if (!selectedZoneId) return;
     try {
+      console.log('Deleting zone:', selectedZoneId);
       await deleteZone.mutateAsync(selectedZoneId);
+      await refetch(); // Explicitly refetch after deletion
       setDeleteDialogOpen(false);
-      refetch();
       toast({
         title: "Success",
         description: "Zone deleted successfully",
@@ -57,6 +59,9 @@ export const ManageZoneDialog = ({ children }: ManageZoneDialogProps) => {
         <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Manage Zones</DialogTitle>
+            <DialogDescription>
+              Manage your zones here. Deleting a zone will remove it permanently.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             {zones?.map((zone) => (

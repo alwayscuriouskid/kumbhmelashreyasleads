@@ -5,6 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Settings2 } from "lucide-react";
@@ -26,9 +27,14 @@ export const ManageTypeDialog = ({ children }: ManageTypeDialogProps) => {
   const handleDelete = async () => {
     if (!selectedTypeId) return;
     try {
+      console.log('Deleting inventory type:', selectedTypeId);
       await deleteType.mutateAsync(selectedTypeId);
+      await refetch(); // Explicitly refetch after deletion
       setDeleteDialogOpen(false);
-      setOpen(false);
+      toast({
+        title: "Success",
+        description: "Type deleted successfully",
+      });
     } catch (error: any) {
       console.error('Error deleting type:', error);
       toast({
@@ -53,6 +59,9 @@ export const ManageTypeDialog = ({ children }: ManageTypeDialogProps) => {
         <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Manage Inventory Types</DialogTitle>
+            <DialogDescription>
+              Manage your inventory types here. Deleting a type will remove it permanently.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             {types?.map((type) => (
