@@ -122,27 +122,27 @@ const LeadAnalytics = () => {
         
         <div className="lg:col-span-2">
           <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <LeadMetrics />
+            <LeadMetrics data={analyticsData} />
           </Card>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <LeadStatusChart />
+            <LeadStatusChart data={analyticsData} />
           </Card>
           <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <LeadConversionChart />
+            <LeadConversionChart data={analyticsData} />
           </Card>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2">
             <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <DetailedLeadMetrics />
+              <DetailedLeadMetrics data={analyticsData} />
             </Card>
           </div>
           <Card className="p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <ActivityTimeline isLoading={isLoading} />
+            <ActivityTimeline isLoading={isLoading} data={analyticsData} />
           </Card>
         </div>
       </div>

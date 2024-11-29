@@ -1,7 +1,19 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, PhoneCall, Calendar, CheckCircle } from "lucide-react";
 
-const LeadMetrics = () => {
+interface LeadMetricsProps {
+  data?: any[];
+}
+
+const LeadMetrics = ({ data = [] }: LeadMetricsProps) => {
+  console.log("Rendering LeadMetrics with data:", data);
+
+  const totalLeads = data.length;
+  const activitiesCount = data.reduce((acc, lead) => acc + (lead.activities?.length || 0), 0);
+  const followUpsCount = data.filter(lead => lead.activity_next_action_date).length;
+  const convertedLeads = data.filter(lead => lead.conversion_status === 'converted').length;
+  const conversionRate = totalLeads > 0 ? Math.round((convertedLeads / totalLeads) * 100) : 0;
+
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Overview</h2>
@@ -12,8 +24,8 @@ const LeadMetrics = () => {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">120</div>
-            <p className="text-xs text-muted-foreground">+12 from last month</p>
+            <div className="text-2xl font-bold">{totalLeads}</div>
+            <p className="text-xs text-muted-foreground">Active leads in system</p>
           </CardContent>
         </Card>
         <Card>
@@ -22,8 +34,8 @@ const LeadMetrics = () => {
             <PhoneCall className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8</div>
-            <p className="text-xs text-muted-foreground">4 calls, 4 meetings</p>
+            <div className="text-2xl font-bold">{activitiesCount}</div>
+            <p className="text-xs text-muted-foreground">Total activities recorded</p>
           </CardContent>
         </Card>
         <Card>
@@ -32,8 +44,8 @@ const LeadMetrics = () => {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">6</div>
-            <p className="text-xs text-muted-foreground">Due in next 48 hours</p>
+            <div className="text-2xl font-bold">{followUpsCount}</div>
+            <p className="text-xs text-muted-foreground">Pending follow-ups</p>
           </CardContent>
         </Card>
         <Card>
@@ -42,8 +54,8 @@ const LeadMetrics = () => {
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">24%</div>
-            <p className="text-xs text-muted-foreground">+2% from last month</p>
+            <div className="text-2xl font-bold">{conversionRate}%</div>
+            <p className="text-xs text-muted-foreground">{convertedLeads} converted leads</p>
           </CardContent>
         </Card>
       </div>

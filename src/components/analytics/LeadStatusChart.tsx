@@ -1,32 +1,24 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 
 const COLORS = ['#3b82f6', '#22c55e', '#ef4444', '#f59e0b', '#8b5cf6'];
 
-const LeadStatusChart = () => {
-  const { data: statusData } = useQuery({
-    queryKey: ['lead-status-distribution'],
-    queryFn: async () => {
-      const { data: leads, error } = await supabase
-        .from('leads')
-        .select('status');
+interface LeadStatusChartProps {
+  data?: any[];
+}
 
-      if (error) throw error;
+const LeadStatusChart = ({ data = [] }: LeadStatusChartProps) => {
+  console.log("Rendering LeadStatusChart with data:", data);
 
-      // Count leads by status
-      const statusCounts = leads.reduce((acc: Record<string, number>, lead) => {
-        acc[lead.status] = (acc[lead.status] || 0) + 1;
-        return acc;
-      }, {});
+  const statusCounts = data.reduce((acc: Record<string, number>, lead) => {
+    const status = lead.status || 'unknown';
+    acc[status] = (acc[status] || 0) + 1;
+    return acc;
+  }, {});
 
-      // Transform for chart
-      return Object.entries(statusCounts).map(([name, value]) => ({
-        name: name.charAt(0).toUpperCase() + name.slice(1).replace('_', ' '),
-        value
-      }));
-    }
-  });
+  const chartData = Object.entries(statusCounts).map(([name, value]) => ({
+    name: name.charAt(0).toUpperCase() + name.slice(1).replace('_', ' '),
+    value
+  }));
 
   return (
     <div className="h-[300px]">
@@ -34,7 +26,7 @@ const LeadStatusChart = () => {
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
-            data={statusData}
+            data={chartData}
             cx="50%"
             cy="50%"
             labelLine={false}
@@ -42,7 +34,7 @@ const LeadStatusChart = () => {
             fill="#8884d8"
             dataKey="value"
           >
-            {statusData?.map((entry: any, index: number) => (
+            {chartData.map((entry: any, index: number) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
