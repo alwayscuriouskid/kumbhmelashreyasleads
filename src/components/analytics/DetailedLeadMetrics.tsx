@@ -32,7 +32,7 @@ const DetailedLeadMetrics = ({ data = [] }: DetailedLeadMetricsProps) => {
       }
     });
     return acc;
-  }, {});
+  }, {} as Record<string, number>);
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -42,7 +42,7 @@ const DetailedLeadMetrics = ({ data = [] }: DetailedLeadMetricsProps) => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {((activeLeads / totalLeads) * 100).toFixed(1)}%
+            {((activeLeads / (totalLeads || 1)) * 100).toFixed(1)}%
           </div>
           <p className="text-xs text-muted-foreground">
             {activeLeads} active out of {totalLeads} total leads
