@@ -1,11 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Lead } from "@/types/leads";
 
 interface DetailedLeadMetricsProps {
-  data?: any[];
-}
-
-interface Requirement {
-  [key: string]: number;
+  data?: Lead[];
 }
 
 const DetailedLeadMetrics = ({ data = [] }: DetailedLeadMetricsProps) => {
