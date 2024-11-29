@@ -79,8 +79,7 @@ const DetailedLeadMetrics = ({ data = [] }: DetailedLeadMetricsProps) => {
                   </span>
                   <span className="font-bold">{count}</span>
                 </div>
-              ))
-            }
+              ))}
           </div>
         </CardContent>
       </Card>
