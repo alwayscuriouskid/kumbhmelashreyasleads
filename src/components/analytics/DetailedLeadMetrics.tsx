@@ -4,18 +4,28 @@ interface DetailedLeadMetricsProps {
   data?: any[];
 }
 
+interface Requirement {
+  [key: string]: number;
+}
+
 const DetailedLeadMetrics = ({ data = [] }: DetailedLeadMetricsProps) => {
   console.log("Rendering DetailedLeadMetrics with data:", data);
 
   const totalLeads = data.length;
   const activeLeads = data.filter(lead => lead.status === 'active').length;
+  
+  // Ensure budget is properly parsed as a number
   const avgBudget = data.reduce((sum, lead) => {
-    const budget = parseFloat(lead.budget) || 0;
-    return sum + budget;
+    const budget = typeof lead.budget === 'string' ? 
+      parseFloat(lead.budget.replace(/[^0-9.-]+/g, '')) : 
+      typeof lead.budget === 'number' ? 
+        lead.budget : 0;
+    return sum + (isNaN(budget) ? 0 : budget);
   }, 0) / (totalLeads || 1);
 
+  // Type-safe requirement counting
   const requirementTypes = data.reduce((acc: Record<string, number>, lead) => {
-    const requirements = lead.requirement || {};
+    const requirements = (lead.requirement || {}) as Requirement;
     Object.entries(requirements).forEach(([type, value]) => {
       if (typeof value === 'number' && value > 0) {
         acc[type] = (acc[type] || 0) + 1;
