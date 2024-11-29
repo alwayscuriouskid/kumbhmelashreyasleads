@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import ActivityFilters from "@/components/analytics/ActivityFilters";
 import { startOfDay, endOfDay, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
-import { Lead, dbToFrontend } from "@/types/leads";
+import { Lead, LeadDB, dbToFrontend } from "@/types/leads";
 
 interface Filters {
   timeRange: string;
@@ -103,12 +103,16 @@ const LeadAnalytics = () => {
       }
 
       console.log("Fetched leads data:", leads);
-      // Transform the data using dbToFrontend
-      return (leads || []).map(lead => ({
-        ...dbToFrontend(lead),
-        activities: lead.activities,
-        team_members: lead.team_members
-      })) as Lead[];
+      
+      // Transform the data using dbToFrontend and ensure proper typing
+      return (leads || []).map(lead => {
+        const transformedLead = dbToFrontend(lead as LeadDB);
+        return {
+          ...transformedLead,
+          activities: lead.activities,
+          team_members: lead.team_members
+        };
+      }) as (Lead & { activities: any[]; team_members: any })[];
     }
   });
 
