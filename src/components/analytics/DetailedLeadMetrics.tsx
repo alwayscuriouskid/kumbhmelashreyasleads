@@ -21,16 +21,17 @@ const DetailedLeadMetrics = ({ data = [] }: DetailedLeadMetricsProps) => {
       typeof lead.budget === 'number' ? 
         lead.budget : 0;
     return sum + (isNaN(budget) ? 0 : budget);
-  }, 0) / (totalLeads || 1);
+  }, 0) / Math.max(totalLeads, 1); // Use Math.max to prevent division by zero
 
   // Type-safe requirement counting
   const requirementTypes = data.reduce((acc: Record<string, number>, lead) => {
-    const requirements = (lead.requirement || {}) as Requirement;
-    Object.entries(requirements).forEach(([type, value]) => {
-      if (typeof value === 'number' && value > 0) {
-        acc[type] = (acc[type] || 0) + 1;
-      }
-    });
+    if (lead.requirement && typeof lead.requirement === 'object') {
+      Object.entries(lead.requirement).forEach(([type, value]) => {
+        if (typeof value === 'number' && value > 0) {
+          acc[type] = (acc[type] || 0) + 1;
+        }
+      });
+    }
     return acc;
   }, {} as Record<string, number>);
 
@@ -42,7 +43,7 @@ const DetailedLeadMetrics = ({ data = [] }: DetailedLeadMetricsProps) => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {((activeLeads / (totalLeads || 1)) * 100).toFixed(1)}%
+            {((activeLeads / Math.max(totalLeads, 1)) * 100).toFixed(1)}%
           </div>
           <p className="text-xs text-muted-foreground">
             {activeLeads} active out of {totalLeads} total leads
