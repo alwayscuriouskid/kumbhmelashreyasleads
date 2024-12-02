@@ -31,12 +31,13 @@ export const TeamMemberSelect = ({ value, onChange, className, allowCreate = tru
     try {
       const { error } = await supabase
         .from("team_members")
-        .insert([{
+        .insert({
           name: newMember.name,
           email: newMember.email,
           role: 'sales',
-          status: 'active'
-        }]);
+          status: 'active',
+          commission_rate: 0
+        });
 
       if (error) throw error;
 

@@ -9,6 +9,7 @@ type RequiredLeadFields = {
   email: string;
   requirement: Record<string, any>;
   status: string;
+  date: string;
 };
 
 export default async function handler(req: Request) {
@@ -26,7 +27,6 @@ export default async function handler(req: Request) {
       throw new Error('Invalid leads data');
     }
 
-    // Convert leads to DB format and ensure required fields
     const dbLeads = leads.map(lead => {
       const dbLead = frontendToDB(lead) as RequiredLeadFields;
       
@@ -43,6 +43,7 @@ export default async function handler(req: Request) {
         email: dbLead.email,
         requirement: dbLead.requirement || {},
         status: dbLead.status || 'pending',
+        date: new Date().toISOString().split('T')[0],
         budget: lead.budget,
         lead_ref: lead.leadRef,
         lead_source: lead.leadSource,

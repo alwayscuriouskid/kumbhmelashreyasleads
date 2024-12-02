@@ -169,7 +169,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           folder_id: string
-          id: string
+          id?: string
           name: string
           path: string
           size?: number | null
@@ -206,7 +206,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
-          id: string
+          id?: string
           name: string
           type: string
           updated_at?: string | null
@@ -243,7 +243,7 @@ export type Database = {
           created_at?: string | null
           current_price: number
           dimensions?: string | null
-          id: string
+          id?: string
           ltc?: number | null
           min_price: number
           quantity?: number
@@ -265,7 +265,7 @@ export type Database = {
           min_price?: number
           quantity?: number
           reserved_quantity?: number | null
-          sector_id: string
+          sector_id?: string
           sku?: string | null
           sold_quantity?: number | null
           status?: string
@@ -306,7 +306,7 @@ export type Database = {
           base_ltc?: number | null
           created_at?: string | null
           description?: string | null
-          id: string
+          id?: string
           name: string
           total_quantity?: number
           unit_type: string
@@ -364,7 +364,7 @@ export type Database = {
           conversion_status?: string | null
           conversion_type?: string | null
           created_at?: string | null
-          date: string
+          date?: string
           email: string
           id?: string
           lead_ref?: string | null
@@ -374,7 +374,7 @@ export type Database = {
           price_quoted?: number | null
           remarks?: string | null
           requirement?: Json
-          status: string
+          status?: string
           team_member_id?: string | null
           updated_at?: string | null
         }
@@ -545,7 +545,7 @@ export type Database = {
           payment_status?: string | null
           status: string
           team_member_id?: string | null
-          team_member_name: string
+          team_member_name?: string
           total_amount: number
           updated_at?: string | null
         }
@@ -689,7 +689,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           description?: string | null
-          id: string
+          id?: string
           name: string
           updated_at?: string | null
           zone_id: string
@@ -727,7 +727,7 @@ export type Database = {
           commission_rate?: number | null
           created_at?: string | null
           email?: string | null
-          id: string
+          id?: string
           name: string
           role?: string | null
           status?: string | null
@@ -835,7 +835,7 @@ export type Tables<
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
         Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never,
+    : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
@@ -847,10 +847,10 @@ export type Tables<
         PublicSchema["Views"])
     ? (PublicSchema["Tables"] &
         PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-      Row: infer R
-    }
-    ? R
-    : never
+        Row: infer R
+      }
+      ? R
+      : never
     : never
 
 export type TablesInsert<
@@ -868,10 +868,10 @@ export type TablesInsert<
     : never
   : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
     ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-      Insert: infer I
-    }
-    ? I
-    : never
+        Insert: infer I
+      }
+      ? I
+      : never
     : never
 
 export type TablesUpdate<
@@ -889,10 +889,10 @@ export type TablesUpdate<
     : never
   : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
     ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-      Update: infer U
-    }
-    ? U
-    : never
+        Update: infer U
+      }
+      ? U
+      : never
     : never
 
 export type Enums<

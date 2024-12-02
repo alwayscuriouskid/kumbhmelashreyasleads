@@ -9,10 +9,9 @@ export const updateInventoryQuantities = async (
     console.log('Updating inventory quantities:', { orderItems, action });
 
     for (const item of orderItems) {
-      // First get current quantities
       const { data: currentItem, error: getError } = await supabase
         .from('inventory_items')
-        .select('quantity, available_quantity, reserved_quantity')
+        .select('*')
         .eq('id', item.inventory_item_id)
         .single();
 
@@ -22,23 +21,25 @@ export const updateInventoryQuantities = async (
       const currentReserved = Number(currentItem.reserved_quantity) || 0;
       const currentAvailable = Number(currentItem.available_quantity) || 0;
       
-      // Calculate new quantities based on action
-      const updates = action === 'approve' ? {
-        available_quantity: currentAvailable - quantity,
-        reserved_quantity: currentReserved + quantity
-      } : {
-        available_quantity: currentAvailable + quantity,
-        reserved_quantity: currentReserved - quantity
-      };
-
-      console.log('Updating inventory item:', {
-        itemId: item.inventory_item_id,
-        updates
-      });
-
       const { error: updateError } = await supabase
         .from('inventory_items')
-        .update(updates)
+        .update(action === 'approve' ? {
+          available_quantity: currentAvailable - quantity,
+          reserved_quantity: currentReserved + quantity,
+          sector_id: currentItem.sector_id, // Include required fields
+          type_id: currentItem.type_id,
+          current_price: currentItem.current_price,
+          min_price: currentItem.min_price,
+          status: currentItem.status
+        } : {
+          available_quantity: currentAvailable + quantity,
+          reserved_quantity: currentReserved - quantity,
+          sector_id: currentItem.sector_id, // Include required fields
+          type_id: currentItem.type_id,
+          current_price: currentItem.current_price,
+          min_price: currentItem.min_price,
+          status: currentItem.status
+        })
         .eq('id', item.inventory_item_id);
 
       if (updateError) throw updateError;
@@ -54,10 +55,9 @@ export const updateInventoryQuantities = async (
 export const updateInventoryPaymentStatus = async (orderItems: OrderItem[]) => {
   try {
     for (const item of orderItems) {
-      // Get current quantities
       const { data: currentItem, error: getError } = await supabase
         .from('inventory_items')
-        .select('reserved_quantity, sold_quantity')
+        .select('*')
         .eq('id', item.inventory_item_id)
         .single();
 
@@ -71,7 +71,12 @@ export const updateInventoryPaymentStatus = async (orderItems: OrderItem[]) => {
         .from('inventory_items')
         .update({
           reserved_quantity: currentReserved - quantity,
-          sold_quantity: currentSold + quantity
+          sold_quantity: currentSold + quantity,
+          sector_id: currentItem.sector_id, // Include required fields
+          type_id: currentItem.type_id,
+          current_price: currentItem.current_price,
+          min_price: currentItem.min_price,
+          status: currentItem.status
         })
         .eq('id', item.inventory_item_id);
 

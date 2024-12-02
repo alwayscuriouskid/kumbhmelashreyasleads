@@ -34,28 +34,26 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
         totalWithGst
       });
 
-      // First create the order
       const { data: order, error: orderError } = await supabase
         .from("orders")
-        .insert([
-          {
-            customer_name: formData.customerName,
-            customer_email: formData.customerEmail,
-            customer_phone: formData.customerPhone,
-            customer_address: formData.customerAddress,
-            team_member_id: formData.teamMemberId,
-            payment_method: formData.paymentMethod,
-            notes: formData.notes,
-            total_amount: totalWithGst, // Save total amount including GST
-            status: "pending",
-            payment_status: "pending",
-            payment_confirmation: formData.paymentConfirmation,
-            next_payment_date: formData.nextPaymentDate,
-            next_payment_details: formData.nextPaymentDetails,
-            additional_details: `Subtotal: ₹${subtotal}, GST (18%): ₹${gstAmount}, Total: ₹${totalWithGst}`,
-            lead_id: formData.leadId || null
-          },
-        ])
+        .insert({
+          customer_name: formData.customerName,
+          customer_email: formData.customerEmail,
+          customer_phone: formData.customerPhone,
+          customer_address: formData.customerAddress,
+          team_member_id: formData.teamMemberId,
+          team_member_name: "Unknown", // This is required and has a default value
+          payment_method: formData.paymentMethod,
+          notes: formData.notes,
+          total_amount: totalWithGst,
+          status: "pending",
+          payment_status: "pending",
+          payment_confirmation: formData.paymentConfirmation,
+          next_payment_date: formData.nextPaymentDate,
+          next_payment_details: formData.nextPaymentDetails,
+          additional_details: `Subtotal: ₹${subtotal}, GST (18%): ₹${gstAmount}, Total: ₹${totalWithGst}`,
+          lead_id: formData.leadId || null
+        })
         .select()
         .single();
 

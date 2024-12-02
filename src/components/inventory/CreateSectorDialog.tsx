@@ -45,7 +45,11 @@ export const CreateSectorDialog = ({ onSuccess, children }: CreateSectorDialogPr
       console.log("Creating new sector:", formData);
       const { data, error } = await supabase
         .from('sectors')
-        .insert([formData])
+        .insert({
+          name: formData.name,
+          description: formData.description || null,
+          zone_id: formData.zone_id
+        })
         .select('*, zones(*)');
 
       if (error) throw error;
@@ -57,7 +61,7 @@ export const CreateSectorDialog = ({ onSuccess, children }: CreateSectorDialogPr
       });
       
       setOpen(false);
-      setFormData({ name: "", description: "", zone_id: "" }); // Reset form
+      setFormData({ name: "", description: "", zone_id: "" });
       onSuccess();
     } catch (error: any) {
       console.error("Error creating sector:", error);

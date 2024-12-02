@@ -32,7 +32,6 @@ export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate required fields
     if (!formData.type_id || !formData.sector_id) {
       toast({
         title: "Error",
@@ -47,15 +46,20 @@ export const CreateInventoryDialog = ({ onSuccess }: { onSuccess: () => void }) 
       
       const { error } = await supabase
         .from('inventory_items')
-        .insert([{
-          ...formData,
+        .insert({
+          type_id: formData.type_id,
+          sector_id: formData.sector_id,
           current_price: Number(formData.current_price),
           min_price: Number(formData.min_price),
           ltc: formData.ltc ? Number(formData.ltc) : null,
+          dimensions: formData.dimensions || null,
           quantity: Number(formData.quantity),
-          available_quantity: Number(formData.quantity), // Set available_quantity equal to quantity
-          status: 'available' // Set default status
-        }]);
+          available_quantity: Number(formData.quantity),
+          status: 'available',
+          sku: formData.sku || null,
+          reserved_quantity: 0,
+          sold_quantity: 0
+        });
 
       if (error) throw error;
 

@@ -38,13 +38,14 @@ export const useLeads = () => {
         const { data, error } = await supabase
           .from('leads')
           .insert({
-            ...dbLead,
             client_name: newLead.clientName || '',
             contact_person: newLead.contactPerson || '',
             location: newLead.location || '',
             phone: newLead.phone || '',
             email: newLead.email || '',
-            requirement: newLead.requirement || {}
+            requirement: newLead.requirement || {},
+            date: new Date().toISOString().split('T')[0],
+            status: newLead.status || 'pending'
           })
           .select()
           .single();
@@ -94,7 +95,6 @@ export const useLeads = () => {
         const { data, error } = await supabase
           .from('leads')
           .update({
-            ...dbLead,
             client_name: updatedLead.clientName,
             contact_person: updatedLead.contactPerson,
             location: updatedLead.location,

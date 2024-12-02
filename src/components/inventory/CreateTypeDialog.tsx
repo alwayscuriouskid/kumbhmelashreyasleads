@@ -34,10 +34,14 @@ export const CreateTypeDialog = ({ onSuccess, children }: CreateTypeDialogProps)
     try {
       const { error } = await supabase
         .from('inventory_types')
-        .insert([{
-          ...formData,
+        .insert({
+          name: formData.name,
+          description: formData.description || null,
+          unit_type: formData.unit_type,
+          base_dimensions: formData.base_dimensions || null,
           base_ltc: formData.base_ltc ? Number(formData.base_ltc) : null,
-        }]);
+          total_quantity: 0
+        });
 
       if (error) throw error;
 
