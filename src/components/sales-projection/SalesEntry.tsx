@@ -13,10 +13,17 @@ import { Plus } from "lucide-react";
 import { SalesEntryForm } from "./sales-entry/SalesEntryForm";
 import { SalesTable } from "./sales-entry/SalesTable";
 import { useSalesCalculations } from "./sales-entry/useSalesCalculations";
+import { SalesFilters } from "./sales-entry/SalesFilters";
 
 export const SalesEntry = () => {
   const [open, setOpen] = useState(false);
   const { calculateProfitLoss } = useSalesCalculations();
+
+  // Filter states
+  const [selectedInventoryType, setSelectedInventoryType] = useState('all');
+  const [selectedTeam, setSelectedTeam] = useState('all');
+  const [startDate, setStartDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date>();
 
   const { data: inventoryTypes, refetch: refetchInventory } = useQuery({
     queryKey: ["sales-projection-inventory"],
@@ -77,10 +84,26 @@ export const SalesEntry = () => {
         </Dialog>
       </div>
 
+      <SalesFilters
+        inventoryTypes={inventoryTypes || []}
+        selectedInventoryType={selectedInventoryType}
+        setSelectedInventoryType={setSelectedInventoryType}
+        selectedTeam={selectedTeam}
+        setSelectedTeam={setSelectedTeam}
+        startDate={startDate}
+        setStartDate={setStartDate}
+        endDate={endDate}
+        setEndDate={setEndDate}
+      />
+
       <SalesTable 
         salesEntries={salesEntries || []} 
         calculateProfitLoss={calculateProfitLoss}
         onUpdate={handleUpdate}
+        selectedInventoryType={selectedInventoryType}
+        selectedTeam={selectedTeam}
+        startDate={startDate}
+        endDate={endDate}
       />
     </div>
   );

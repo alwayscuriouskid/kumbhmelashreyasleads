@@ -7,11 +7,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Edit2, Trash2 } from "lucide-react";
+import { Edit2, Trash2, Download } from "lucide-react";
 import { useState } from "react";
 import { EditSaleDialog } from "./EditSaleDialog";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { exportToExcel } from "@/utils/exportUtils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,9 +38,21 @@ interface SalesTableProps {
     profitVsMin: number;
   };
   onUpdate: () => void;
+  selectedInventoryType: string;
+  selectedTeam: string;
+  startDate?: Date;
+  endDate?: Date;
 }
 
-export const SalesTable = ({ salesEntries, calculateProfitLoss, onUpdate }: SalesTableProps) => {
+export const SalesTable = ({ 
+  salesEntries, 
+  calculateProfitLoss, 
+  onUpdate,
+  selectedInventoryType,
+  selectedTeam,
+  startDate,
+  endDate
+}: SalesTableProps) => {
   const [editingSale, setEditingSale] = useState<any>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [saleToDelete, setSaleToDelete] = useState<any>(null);
@@ -61,6 +74,7 @@ export const SalesTable = ({ salesEntries, calculateProfitLoss, onUpdate }: Sale
       });
       onUpdate();
     } catch (error: any) {
+      console.error('Error deleting sale:', error);
       toast({
         title: "Error",
         description: error.message,
@@ -72,8 +86,87 @@ export const SalesTable = ({ salesEntries, calculateProfitLoss, onUpdate }: Sale
     }
   };
 
+  const handleExport = () => {
+    try {
+      const exportData = salesEntries.map(entry => ({
+        Date: new Date(entry.sale_date).toLocaleDateString(),
+        'Inventory Type': entry.sales_projection_inventory.name,
+        'Quantity Sold': entry.quantity_sold,
+        'Selling Price': entry.selling_price,
+        'Team Location': entry.team_location,
+        'P/L vs Landing': calculateProfitLoss(
+          entry.selling_price,
+          entry.quantity_sold,
+          entry.sales_projection_inventory.landing_cost,
+          entry.sales_projection_inventory.minimum_price
+        ).vsLanding + '%',
+        'Amount vs Landing': calculateProfitLoss(
+          entry.selling_price,
+          entry.quantity_sold,
+          entry.sales_projection_inventory.landing_cost,
+          entry.sales_projection_inventory.minimum_price
+        ).profitVsLanding,
+        'P/L vs Min': calculateProfitLoss(
+          entry.selling_price,
+          entry.quantity_sold,
+          entry.sales_projection_inventory.landing_cost,
+          entry.sales_projection_inventory.minimum_price
+        ).vsMin + '%',
+        'Amount vs Min': calculateProfitLoss(
+          entry.selling_price,
+          entry.quantity_sold,
+          entry.sales_projection_inventory.landing_cost,
+          entry.sales_projection_inventory.minimum_price
+        ).profitVsMin,
+      }));
+
+      exportToExcel(exportData, 'sales-entries-export');
+      toast({
+        title: "Success",
+        description: "Sales data exported successfully",
+      });
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast({
+        title: "Error",
+        description: "Failed to export sales data",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Filter entries based on selected filters
+  const filteredEntries = salesEntries.filter(entry => {
+    let matches = true;
+
+    if (selectedInventoryType !== 'all') {
+      matches = matches && entry.inventory_id === selectedInventoryType;
+    }
+
+    if (selectedTeam !== 'all') {
+      matches = matches && entry.team_location === selectedTeam;
+    }
+
+    if (startDate) {
+      matches = matches && new Date(entry.sale_date) >= startDate;
+    }
+
+    if (endDate) {
+      matches = matches && new Date(entry.sale_date) <= endDate;
+    }
+
+    return matches;
+  });
+
   return (
     <>
+      <div className="flex justify-end mb-4">
+        <Button variant="outline" onClick={handleExport}>
+          <Download className="mr-2 h-4 w-4" />
+          Export to Excel
+        </Button>
+      </div>
+
       <div className="border rounded-lg">
         <Table>
           <TableHeader>
@@ -91,7 +184,7 @@ export const SalesTable = ({ salesEntries, calculateProfitLoss, onUpdate }: Sale
             </TableRow>
           </TableHeader>
           <TableBody>
-            {salesEntries?.map((entry) => {
+            {filteredEntries.map((entry) => {
               const profitLoss = calculateProfitLoss(
                 entry.selling_price,
                 entry.quantity_sold,
