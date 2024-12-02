@@ -20,7 +20,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus } from "lucide-react";
+import { Plus, Edit2, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface InventoryFormData {
   name: string;
@@ -31,6 +41,9 @@ interface InventoryFormData {
 
 export const InventoryManagement = () => {
   const [open, setOpen] = useState(false);
+  const [editingInventory, setEditingInventory] = useState<any>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [inventoryToDelete, setInventoryToDelete] = useState<any>(null);
   const [formData, setFormData] = useState<InventoryFormData>({
     name: "",
     total_quantity: "",
@@ -92,9 +105,86 @@ export const InventoryManagement = () => {
     },
   });
 
+  const updateInventoryMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const { error } = await supabase
+        .from("sales_projection_inventory")
+        .update({
+          name: data.name,
+          total_quantity: parseInt(data.total_quantity),
+          landing_cost: parseFloat(data.landing_cost),
+          minimum_price: parseFloat(data.minimum_price),
+        })
+        .eq('id', data.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["sales-projection-inventory"] });
+      setEditingInventory(null);
+      toast({
+        title: "Success",
+        description: "Inventory type updated successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createInventoryMutation.mutate(formData);
+    if (editingInventory) {
+      updateInventoryMutation.mutate({
+        ...formData,
+        id: editingInventory.id,
+      });
+    } else {
+      createInventoryMutation.mutate(formData);
+    }
+  };
+
+  const handleEdit = (inventory: any) => {
+    setEditingInventory(inventory);
+    setFormData({
+      name: inventory.name,
+      total_quantity: inventory.total_quantity.toString(),
+      landing_cost: inventory.landing_cost.toString(),
+      minimum_price: inventory.minimum_price.toString(),
+    });
+    setOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!inventoryToDelete) return;
+
+    try {
+      const { error } = await supabase
+        .from('sales_projection_inventory')
+        .delete()
+        .eq('id', inventoryToDelete.id);
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ["sales-projection-inventory"] });
+      toast({
+        title: "Success",
+        description: "Inventory type deleted successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setDeleteDialogOpen(false);
+      setInventoryToDelete(null);
+    }
   };
 
   return (
@@ -110,7 +200,9 @@ export const InventoryManagement = () => {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New Inventory Type</DialogTitle>
+              <DialogTitle>
+                {editingInventory ? "Edit" : "Add New"} Inventory Type
+              </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
@@ -161,7 +253,7 @@ export const InventoryManagement = () => {
                 />
               </div>
               <Button type="submit" className="w-full">
-                Create
+                {editingInventory ? "Update" : "Create"}
               </Button>
             </form>
           </DialogContent>
@@ -177,6 +269,7 @@ export const InventoryManagement = () => {
               <TableHead>Landing Cost</TableHead>
               <TableHead>Minimum Price</TableHead>
               <TableHead>Created At</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -189,11 +282,49 @@ export const InventoryManagement = () => {
                 <TableCell>
                   {new Date(type.created_at).toLocaleDateString()}
                 </TableCell>
+                <TableCell>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEdit(type)}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        setInventoryToDelete(type);
+                        setDeleteDialogOpen(true);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Inventory Type</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this inventory type? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

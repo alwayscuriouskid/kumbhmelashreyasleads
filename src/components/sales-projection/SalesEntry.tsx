@@ -18,7 +18,7 @@ export const SalesEntry = () => {
   const [open, setOpen] = useState(false);
   const { calculateProfitLoss } = useSalesCalculations();
 
-  const { data: inventoryTypes } = useQuery({
+  const { data: inventoryTypes, refetch: refetchInventory } = useQuery({
     queryKey: ["sales-projection-inventory"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -29,7 +29,7 @@ export const SalesEntry = () => {
     },
   });
 
-  const { data: salesEntries } = useQuery({
+  const { data: salesEntries, refetch: refetchSales } = useQuery({
     queryKey: ["sales-projection-entries"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -48,6 +48,11 @@ export const SalesEntry = () => {
     },
   });
 
+  const handleUpdate = () => {
+    refetchSales();
+    refetchInventory();
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -65,7 +70,8 @@ export const SalesEntry = () => {
             </DialogHeader>
             <SalesEntryForm 
               inventoryTypes={inventoryTypes || []} 
-              onClose={() => setOpen(false)} 
+              onClose={() => setOpen(false)}
+              onSuccess={handleUpdate}
             />
           </DialogContent>
         </Dialog>
@@ -74,6 +80,7 @@ export const SalesEntry = () => {
       <SalesTable 
         salesEntries={salesEntries || []} 
         calculateProfitLoss={calculateProfitLoss}
+        onUpdate={handleUpdate}
       />
     </div>
   );
