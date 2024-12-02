@@ -12,6 +12,8 @@ import {
   BarChart2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useFeaturePermission } from "@/hooks/useFeaturePermission";
+import { useAuth } from "./auth/AuthProvider";
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -20,19 +22,30 @@ interface SidebarProps {
 
 const Sidebar = ({ isCollapsed, setIsCollapsed }: SidebarProps) => {
   const location = useLocation();
+  const { user } = useAuth();
+  const { data: hasSalesProjectionAccess } = useFeaturePermission("sales_projection");
 
   const isActive = (path: string) => {
     return location.pathname === path;
   };
 
-  const menuItems = [
+  const baseMenuItems = [
     { path: "/leads", icon: Users, label: "Leads" },
     { path: "/leads/analytics", icon: BarChart, label: "Lead Analytics" },
     { path: "/team-activities", icon: Activity, label: "Team Activities" },
     { path: "/inventory", icon: Package, label: "Inventory" },
     { path: "/inventory/orders", icon: ShoppingCart, label: "Orders" },
-    { path: "/sales-projection", icon: BarChart2, label: "Sales Projection" },
   ];
+
+  const salesProjectionItem = { 
+    path: "/sales-projection", 
+    icon: BarChart2, 
+    label: "Sales Projection" 
+  };
+
+  const menuItems = hasSalesProjectionAccess 
+    ? [...baseMenuItems, salesProjectionItem]
+    : baseMenuItems;
 
   return (
     <div 

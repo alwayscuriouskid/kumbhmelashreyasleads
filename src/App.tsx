@@ -20,6 +20,7 @@ import FolderView from "./components/files/FolderView";
 import Inventory from "./pages/Inventory";
 import Orders from "./pages/Orders";
 import SalesProjection from "./pages/SalesProjection";
+import { useFeaturePermission } from "./hooks/useFeaturePermission";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,6 +30,20 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+const FeatureProtectedRoute = ({ children, feature }: { children: React.ReactNode; feature: string }) => {
+  const { data: hasAccess, isLoading } = useFeaturePermission(feature);
+  
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  
+  if (!hasAccess) {
+    return <Navigate to="/leads" replace />;
+  }
+  
+  return <>{children}</>;
+};
 
 const App = () => {
   console.log("Rendering App component");
@@ -166,9 +181,11 @@ const App = () => {
                 path="/sales-projection"
                 element={
                   <ProtectedRoute>
-                    <Layout>
-                      <SalesProjection />
-                    </Layout>
+                    <FeatureProtectedRoute feature="sales_projection">
+                      <Layout>
+                        <SalesProjection />
+                      </Layout>
+                    </FeatureProtectedRoute>
                   </ProtectedRoute>
                 }
               />
