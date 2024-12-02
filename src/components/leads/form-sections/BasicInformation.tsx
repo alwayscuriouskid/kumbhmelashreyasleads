@@ -22,6 +22,13 @@ export const BasicInformation = ({ formData, onInputChange }: BasicInformationPr
     "Others"
   ];
 
+  const leadSourceOptions = [
+    "agency",
+    "client",
+    "govt",
+    "psu"
+  ];
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div className="space-y-2">
@@ -105,12 +112,21 @@ export const BasicInformation = ({ formData, onInputChange }: BasicInformationPr
 
       <div className="space-y-2">
         <Label htmlFor="leadSource">Lead Source</Label>
-        <Input
-          id="leadSource"
-          value={formData.leadSource}
-          onChange={(e) => onInputChange("leadSource", e.target.value)}
-          placeholder="Enter lead source"
-        />
+        <Select
+          value={formData.leadSource || ""}
+          onValueChange={(value) => onInputChange("leadSource", value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select lead source" />
+          </SelectTrigger>
+          <SelectContent>
+            {leadSourceOptions.map((option) => (
+              <SelectItem key={option} value={option}>
+                {option.toUpperCase()}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );
