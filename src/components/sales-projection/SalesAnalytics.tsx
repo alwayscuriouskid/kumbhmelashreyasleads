@@ -21,6 +21,15 @@ export const SalesAnalytics = () => {
 
   const inventoryTypesArray = Object.values(salesData.inventoryPerformance) as InventoryPerformanceType[];
 
+  // Calculate total inventory quantity for the selected type
+  const selectedInventoryData = selectedInventoryType !== 'all' 
+    ? salesData.inventoryPerformance[selectedInventoryType]
+    : null;
+
+  const totalInventoryQuantity = selectedInventoryData
+    ? selectedInventoryData.totalSold + selectedInventoryData.availableQuantity
+    : inventoryTypesArray.reduce((sum, type) => sum + type.totalSold + type.availableQuantity, 0);
+
   // Calculate additional metrics for selected inventory type
   const selectedInventoryMetrics = selectedInventoryType !== 'all' ? (() => {
     const selectedInventory = salesData.inventoryPerformance[selectedInventoryType];
@@ -68,6 +77,7 @@ export const SalesAnalytics = () => {
           totalAvailableInventory={salesData.totalAvailableInventory}
           selectedInventoryMetrics={selectedInventoryMetrics}
           selectedInventoryType={selectedInventoryType}
+          totalInventoryQuantity={totalInventoryQuantity}
         />
 
         <SalesCharts

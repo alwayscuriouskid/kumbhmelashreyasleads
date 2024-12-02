@@ -11,6 +11,7 @@ interface SalesMetricsProps {
     totalPLVsMin: string;
   };
   selectedInventoryType: string;
+  totalInventoryQuantity?: number; // Add this prop
 }
 
 export const SalesMetrics = ({ 
@@ -18,8 +19,14 @@ export const SalesMetrics = ({
   totalSales, 
   totalAvailableInventory,
   selectedInventoryMetrics,
-  selectedInventoryType
+  selectedInventoryType,
+  totalInventoryQuantity = 0, // Default to 0 if not provided
 }: SalesMetricsProps) => {
+  // Calculate the percentage of available inventory
+  const availablePercentage = totalInventoryQuantity > 0
+    ? ((totalAvailableInventory / totalInventoryQuantity) * 100).toFixed(2)
+    : '0.00';
+
   return (
     <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
       <Card>
@@ -44,6 +51,9 @@ export const SalesMetrics = ({
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{totalAvailableInventory} units</div>
+          <p className={`text-sm ${Number(availablePercentage) > 50 ? 'text-green-600' : 'text-red-600'}`}>
+            {availablePercentage}% remaining
+          </p>
         </CardContent>
       </Card>
 
