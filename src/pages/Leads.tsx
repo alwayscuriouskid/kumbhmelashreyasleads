@@ -25,7 +25,7 @@ const Leads = () => {
     clientName: true,
     location: false, // Hidden by default
     contactPerson: false, // Hidden by default
-    phone: true,
+    phone: false, // Hidden by default
     email: false, // Hidden by default
     requirements: true,
     status: true,
