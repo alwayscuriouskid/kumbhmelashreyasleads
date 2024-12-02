@@ -5,6 +5,12 @@ import { SalesFilters, DateRangeType } from "./filters/SalesFilters";
 import { SalesCharts } from "./charts/SalesCharts";
 import { SalesMetrics } from "./metrics/SalesMetrics";
 
+interface InventoryPerformance {
+  name: string;
+  totalSold: number;
+  revenue: number;
+}
+
 export const SalesAnalytics = () => {
   const [dateRange, setDateRange] = useState<DateRangeType>("all");
   const [startDate, setStartDate] = useState<Date>();
@@ -116,7 +122,7 @@ export const SalesAnalytics = () => {
 
       return {
         teamPerformance: Object.values(teamPerformance),
-        inventoryPerformance: Object.values(inventoryPerformance),
+        inventoryPerformance: Object.values(inventoryPerformance) as InventoryPerformance[],
         totalRevenue: filteredEntries.reduce(
           (sum: number, entry: any) =>
             sum + entry.quantity_sold * entry.selling_price,
