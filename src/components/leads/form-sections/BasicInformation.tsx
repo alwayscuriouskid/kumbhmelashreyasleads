@@ -1,6 +1,13 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Lead } from "@/types/leads";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface BasicInformationProps {
   formData: Partial<Lead>;
@@ -8,6 +15,13 @@ interface BasicInformationProps {
 }
 
 export const BasicInformation = ({ formData, onInputChange }: BasicInformationProps) => {
+  const leadRefOptions = [
+    "Market Reference",
+    "Existing Contact",
+    "Call Centre",
+    "Others"
+  ];
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div className="space-y-2">
@@ -72,12 +86,21 @@ export const BasicInformation = ({ formData, onInputChange }: BasicInformationPr
 
       <div className="space-y-2">
         <Label htmlFor="leadRef">Lead Reference</Label>
-        <Input
-          id="leadRef"
-          value={formData.leadRef}
-          onChange={(e) => onInputChange("leadRef", e.target.value)}
-          placeholder="Enter reference person name"
-        />
+        <Select
+          value={formData.leadRef || ""}
+          onValueChange={(value) => onInputChange("leadRef", value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select lead reference" />
+          </SelectTrigger>
+          <SelectContent>
+            {leadRefOptions.map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">
