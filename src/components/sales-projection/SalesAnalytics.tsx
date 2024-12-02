@@ -19,6 +19,8 @@ export const SalesAnalytics = () => {
 
   if (!salesData) return null;
 
+  const inventoryTypesArray = Object.values(salesData.inventoryPerformance);
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-6">
@@ -35,7 +37,7 @@ export const SalesAnalytics = () => {
           setEndDate={setEndDate}
           selectedInventoryType={selectedInventoryType}
           setSelectedInventoryType={setSelectedInventoryType}
-          inventoryTypes={Object.values(salesData.inventoryPerformance)}
+          inventoryTypes={inventoryTypesArray}
         />
 
         <SalesMetrics
@@ -46,7 +48,7 @@ export const SalesAnalytics = () => {
 
         <SalesCharts
           teamPerformance={salesData.teamPerformance}
-          inventoryPerformance={salesData.inventoryPerformance}
+          inventoryPerformance={inventoryTypesArray}
         />
       </div>
     </div>

@@ -9,12 +9,12 @@ export interface SalesData {
     totalSales: number;
     totalRevenue: number;
   }[];
-  inventoryPerformance: {
+  inventoryPerformance: Record<string, {
     name: string;
     totalSold: number;
     revenue: number;
     availableQuantity: number;
-  }[];
+  }>;
   totalRevenue: number;
   totalSales: number;
   totalAvailableInventory: number;
@@ -40,9 +40,14 @@ export const useSalesData = (dateRange: DateRangeType, startDate?: Date, endDate
       const dateRangeValues = getDateRange(dateRange, startDate, endDate);
 
       // Get all inventory types first
-      const { data: inventoryTypes } = await supabase
+      const { data: inventoryTypes, error: inventoryError } = await supabase
         .from('sales_projection_inventory')
         .select('*');
+
+      if (inventoryError) {
+        console.error("Error fetching inventory types:", inventoryError);
+        throw inventoryError;
+      }
 
       // Get sales entries
       let query = supabase
@@ -66,7 +71,12 @@ export const useSalesData = (dateRange: DateRangeType, startDate?: Date, endDate
         query = query.eq('sales_projection_inventory.name', selectedInventoryType);
       }
 
-      const { data: entries } = await query;
+      const { data: entries, error: entriesError } = await query;
+
+      if (entriesError) {
+        console.error("Error fetching entries:", entriesError);
+        throw entriesError;
+      }
 
       console.log("Fetched entries:", entries);
       console.log("Fetched inventory types:", inventoryTypes);
@@ -131,7 +141,7 @@ export const useSalesData = (dateRange: DateRangeType, startDate?: Date, endDate
 
       return {
         teamPerformance: Object.values(teamPerformance),
-        inventoryPerformance: Object.values(inventoryPerformance),
+        inventoryPerformance,
         totalRevenue,
         totalSales: totalSold,
         totalAvailableInventory

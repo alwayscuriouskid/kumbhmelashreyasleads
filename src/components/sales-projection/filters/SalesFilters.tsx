@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
+import { InventoryType } from "../analytics/useSalesData";
 
 export type DateRangeType = "all" | "today" | "week" | "month" | "custom";
 
@@ -13,7 +14,7 @@ interface SalesFiltersProps {
   setEndDate: (date: Date | undefined) => void;
   selectedInventoryType: string;
   setSelectedInventoryType: (value: string) => void;
-  inventoryTypes: Array<{ name: string }>;
+  inventoryTypes: Array<{ name: string; totalSold: number; revenue: number; availableQuantity: number; }>;
 }
 
 export const SalesFilters = ({
@@ -73,9 +74,9 @@ export const SalesFilters = ({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
-                {inventoryTypes.map((item: any) => (
-                  <SelectItem key={item.name} value={item.name}>
-                    {item.name}
+                {inventoryTypes.map((type) => (
+                  <SelectItem key={type.name} value={type.name}>
+                    {type.name}
                   </SelectItem>
                 ))}
               </SelectContent>
