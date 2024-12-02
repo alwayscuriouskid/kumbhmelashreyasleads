@@ -45,7 +45,7 @@ export const useSalesData = (dateRange: DateRangeType, startDate?: Date, endDate
         throw inventoryError;
       }
 
-      // Get sales entries with filters
+      // Build the sales entries query with filters
       let query = supabase
         .from('sales_projection_entries')
         .select(`
@@ -59,6 +59,7 @@ export const useSalesData = (dateRange: DateRangeType, startDate?: Date, endDate
           )
         `);
 
+      // Apply date range filter if specified
       if (dateRangeValues) {
         query = query
           .gte('sale_date', dateRangeValues.start.toISOString())
@@ -83,8 +84,11 @@ export const useSalesData = (dateRange: DateRangeType, startDate?: Date, endDate
       console.log("Fetched entries:", entries);
       console.log("Fetched inventory types:", inventoryTypes);
 
+      // Filter entries based on date range and inventory type
+      const filteredEntries = entries || [];
+
       // Calculate team performance based on filtered entries
-      const teamPerformance = (entries || []).reduce((acc: any, entry: any) => {
+      const teamPerformance = filteredEntries.reduce((acc: any, entry: any) => {
         if (!acc[entry.team_location]) {
           acc[entry.team_location] = {
             team: entry.team_location,
@@ -104,9 +108,9 @@ export const useSalesData = (dateRange: DateRangeType, startDate?: Date, endDate
 
       // Calculate inventory performance for filtered types
       const inventoryPerformance = relevantTypes.reduce((acc: Record<string, InventoryPerformanceType>, type: any) => {
-        const typeEntries = entries?.filter(entry => 
+        const typeEntries = filteredEntries.filter(entry => 
           entry.sales_projection_inventory?.id === type.id
-        ) || [];
+        );
 
         const totalSold = typeEntries.reduce((sum, entry) => 
           sum + entry.quantity_sold, 0);
@@ -121,16 +125,16 @@ export const useSalesData = (dateRange: DateRangeType, startDate?: Date, endDate
         return acc;
       }, {});
 
-      // Calculate totals based on filtered entries only
-      const totalSold = (entries || []).reduce((sum: number, entry: any) => 
+      // Calculate totals based on filtered entries
+      const totalSold = filteredEntries.reduce((sum, entry) => 
         sum + entry.quantity_sold, 0);
 
-      const totalRevenue = (entries || []).reduce((sum: number, entry: any) => 
+      const totalRevenue = filteredEntries.reduce((sum, entry) => 
         sum + (entry.quantity_sold * entry.selling_price), 0);
 
       // Calculate total available inventory for filtered types
-      const totalAvailableInventory = relevantTypes.reduce((sum: number, type: any) => {
-        const typeSold = (entries || [])
+      const totalAvailableInventory = relevantTypes.reduce((sum, type) => {
+        const typeSold = filteredEntries
           .filter(entry => entry.sales_projection_inventory?.id === type.id)
           .reduce((s, entry) => s + entry.quantity_sold, 0);
         return sum + (type.total_quantity - typeSold);
