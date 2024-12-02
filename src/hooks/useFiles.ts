@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { File, Folder, FileTag, FileType } from '@/types/files';
+import { File, FileTag, Folder, FileType } from '@/types/files';
 import { useToast } from '@/components/ui/use-toast';
 import { useFileOperations } from './useFileOperations';
 import { useFileTagOperations } from './useFileTagOperations';
@@ -45,14 +45,24 @@ export const useFiles = () => {
 
       if (filesError) throw filesError;
 
-      // Process the data to create the folder structure
-      const processedFolders = foldersData.map(folder => ({
-        ...folder,
+      // Process the data to create the folder structure with correct types
+      const processedFolders: Folder[] = foldersData.map(folder => ({
+        id: folder.id,
+        name: folder.name,
+        type: folder.type as FileType,
         files: filesData
           .filter(file => file.folder_id === folder.id)
           .map(file => ({
-            ...file,
-            tags: file.file_tag_relations.map((relation: any) => relation.file_tags)
+            id: file.id,
+            name: file.name,
+            type: file.type as FileType,
+            folderId: file.folder_id,
+            size: file.size || 0,
+            createdAt: new Date(file.created_at),
+            tags: file.file_tag_relations.map((relation: any) => ({
+              id: relation.file_tags.id,
+              name: relation.file_tags.name
+            }))
           }))
       }));
 
@@ -71,7 +81,12 @@ export const useFiles = () => {
   const addFolder = async (name: string, type: FileType) => {
     try {
       const newFolder = await createFolder(name, type);
-      setFolders(prev => [...prev, { ...newFolder, files: [] }]);
+      setFolders(prev => [...prev, {
+        id: newFolder.id,
+        name: newFolder.name,
+        type: newFolder.type as FileType,
+        files: []
+      }]);
       toast({
         title: "Success",
         description: "Folder created successfully",
@@ -112,12 +127,24 @@ export const useFiles = () => {
 
   const addFile = async (folderId: string, fileData: Omit<File, 'id' | 'createdAt' | 'tags'>) => {
     try {
-      const newFile = await uploadFile(fileData as unknown as File, folderId);
+      const newFile = await uploadFile({
+        ...fileData,
+        folder_id: folderId,
+      } as any);
+
       setFolders(prev => prev.map(folder => {
         if (folder.id === folderId) {
           return {
             ...folder,
-            files: [...folder.files, { ...newFile, tags: [] }]
+            files: [...folder.files, {
+              id: newFile.id,
+              name: newFile.name,
+              type: newFile.type as FileType,
+              folderId: newFile.folder_id,
+              size: newFile.size || 0,
+              createdAt: new Date(newFile.created_at),
+              tags: []
+            }]
           };
         }
         return folder;
