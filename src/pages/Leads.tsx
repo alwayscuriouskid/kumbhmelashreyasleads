@@ -23,13 +23,13 @@ const Leads = () => {
   const [visibleColumns, setVisibleColumns] = useState({
     date: false, // Hidden by default
     clientName: true,
-    location: true,
-    contactPerson: true,
+    location: false, // Hidden by default
+    contactPerson: false, // Hidden by default
     phone: true,
-    email: true,
+    email: false, // Hidden by default
     requirements: true,
     status: true,
-    remarks: true,
+    remarks: false, // Hidden by default
     budget: false, // Hidden by default
     leadRef: false, // Hidden by default
     leadSource: false, // Hidden by default
