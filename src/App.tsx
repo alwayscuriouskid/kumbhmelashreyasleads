@@ -19,6 +19,7 @@ import Files from "./pages/Files";
 import FolderView from "./components/files/FolderView";
 import Inventory from "./pages/Inventory";
 import Orders from "./pages/Orders";
+import SalesProjection from "./pages/SalesProjection";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -157,6 +158,16 @@ const App = () => {
                   <ProtectedRoute>
                     <Layout>
                       <Orders />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/sales-projection"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <SalesProjection />
                     </Layout>
                   </ProtectedRoute>
                 }

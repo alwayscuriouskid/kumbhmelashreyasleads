@@ -9,6 +9,7 @@ import {
   ShoppingCart,
   ChevronLeft,
   ChevronRight,
+  BarChart2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -30,6 +31,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }: SidebarProps) => {
     { path: "/team-activities", icon: Activity, label: "Team Activities" },
     { path: "/inventory", icon: Package, label: "Inventory" },
     { path: "/inventory/orders", icon: ShoppingCart, label: "Orders" },
+    { path: "/sales-projection", icon: BarChart2, label: "Sales Projection" },
   ];
 
   return (

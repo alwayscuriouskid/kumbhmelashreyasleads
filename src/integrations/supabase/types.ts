@@ -585,6 +585,77 @@ export type Database = {
         }
         Relationships: []
       }
+      sales_projection_entries: {
+        Row: {
+          created_at: string | null
+          id: string
+          inventory_id: string | null
+          quantity_sold: number
+          sale_date: string | null
+          selling_price: number
+          team_location: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          inventory_id?: string | null
+          quantity_sold: number
+          sale_date?: string | null
+          selling_price: number
+          team_location: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          inventory_id?: string | null
+          quantity_sold?: number
+          sale_date?: string | null
+          selling_price?: number
+          team_location?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_projection_entries_inventory_id_fkey"
+            columns: ["inventory_id"]
+            isOneToOne: false
+            referencedRelation: "sales_projection_inventory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_projection_inventory: {
+        Row: {
+          created_at: string | null
+          id: string
+          landing_cost: number
+          minimum_price: number
+          name: string
+          total_quantity: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          landing_cost: number
+          minimum_price: number
+          name: string
+          total_quantity: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          landing_cost?: number
+          minimum_price?: number
+          name?: string
+          total_quantity?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       sectors: {
         Row: {
           created_at: string | null
