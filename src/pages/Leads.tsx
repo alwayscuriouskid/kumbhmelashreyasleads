@@ -30,14 +30,14 @@ const Leads = () => {
     requirements: true,
     status: true,
     remarks: true,
-    budget: true,
+    budget: false, // Hidden by default
     leadRef: true,
     leadSource: true,
-    priceQuoted: true,
-    activityType: true,
-    activityOutcome: true,
-    activityNextAction: true,
-    activityNextActionDate: true
+    priceQuoted: false, // Hidden by default
+    activityType: false, // Hidden by default
+    activityOutcome: false, // Hidden by default
+    activityNextAction: false, // Hidden by default
+    activityNextActionDate: false // Hidden by default
   });
 
   const handleAddLead = async (newLead: Partial<Lead>) => {
