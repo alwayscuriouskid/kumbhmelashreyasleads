@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth/AuthProvider";
+import type { Database } from "@/integrations/supabase/types";
 
 export const useFeaturePermission = (feature: string) => {
   const { user } = useAuth();
@@ -11,10 +12,10 @@ export const useFeaturePermission = (feature: string) => {
       if (!user?.email) return false;
 
       const { data, error } = await supabase
-        .from("feature_permissions")
-        .select("*")
-        .eq("email", user.email)
-        .eq("feature", feature)
+        .from('feature_permissions')
+        .select()
+        .eq('email', user.email)
+        .eq('feature', feature)
         .maybeSingle();
 
       if (error) {
