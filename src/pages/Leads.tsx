@@ -29,8 +29,7 @@ const Leads = () => {
     email: false, // Hidden by default
     requirements: true,
     status: true,
-    remarks: false, // Hidden by default
-    budget: false, // Hidden by default
+    teamMember: true, // Added team member column
     leadRef: false, // Hidden by default
     leadSource: false, // Hidden by default
     priceQuoted: false, // Hidden by default

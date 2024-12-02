@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ShoppingCart, Calendar } from "lucide-react";
+import { TeamMemberSelect } from "@/components/shared/TeamMemberSelect";
 
 interface LeadRowContentProps {
   lead: Lead;
@@ -89,6 +90,16 @@ const LeadRowContent = ({
       );
     }
 
+    if (field === "teamMemberId") {
+      return (
+        <TeamMemberSelect
+          value={editedLead.teamMemberId || ""}
+          onChange={(value) => handleInputChange("teamMemberId", value)}
+          className="w-full"
+        />
+      );
+    }
+
     if (field === "requirement") return content;
 
     return (
@@ -145,11 +156,8 @@ const LeadRowContent = ({
           )}
         </TableCell>
       )}
-      {visibleColumns.remarks && (
-        <TableCell>{renderCell("remarks", lead.remarks)}</TableCell>
-      )}
-      {visibleColumns.budget && (
-        <TableCell>{renderCell("budget", lead.budget || "-")}</TableCell>
+      {visibleColumns.teamMember && (
+        <TableCell>{renderCell("teamMemberId", lead.teamMemberId)}</TableCell>
       )}
       {visibleColumns.leadRef && (
         <TableCell>{renderCell("leadRef", lead.leadRef || "-")}</TableCell>

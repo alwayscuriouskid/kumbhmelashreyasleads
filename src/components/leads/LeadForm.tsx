@@ -4,7 +4,6 @@ import { useToast } from "@/hooks/use-toast";
 import LeadFormRequirements from "./LeadFormRequirements";
 import LeadFormStatus from "./LeadFormStatus";
 import { BasicInformation } from "./form-sections/BasicInformation";
-import { RemarksSection } from "./form-sections/RemarksSection";
 import { FormActions } from "./form-sections/FormActions";
 
 interface LeadFormProps {
@@ -34,10 +33,9 @@ const LeadForm = ({
       email: "",
       requirement: {},
       status: "pending",
-      remarks: "",
-      budget: "",
       leadRef: "",
       leadSource: "",
+      teamMemberId: "",
     }
   );
 
@@ -83,11 +81,6 @@ const LeadForm = ({
               [field]: field === "customRequirements" ? value : (parseInt(value) || 0),
             })
           }
-        />
-
-        <RemarksSection 
-          remarks={formData.remarks}
-          onRemarksChange={(value) => handleInputChange("remarks", value)}
         />
 
         <FormActions mode={mode} onCancel={onCancel} />

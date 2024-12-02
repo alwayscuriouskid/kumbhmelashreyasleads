@@ -25,8 +25,7 @@ const LeadsTable = ({ leads, visibleColumns, onUpdateLead, customStatuses }: Lea
         Email: lead.email,
         Requirements: JSON.stringify(lead.requirement),
         Status: lead.status,
-        Remarks: lead.remarks,
-        Budget: lead.budget,
+        'Assigned To': lead.teamMemberId || '-', // Added assigned to field
         'Lead Reference': lead.leadRef,
         'Lead Source': lead.leadSource,
         'Price Quoted': lead.priceQuoted,
@@ -76,8 +75,7 @@ const LeadsTable = ({ leads, visibleColumns, onUpdateLead, customStatuses }: Lea
               {visibleColumns.email && <TableHead>Email</TableHead>}
               {visibleColumns.requirements && <TableHead className="min-w-[200px]">Requirements</TableHead>}
               {visibleColumns.status && <TableHead>Status</TableHead>}
-              {visibleColumns.remarks && <TableHead className="min-w-[200px]">Remarks</TableHead>}
-              {visibleColumns.budget && <TableHead>Budget</TableHead>}
+              {visibleColumns.teamMember && <TableHead>Assigned To</TableHead>} {/* Added team member column */}
               {visibleColumns.leadRef && <TableHead>Lead Reference</TableHead>}
               {visibleColumns.leadSource && <TableHead>Lead Source</TableHead>}
               {visibleColumns.priceQuoted && <TableHead>Price Quoted</TableHead>}

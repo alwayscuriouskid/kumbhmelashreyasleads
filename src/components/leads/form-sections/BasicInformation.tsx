@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { TeamMemberSelect } from "@/components/shared/TeamMemberSelect";
 
 interface BasicInformationProps {
   formData: Partial<Lead>;
@@ -83,11 +84,11 @@ export const BasicInformation = ({ formData, onInputChange }: BasicInformationPr
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="budget">Budget</Label>
-        <Input
-          id="budget"
-          value={formData.budget}
-          onChange={(e) => onInputChange("budget", e.target.value)}
+        <Label htmlFor="teamMemberId">Assigned To</Label>
+        <TeamMemberSelect
+          value={formData.teamMemberId || ""}
+          onChange={(value) => onInputChange("teamMemberId", value)}
+          className="w-full"
         />
       </div>
 
