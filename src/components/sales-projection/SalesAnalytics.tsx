@@ -2,7 +2,7 @@ import { useState } from "react";
 import { SalesFilters, DateRangeType } from "./filters/SalesFilters";
 import { SalesCharts } from "./charts/SalesCharts";
 import { SalesMetrics } from "./metrics/SalesMetrics";
-import { useSalesData } from "./analytics/useSalesData";
+import { useSalesData, InventoryPerformanceType } from "./analytics/useSalesData";
 
 export const SalesAnalytics = () => {
   const [dateRange, setDateRange] = useState<DateRangeType>("today");
@@ -19,7 +19,7 @@ export const SalesAnalytics = () => {
 
   if (!salesData) return null;
 
-  const inventoryTypesArray = Object.values(salesData.inventoryPerformance);
+  const inventoryTypesArray = Object.values(salesData.inventoryPerformance) as InventoryPerformanceType[];
 
   return (
     <div className="space-y-4">

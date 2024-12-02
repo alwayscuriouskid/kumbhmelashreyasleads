@@ -3,27 +3,23 @@ import { supabase } from "@/integrations/supabase/client";
 import { DateRangeType } from "../filters/SalesFilters";
 import { getDateRange } from "../utils/dateUtils";
 
+export interface InventoryPerformanceType {
+  name: string;
+  totalSold: number;
+  revenue: number;
+  availableQuantity: number;
+}
+
 export interface SalesData {
   teamPerformance: {
     team: string;
     totalSales: number;
     totalRevenue: number;
   }[];
-  inventoryPerformance: Record<string, {
-    name: string;
-    totalSold: number;
-    revenue: number;
-    availableQuantity: number;
-  }>;
+  inventoryPerformance: Record<string, InventoryPerformanceType>;
   totalRevenue: number;
   totalSales: number;
   totalAvailableInventory: number;
-}
-
-export interface InventoryType {
-  id: string;
-  name: string;
-  total_quantity: number;
 }
 
 export const useSalesData = (dateRange: DateRangeType, startDate?: Date, endDate?: Date, selectedInventoryType: string = 'all') => {
@@ -96,7 +92,7 @@ export const useSalesData = (dateRange: DateRangeType, startDate?: Date, endDate
       }, {});
 
       // Calculate inventory performance and available quantities
-      const inventoryPerformance = (inventoryTypes || []).reduce((acc: any, type: any) => {
+      const inventoryPerformance = (inventoryTypes || []).reduce((acc: Record<string, InventoryPerformanceType>, type: any) => {
         const typeEntries = entries?.filter(entry => 
           entry.sales_projection_inventory?.id === type.id
         ) || [];
