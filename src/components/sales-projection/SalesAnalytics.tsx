@@ -21,6 +21,28 @@ export const SalesAnalytics = () => {
 
   const inventoryTypesArray = Object.values(salesData.inventoryPerformance) as InventoryPerformanceType[];
 
+  // Calculate additional metrics for selected inventory type
+  const selectedInventoryMetrics = selectedInventoryType !== 'all' ? (() => {
+    const selectedInventory = salesData.inventoryPerformance[selectedInventoryType];
+    if (!selectedInventory) return null;
+
+    const totalAmountVsLanding = selectedInventory.revenue - (selectedInventory.totalSold * selectedInventory.landingCost);
+    const totalAmountVsMin = selectedInventory.revenue - (selectedInventory.totalSold * selectedInventory.minimumPrice);
+    
+    const totalPLVsLanding = ((selectedInventory.revenue - (selectedInventory.totalSold * selectedInventory.landingCost)) / 
+      (selectedInventory.totalSold * selectedInventory.landingCost) * 100).toFixed(2);
+    
+    const totalPLVsMin = ((selectedInventory.revenue - (selectedInventory.totalSold * selectedInventory.minimumPrice)) / 
+      (selectedInventory.totalSold * selectedInventory.minimumPrice) * 100).toFixed(2);
+
+    return {
+      totalAmountVsLanding,
+      totalAmountVsMin,
+      totalPLVsLanding,
+      totalPLVsMin
+    };
+  })() : undefined;
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-6">
@@ -44,6 +66,8 @@ export const SalesAnalytics = () => {
           totalRevenue={salesData.totalRevenue}
           totalSales={salesData.totalSales}
           totalAvailableInventory={salesData.totalAvailableInventory}
+          selectedInventoryMetrics={selectedInventoryMetrics}
+          selectedInventoryType={selectedInventoryType}
         />
 
         <SalesCharts

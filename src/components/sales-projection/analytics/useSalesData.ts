@@ -8,6 +8,8 @@ export interface InventoryPerformanceType {
   totalSold: number;
   revenue: number;
   availableQuantity: number;
+  landingCost: number;
+  minimumPrice: number;
 }
 
 export interface SalesData {
@@ -120,7 +122,9 @@ export const useSalesData = (dateRange: DateRangeType, startDate?: Date, endDate
           totalSold,
           revenue: typeEntries.reduce((sum, entry) => 
             sum + (entry.quantity_sold * entry.selling_price), 0),
-          availableQuantity: type.total_quantity - totalSold
+          availableQuantity: type.total_quantity - totalSold,
+          landingCost: type.landing_cost,
+          minimumPrice: type.minimum_price
         };
         return acc;
       }, {});
