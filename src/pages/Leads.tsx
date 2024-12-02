@@ -21,7 +21,7 @@ const Leads = () => {
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [customStatuses, setCustomStatuses] = useState<string[]>([]);
   const [visibleColumns, setVisibleColumns] = useState({
-    date: true,
+    date: false, // Hidden by default
     clientName: true,
     location: true,
     contactPerson: true,
@@ -31,8 +31,8 @@ const Leads = () => {
     status: true,
     remarks: true,
     budget: false, // Hidden by default
-    leadRef: true,
-    leadSource: true,
+    leadRef: false, // Hidden by default
+    leadSource: false, // Hidden by default
     priceQuoted: false, // Hidden by default
     activityType: false, // Hidden by default
     activityOutcome: false, // Hidden by default
