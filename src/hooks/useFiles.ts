@@ -127,10 +127,11 @@ export const useFiles = () => {
 
   const addFile = async (folderId: string, fileData: Omit<File, 'id' | 'createdAt' | 'tags'>) => {
     try {
+      // Here we pass both the file data and folderId to uploadFile
       const newFile = await uploadFile({
         ...fileData,
         folder_id: folderId,
-      } as any);
+      } as any, folderId);
 
       setFolders(prev => prev.map(folder => {
         if (folder.id === folderId) {
