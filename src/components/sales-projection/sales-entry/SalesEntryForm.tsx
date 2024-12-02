@@ -22,12 +22,13 @@ interface SalesFormData {
   team_location: string;
 }
 
-interface SalesEntryFormProps {
+export interface SalesEntryFormProps {
   inventoryTypes: any[];
   onClose: () => void;
+  onSuccess: () => void;
 }
 
-export const SalesEntryForm = ({ inventoryTypes, onClose }: SalesEntryFormProps) => {
+export const SalesEntryForm = ({ inventoryTypes, onClose, onSuccess }: SalesEntryFormProps) => {
   const [formData, setFormData] = useState<SalesFormData>({
     inventory_id: "",
     quantity_sold: "",
@@ -56,6 +57,7 @@ export const SalesEntryForm = ({ inventoryTypes, onClose }: SalesEntryFormProps)
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sales-projection-entries"] });
       onClose();
+      onSuccess();
       setFormData({
         inventory_id: "",
         quantity_sold: "",
