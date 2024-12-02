@@ -31,9 +31,16 @@ import { Plus } from "lucide-react";
 
 const TEAM_LOCATIONS = ["Mumbai", "Delhi", "Chennai", "Kolkata", "Bangalore"];
 
+interface SalesFormData {
+  inventory_id: string;
+  quantity_sold: string;
+  selling_price: string;
+  team_location: string;
+}
+
 export const SalesEntry = () => {
   const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<SalesFormData>({
     inventory_id: "",
     quantity_sold: "",
     selling_price: "",
@@ -73,20 +80,20 @@ export const SalesEntry = () => {
   });
 
   const createSalesMutation = useMutation({
-    mutationFn: async (formData: typeof formData) => {
-      const { data, error } = await supabase
+    mutationFn: async (data: SalesFormData) => {
+      const { data: result, error } = await supabase
         .from("sales_projection_entries")
         .insert([
           {
-            inventory_id: formData.inventory_id,
-            quantity_sold: parseInt(formData.quantity_sold),
-            selling_price: parseFloat(formData.selling_price),
-            team_location: formData.team_location,
+            inventory_id: data.inventory_id,
+            quantity_sold: parseInt(data.quantity_sold),
+            selling_price: parseFloat(data.selling_price),
+            team_location: data.team_location,
           },
         ]);
 
       if (error) throw error;
-      return data;
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sales-projection-entries"] });

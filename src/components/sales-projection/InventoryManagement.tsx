@@ -22,9 +22,16 @@ import {
 } from "@/components/ui/table";
 import { Plus } from "lucide-react";
 
+interface InventoryFormData {
+  name: string;
+  total_quantity: string;
+  landing_cost: string;
+  minimum_price: string;
+}
+
 export const InventoryManagement = () => {
   const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<InventoryFormData>({
     name: "",
     total_quantity: "",
     landing_cost: "",
@@ -47,20 +54,20 @@ export const InventoryManagement = () => {
   });
 
   const createInventoryMutation = useMutation({
-    mutationFn: async (formData: typeof formData) => {
-      const { data, error } = await supabase
+    mutationFn: async (data: InventoryFormData) => {
+      const { data: result, error } = await supabase
         .from("sales_projection_inventory")
         .insert([
           {
-            name: formData.name,
-            total_quantity: parseInt(formData.total_quantity),
-            landing_cost: parseFloat(formData.landing_cost),
-            minimum_price: parseFloat(formData.minimum_price),
+            name: data.name,
+            total_quantity: parseInt(data.total_quantity),
+            landing_cost: parseFloat(data.landing_cost),
+            minimum_price: parseFloat(data.minimum_price),
           },
         ]);
 
       if (error) throw error;
-      return data;
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sales-projection-inventory"] });
