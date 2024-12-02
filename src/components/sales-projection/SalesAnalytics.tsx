@@ -9,30 +9,23 @@ interface InventoryPerformance {
   name: string;
   totalSold: number;
   revenue: number;
+  availableQuantity: number;
 }
 
 export const SalesAnalytics = () => {
   const [dateRange, setDateRange] = useState<DateRangeType>("all");
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
-  const [minRevenue, setMinRevenue] = useState<string>("");
-  const [maxRevenue, setMaxRevenue] = useState<string>("");
   const [selectedInventoryType, setSelectedInventoryType] = useState<string>("all");
-  const [minSales, setMinSales] = useState<string>("");
-  const [maxSales, setMaxSales] = useState<string>("");
 
   const { data: salesData } = useQuery({
-    queryKey: ["sales-projection-analytics", dateRange, startDate, endDate, minRevenue, maxRevenue, selectedInventoryType, minSales, maxSales],
+    queryKey: ["sales-projection-analytics", dateRange, startDate, endDate, selectedInventoryType],
     queryFn: async () => {
       console.log("Fetching sales data with filters:", {
         dateRange,
         startDate,
         endDate,
-        minRevenue,
-        maxRevenue,
-        selectedInventoryType,
-        minSales,
-        maxSales
+        selectedInventoryType
       });
 
       let query = supabase
@@ -79,16 +72,16 @@ export const SalesAnalytics = () => {
 
       if (error) throw error;
 
-      // Apply revenue and sales filters in memory
-      let filteredEntries = entries.filter((entry: any) => {
-        const revenue = entry.quantity_sold * entry.selling_price;
-        const meetsMinRevenue = !minRevenue || revenue >= parseFloat(minRevenue);
-        const meetsMaxRevenue = !maxRevenue || revenue <= parseFloat(maxRevenue);
-        const meetsMinSales = !minSales || entry.quantity_sold >= parseFloat(minSales);
-        const meetsMaxSales = !maxSales || entry.quantity_sold <= parseFloat(maxSales);
-        const meetsInventoryType = selectedInventoryType === "all" || entry.sales_projection_inventory.name === selectedInventoryType;
+      // Get current inventory status
+      const { data: inventoryItems } = await supabase
+        .from('inventory_items')
+        .select('*');
 
-        return meetsMinRevenue && meetsMaxRevenue && meetsMinSales && meetsMaxSales && meetsInventoryType;
+      // Apply inventory type filter in memory
+      let filteredEntries = entries.filter((entry: any) => {
+        const meetsInventoryType = selectedInventoryType === "all" || 
+          entry.sales_projection_inventory.name === selectedInventoryType;
+        return meetsInventoryType;
       });
 
       // Calculate analytics
@@ -113,10 +106,20 @@ export const SalesAnalytics = () => {
             name,
             totalSold: 0,
             revenue: 0,
+            availableQuantity: 0
           };
         }
         acc[name].totalSold += entry.quantity_sold;
         acc[name].revenue += entry.quantity_sold * entry.selling_price;
+        
+        // Add available quantity from inventory items
+        const inventoryItem = inventoryItems?.find((item: any) => 
+          item.inventory_types?.name === name
+        );
+        if (inventoryItem) {
+          acc[name].availableQuantity = inventoryItem.available_quantity;
+        }
+        
         return acc;
       }, {});
 
@@ -132,6 +135,10 @@ export const SalesAnalytics = () => {
           (sum: number, entry: any) => sum + entry.quantity_sold,
           0
         ),
+        totalAvailableInventory: inventoryItems?.reduce(
+          (sum: number, item: any) => sum + (item.available_quantity || 0),
+          0
+        ) || 0
       };
     },
   });
@@ -140,35 +147,34 @@ export const SalesAnalytics = () => {
 
   return (
     <div className="space-y-6">
-      <SalesFilters
-        dateRange={dateRange}
-        setDateRange={setDateRange}
-        startDate={startDate}
-        setStartDate={setStartDate}
-        endDate={endDate}
-        setEndDate={setEndDate}
-        minRevenue={minRevenue}
-        setMinRevenue={setMinRevenue}
-        maxRevenue={maxRevenue}
-        setMaxRevenue={setMaxRevenue}
-        selectedInventoryType={selectedInventoryType}
-        setSelectedInventoryType={setSelectedInventoryType}
-        minSales={minSales}
-        setMinSales={setMinSales}
-        maxSales={maxSales}
-        setMaxSales={setMaxSales}
-        inventoryTypes={salesData.inventoryPerformance}
-      />
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Lead Analytics Dashboard</h1>
+      </div>
 
-      <SalesMetrics
-        totalRevenue={salesData.totalRevenue}
-        totalSales={salesData.totalSales}
-      />
+      <div className="space-y-4">
+        <SalesFilters
+          dateRange={dateRange}
+          setDateRange={setDateRange}
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setEndDate={setEndDate}
+          selectedInventoryType={selectedInventoryType}
+          setSelectedInventoryType={setSelectedInventoryType}
+          inventoryTypes={salesData.inventoryPerformance}
+        />
 
-      <SalesCharts
-        teamPerformance={salesData.teamPerformance}
-        inventoryPerformance={salesData.inventoryPerformance}
-      />
+        <SalesMetrics
+          totalRevenue={salesData.totalRevenue}
+          totalSales={salesData.totalSales}
+          totalAvailableInventory={salesData.totalAvailableInventory}
+        />
+
+        <SalesCharts
+          teamPerformance={salesData.teamPerformance}
+          inventoryPerformance={salesData.inventoryPerformance}
+        />
+      </div>
     </div>
   );
 };
