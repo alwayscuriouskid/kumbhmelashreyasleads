@@ -20,6 +20,12 @@ export interface SalesData {
   totalAvailableInventory: number;
 }
 
+export interface InventoryType {
+  id: string;
+  name: string;
+  total_quantity: number;
+}
+
 export const useSalesData = (dateRange: DateRangeType, startDate?: Date, endDate?: Date, selectedInventoryType: string = 'all') => {
   return useQuery({
     queryKey: ['sales-analytics', dateRange, startDate, endDate, selectedInventoryType],
@@ -33,12 +39,10 @@ export const useSalesData = (dateRange: DateRangeType, startDate?: Date, endDate
 
       const dateRangeValues = getDateRange(dateRange, startDate, endDate);
 
-      // First get the inventory type details
-      const { data: inventoryType } = await supabase
+      // Get all inventory types first
+      const { data: inventoryTypes } = await supabase
         .from('sales_projection_inventory')
-        .select('*')
-        .eq('name', selectedInventoryType)
-        .single();
+        .select('*');
 
       // Get sales entries
       let query = supabase
@@ -46,6 +50,7 @@ export const useSalesData = (dateRange: DateRangeType, startDate?: Date, endDate
         .select(`
           *,
           sales_projection_inventory (
+            id,
             name,
             total_quantity
           )
@@ -63,6 +68,9 @@ export const useSalesData = (dateRange: DateRangeType, startDate?: Date, endDate
 
       const { data: entries } = await query;
 
+      console.log("Fetched entries:", entries);
+      console.log("Fetched inventory types:", inventoryTypes);
+
       // Calculate metrics
       const teamPerformance = (entries || []).reduce((acc: any, entry: any) => {
         if (!acc[entry.team_location]) {
@@ -77,19 +85,22 @@ export const useSalesData = (dateRange: DateRangeType, startDate?: Date, endDate
         return acc;
       }, {});
 
-      const inventoryPerformance = (entries || []).reduce((acc: any, entry: any) => {
-        const name = entry.sales_projection_inventory?.name;
-        if (!acc[name]) {
-          acc[name] = {
-            name,
-            totalSold: 0,
-            revenue: 0,
-            availableQuantity: entry.sales_projection_inventory?.total_quantity || 0
-          };
-        }
-        acc[name].totalSold += entry.quantity_sold;
-        acc[name].revenue += entry.quantity_sold * entry.selling_price;
-        acc[name].availableQuantity -= entry.quantity_sold;
+      // Calculate inventory performance and available quantities
+      const inventoryPerformance = (inventoryTypes || []).reduce((acc: any, type: any) => {
+        const typeEntries = entries?.filter(entry => 
+          entry.sales_projection_inventory?.id === type.id
+        ) || [];
+
+        const totalSold = typeEntries.reduce((sum, entry) => 
+          sum + entry.quantity_sold, 0);
+
+        acc[type.name] = {
+          name: type.name,
+          totalSold,
+          revenue: typeEntries.reduce((sum, entry) => 
+            sum + (entry.quantity_sold * entry.selling_price), 0),
+          availableQuantity: type.total_quantity - totalSold
+        };
         return acc;
       }, {});
 
@@ -99,15 +110,23 @@ export const useSalesData = (dateRange: DateRangeType, startDate?: Date, endDate
       const totalRevenue = (entries || []).reduce((sum: number, entry: any) => 
         sum + (entry.quantity_sold * entry.selling_price), 0);
 
+      // Calculate total available inventory based on selection
       let totalAvailableInventory = 0;
       if (selectedInventoryType === 'all') {
-        const { data: allInventoryTypes } = await supabase
-          .from('sales_projection_inventory')
-          .select('total_quantity');
-        totalAvailableInventory = (allInventoryTypes || []).reduce((sum: number, type: any) => 
-          sum + (type.total_quantity || 0), 0) - totalSold;
-      } else if (inventoryType) {
-        totalAvailableInventory = inventoryType.total_quantity - totalSold;
+        totalAvailableInventory = (inventoryTypes || []).reduce((sum: number, type: any) => {
+          const typeSold = (entries || [])
+            .filter(entry => entry.sales_projection_inventory?.id === type.id)
+            .reduce((s, entry) => s + entry.quantity_sold, 0);
+          return sum + (type.total_quantity - typeSold);
+        }, 0);
+      } else {
+        const selectedType = inventoryTypes?.find(type => type.name === selectedInventoryType);
+        if (selectedType) {
+          const typeSold = (entries || [])
+            .filter(entry => entry.sales_projection_inventory?.id === selectedType.id)
+            .reduce((sum, entry) => sum + entry.quantity_sold, 0);
+          totalAvailableInventory = selectedType.total_quantity - typeSold;
+        }
       }
 
       return {

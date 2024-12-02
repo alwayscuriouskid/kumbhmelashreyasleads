@@ -35,7 +35,7 @@ export const SalesAnalytics = () => {
           setEndDate={setEndDate}
           selectedInventoryType={selectedInventoryType}
           setSelectedInventoryType={setSelectedInventoryType}
-          inventoryTypes={salesData.inventoryPerformance}
+          inventoryTypes={Object.values(salesData.inventoryPerformance)}
         />
 
         <SalesMetrics
