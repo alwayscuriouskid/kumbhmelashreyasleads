@@ -13,35 +13,53 @@ interface LeadSelectorProps {
   className?: string;
 }
 
+interface Lead {
+  id: string;
+  client_name: string;
+  contact_person: string;
+}
+
 export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) => {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: leads = [], isLoading } = useQuery({
+  const { data: leads = [], isLoading } = useQuery<Lead[]>({
     queryKey: ['leads-for-selector'],
     queryFn: async () => {
       console.log('Fetching leads for selector');
-      const { data, error } = await supabase
-        .from('leads')
-        .select('id, client_name, contact_person')
-        .order('created_at', { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from('leads')
+          .select('id, client_name, contact_person')
+          .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching leads:', error);
+        if (error) {
+          console.error('Error fetching leads:', error);
+          return [];
+        }
+        
+        console.log('Fetched leads:', data);
+        return data || [];
+      } catch (error) {
+        console.error('Error in leads query:', error);
         return [];
       }
-      
-      console.log('Fetched leads:', data);
-      return data || [];
-    }
+    },
+    initialData: [], // Provide initial empty array
   });
 
-  const selectedLead = leads.find(lead => lead.id === value);
-  const filteredLeads = leads.filter(lead => {
+  // Ensure leads is always an array
+  const safeLeads = Array.isArray(leads) ? leads : [];
+  
+  const selectedLead = safeLeads.find(lead => lead.id === value);
+  
+  const filteredLeads = safeLeads.filter(lead => {
+    if (!searchQuery) return true;
+    
     const searchTerm = searchQuery.toLowerCase();
     return (
-      lead.client_name.toLowerCase().includes(searchTerm) ||
-      lead.contact_person.toLowerCase().includes(searchTerm)
+      lead.client_name?.toLowerCase().includes(searchTerm) ||
+      lead.contact_person?.toLowerCase().includes(searchTerm)
     );
   });
 
