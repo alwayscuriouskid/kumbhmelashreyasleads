@@ -44,7 +44,7 @@ export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) 
         return [];
       }
     },
-    initialData: [], // Provide initial empty array
+    initialData: [], // Initialize with empty array
   });
 
   const safeLeads = leads || [];
