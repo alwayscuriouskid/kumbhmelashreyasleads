@@ -22,7 +22,7 @@ interface Lead {
 export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) => {
   const [open, setOpen] = useState(false);
 
-  const { data: leads = [], isLoading } = useQuery<Lead[]>({
+  const { data: leads, isLoading } = useQuery<Lead[]>({
     queryKey: ['leads-for-selector'],
     queryFn: async () => {
       console.log('Fetching leads for selector');
@@ -48,7 +48,7 @@ export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) 
   });
 
   // Ensure leads is always an array
-  const safeLeads = Array.isArray(leads) ? leads : [];
+  const safeLeads = leads || [];
   
   const selectedLead = safeLeads.find(lead => lead.id === value);
 
@@ -69,7 +69,7 @@ export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) 
           aria-expanded={open}
           className={cn("w-full justify-between", className)}
         >
-          {value && selectedLead
+          {selectedLead
             ? `${selectedLead.client_name} (${selectedLead.contact_person})`
             : "Select lead..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -87,7 +87,7 @@ export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) 
                   onChange(lead.id);
                   setOpen(false);
                 }}
-                value={lead.id}
+                value={`${lead.client_name} ${lead.contact_person}`}
               >
                 <Check
                   className={cn(
