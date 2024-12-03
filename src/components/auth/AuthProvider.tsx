@@ -24,6 +24,44 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
+  const checkUserRole = async (userId: string) => {
+    try {
+      console.log("Checking user role for ID:", userId);
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error fetching user role:", error);
+        // Don't throw error, just log it and continue with default non-admin state
+        return;
+      }
+
+      if (!data) {
+        console.log("No profile found for user, creating one...");
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert([{ id: userId, role: 'user' }]);
+
+        if (insertError) {
+          console.error("Error creating user profile:", insertError);
+        }
+        setIsAdmin(false);
+        return;
+      }
+
+      console.log("User role from database:", data.role);
+      setIsAdmin(data.role === "admin");
+    } catch (error) {
+      console.error("Error in checkUserRole:", error);
+      // Continue with default non-admin state
+      setIsAdmin(false);
+    }
+  };
+
   useEffect(() => {
     console.log("Setting up auth state...");
     
@@ -44,12 +82,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        checkUserRole(session.user.id);
+        await checkUserRole(session.user.id);
         if (event === "SIGNED_IN") {
           toast.success("Successfully signed in");
           navigate("/leads");
         }
       } else if (event === "SIGNED_OUT") {
+        setIsAdmin(false);
         toast.info("Signed out");
         navigate("/login");
       }
@@ -57,26 +96,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
-
-  const checkUserRole = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', userId)
-        .maybeSingle();
-
-      if (error) {
-        console.error("Error fetching user role:", error);
-        return;
-      }
-
-      console.log("User role:", data?.role);
-      setIsAdmin(data?.role === "admin");
-    } catch (error) {
-      console.error("Error in checkUserRole:", error);
-    }
-  };
 
   return (
     <AuthContext.Provider value={{ user, isAdmin }}>

@@ -536,6 +536,7 @@ export type Database = {
           created_at: string | null
           id: string
           inventory_item_id: string
+          offer_price: number | null
           order_id: string
           price: number
           quantity: number
@@ -544,6 +545,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           inventory_item_id: string
+          offer_price?: number | null
           order_id: string
           price: number
           quantity?: number
@@ -552,6 +554,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           inventory_item_id?: string
+          offer_price?: number | null
           order_id?: string
           price?: number
           quantity?: number
