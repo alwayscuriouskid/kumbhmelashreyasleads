@@ -44,7 +44,7 @@ export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) 
         return [];
       }
     },
-    initialData: [], // Initialize with empty array
+    initialData: [] // Initialize with empty array
   });
 
   const safeLeads = leads || [];
@@ -92,7 +92,7 @@ export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) 
                     value === lead.id ? "opacity-100" : "opacity-0"
                   )}
                 />
-                {lead.client_name} ({lead.contact_person})
+                {`${lead.client_name} (${lead.contact_person})`}
               </CommandItem>
             ))}
           </CommandGroup>
