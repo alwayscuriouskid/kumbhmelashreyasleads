@@ -21,7 +21,6 @@ interface Lead {
 
 export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) => {
   const [open, setOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
 
   const { data: leads = [], isLoading } = useQuery<Lead[]>({
     queryKey: ['leads-for-selector'],
@@ -52,16 +51,6 @@ export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) 
   const safeLeads = Array.isArray(leads) ? leads : [];
   
   const selectedLead = safeLeads.find(lead => lead.id === value);
-  
-  const filteredLeads = safeLeads.filter(lead => {
-    if (!searchQuery) return true;
-    
-    const searchTerm = searchQuery.toLowerCase();
-    return (
-      lead.client_name?.toLowerCase().includes(searchTerm) ||
-      lead.contact_person?.toLowerCase().includes(searchTerm)
-    );
-  });
 
   if (isLoading) {
     return (
@@ -88,22 +77,17 @@ export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) 
       </PopoverTrigger>
       <PopoverContent className="w-[400px] p-0">
         <Command>
-          <CommandInput 
-            placeholder="Search leads..." 
-            value={searchQuery}
-            onValueChange={setSearchQuery}
-          />
+          <CommandInput placeholder="Search leads..." />
           <CommandEmpty>No lead found.</CommandEmpty>
           <CommandGroup className="max-h-[300px] overflow-y-auto">
-            {filteredLeads.map((lead) => (
+            {safeLeads.map((lead) => (
               <CommandItem
                 key={lead.id}
-                value={lead.id}
                 onSelect={() => {
                   onChange(lead.id);
                   setOpen(false);
-                  setSearchQuery("");
                 }}
+                value={lead.id}
               >
                 <Check
                   className={cn(
