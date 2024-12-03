@@ -8,9 +8,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { OrderForm } from "./OrderForm";
+import { createOrder, createOrderItems, updateInventory } from "./services/orderService";
 
 interface CreateOrderDialogProps {
   onSuccess: () => void;
@@ -21,82 +21,11 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
 
   const handleCreateOrder = async (formData: any) => {
     try {
-      console.log("Creating order with data:", formData);
-
-      // Calculate GST (18%) and total amount with GST
-      const subtotal = formData.totalAmount;
-      // GST should be calculated on the subtotal, not the total
-      const gstAmount = (subtotal * 0.18); // Changed calculation
-      const totalWithGst = subtotal + gstAmount;
-
-      console.log("Order amounts:", {
-        subtotal,
-        gstAmount,
-        totalWithGst
-      });
-
-      const { data: order, error: orderError } = await supabase
-        .from("orders")
-        .insert({
-          customer_name: formData.customerName,
-          customer_email: formData.customerEmail,
-          customer_phone: formData.customerPhone,
-          customer_address: formData.customerAddress,
-          team_member_id: formData.teamMemberId,
-          team_member_name: "Unknown", // This is required and has a default value
-          payment_method: formData.advancePayment + "% Advance",
-          notes: formData.notes,
-          total_amount: totalWithGst,
-          status: "pending",
-          payment_status: "pending",
-          payment_date: formData.paymentDate,
-          advance_payment_percentage: parseInt(formData.advancePayment),
-          credit_period: formData.creditPeriod,
-          lead_id: formData.leadId || null,
-          additional_details: `Subtotal: ₹${subtotal.toFixed(2)}, GST (18%): ₹${gstAmount.toFixed(2)}, Total: ₹${totalWithGst.toFixed(2)}`
-        })
-        .select()
-        .single();
-
-      if (orderError) throw orderError;
-
+      const order = await createOrder(formData);
       console.log("Order created:", order);
 
-      // Then create order items and update inventory
-      const orderItems = formData.selectedItems.map((item: any) => ({
-        order_id: order.id,
-        inventory_item_id: item.inventory_item_id,
-        quantity: item.quantity,
-        price: item.price,
-      }));
-
-      const { error: itemsError } = await supabase
-        .from("order_items")
-        .insert(orderItems);
-
-      if (itemsError) throw itemsError;
-
-      // Update inventory items quantities
-      for (const item of formData.selectedItems) {
-        const { data: currentItem, error: getError } = await supabase
-          .from("inventory_items")
-          .select("quantity, available_quantity")
-          .eq("id", item.inventory_item_id)
-          .single();
-
-        if (getError) throw getError;
-
-        const newAvailableQuantity = currentItem.available_quantity - item.quantity;
-
-        const { error: updateError } = await supabase
-          .from("inventory_items")
-          .update({ 
-            available_quantity: newAvailableQuantity
-          })
-          .eq("id", item.inventory_item_id);
-
-        if (updateError) throw updateError;
-      }
+      await createOrderItems(order.id, formData.selectedItems);
+      await updateInventory(formData.selectedItems);
 
       toast({
         title: "Success",
