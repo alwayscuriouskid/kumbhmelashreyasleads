@@ -16,7 +16,7 @@ interface LeadSelectorProps {
 export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) => {
   const [open, setOpen] = useState(false);
 
-  const { data: leads, isLoading } = useQuery({
+  const { data: leads = [], isLoading } = useQuery({
     queryKey: ['leads-for-selector'],
     queryFn: async () => {
       console.log('Fetching leads for selector');
@@ -31,11 +31,19 @@ export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) 
       }
       
       console.log('Fetched leads:', data);
-      return data;
+      return data || [];
     }
   });
 
   const selectedLead = leads?.find(lead => lead.id === value);
+
+  if (isLoading) {
+    return (
+      <Button variant="outline" className={cn("w-full justify-between", className)} disabled>
+        Loading leads...
+      </Button>
+    );
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -57,7 +65,7 @@ export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) 
           <CommandInput placeholder="Search leads..." />
           <CommandEmpty>No lead found.</CommandEmpty>
           <CommandGroup className="max-h-[300px] overflow-y-auto">
-            {leads?.map((lead) => (
+            {(leads || []).map((lead) => (
               <CommandItem
                 key={lead.id}
                 value={`${lead.client_name} ${lead.contact_person}`}
