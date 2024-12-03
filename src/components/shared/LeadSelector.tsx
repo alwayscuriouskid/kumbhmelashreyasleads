@@ -31,9 +31,10 @@ export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) 
 
         if (error) {
           console.error('Error fetching leads:', error);
-          return [];
+          throw error;
         }
         
+        console.log('Fetched leads:', data);
         return data || [];
       } catch (error) {
         console.error('Error in leads query:', error);
@@ -42,6 +43,9 @@ export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) 
     }
   });
 
+  console.log('Current leads data:', leads);
+  console.log('Current selected value:', value);
+
   // Filter leads based on search query
   const filteredLeads = leads.filter(lead => 
     lead.client_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -49,6 +53,7 @@ export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) 
   );
 
   const selectedLead = leads.find(lead => lead.id === value);
+  console.log('Selected lead:', selectedLead);
 
   return (
     <div className={className}>
