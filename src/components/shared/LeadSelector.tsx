@@ -1,10 +1,10 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface LeadSelectorProps {
@@ -15,6 +15,7 @@ interface LeadSelectorProps {
 
 export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) => {
   const [open, setOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data: leads = [], isLoading } = useQuery({
     queryKey: ['leads-for-selector'],
@@ -27,7 +28,7 @@ export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) 
 
       if (error) {
         console.error('Error fetching leads:', error);
-        throw error;
+        return [];
       }
       
       console.log('Fetched leads:', data);
@@ -35,7 +36,14 @@ export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) 
     }
   });
 
-  const selectedLead = leads?.find(lead => lead.id === value);
+  const selectedLead = leads.find(lead => lead.id === value);
+  const filteredLeads = leads.filter(lead => {
+    const searchTerm = searchQuery.toLowerCase();
+    return (
+      lead.client_name.toLowerCase().includes(searchTerm) ||
+      lead.contact_person.toLowerCase().includes(searchTerm)
+    );
+  });
 
   if (isLoading) {
     return (
@@ -62,16 +70,21 @@ export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) 
       </PopoverTrigger>
       <PopoverContent className="w-[400px] p-0">
         <Command>
-          <CommandInput placeholder="Search leads..." />
+          <CommandInput 
+            placeholder="Search leads..." 
+            value={searchQuery}
+            onValueChange={setSearchQuery}
+          />
           <CommandEmpty>No lead found.</CommandEmpty>
           <CommandGroup className="max-h-[300px] overflow-y-auto">
-            {(leads || []).map((lead) => (
+            {filteredLeads.map((lead) => (
               <CommandItem
                 key={lead.id}
-                value={`${lead.client_name} ${lead.contact_person}`}
+                value={lead.id}
                 onSelect={() => {
                   onChange(lead.id);
                   setOpen(false);
+                  setSearchQuery("");
                 }}
               >
                 <Check
