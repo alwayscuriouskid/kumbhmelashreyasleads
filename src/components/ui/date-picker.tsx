@@ -16,9 +16,10 @@ interface DatePickerProps {
   selected?: Date
   onSelect?: (date: Date | undefined) => void
   placeholderText?: string
+  disabled?: boolean
 }
 
-export function DatePicker({ selected, onSelect, placeholderText }: DatePickerProps) {
+export function DatePicker({ selected, onSelect, placeholderText, disabled }: DatePickerProps) {
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -26,21 +27,25 @@ export function DatePicker({ selected, onSelect, placeholderText }: DatePickerPr
           variant={"outline"}
           className={cn(
             "w-[200px] justify-start text-left font-normal",
-            !selected && "text-muted-foreground"
+            !selected && "text-muted-foreground",
+            disabled && "opacity-50 cursor-not-allowed"
           )}
+          disabled={disabled}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {selected ? format(selected, "PPP") : placeholderText || "Pick a date"}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
-        <Calendar
-          mode="single"
-          selected={selected}
-          onSelect={onSelect}
-          initialFocus
-        />
-      </PopoverContent>
+      {!disabled && (
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={selected}
+            onSelect={onSelect}
+            initialFocus
+          />
+        </PopoverContent>
+      )}
     </Popover>
   )
 }
