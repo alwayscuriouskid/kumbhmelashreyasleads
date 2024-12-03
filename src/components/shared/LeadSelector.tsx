@@ -47,9 +47,7 @@ export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) 
     initialData: [], // Provide initial empty array
   });
 
-  // Ensure leads is always an array
   const safeLeads = leads || [];
-  
   const selectedLead = safeLeads.find(lead => lead.id === value);
 
   if (isLoading) {
@@ -87,7 +85,6 @@ export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) 
                   onChange(lead.id);
                   setOpen(false);
                 }}
-                value={`${lead.client_name} ${lead.contact_person}`}
               >
                 <Check
                   className={cn(
