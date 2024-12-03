@@ -43,16 +43,16 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
           customer_address: formData.customerAddress,
           team_member_id: formData.teamMemberId,
           team_member_name: "Unknown", // This is required and has a default value
-          payment_method: formData.paymentMethod,
+          payment_method: formData.advancePayment + "% Advance",
           notes: formData.notes,
           total_amount: totalWithGst,
           status: "pending",
           payment_status: "pending",
-          payment_confirmation: formData.paymentConfirmation,
-          next_payment_date: formData.nextPaymentDate,
-          next_payment_details: formData.nextPaymentDetails,
-          additional_details: `Subtotal: ₹${subtotal}, GST (18%): ₹${gstAmount}, Total: ₹${totalWithGst}`,
-          lead_id: formData.leadId || null
+          payment_date: formData.paymentDate,
+          advance_payment_percentage: parseInt(formData.advancePayment),
+          credit_period: formData.creditPeriod,
+          lead_id: formData.leadId || null,
+          additional_details: `Subtotal: ₹${subtotal}, GST (18%): ₹${gstAmount}, Total: ₹${totalWithGst}`
         })
         .select()
         .single();

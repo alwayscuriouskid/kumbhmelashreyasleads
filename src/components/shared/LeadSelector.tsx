@@ -1,6 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface LeadSelectorProps {
   value: string;
@@ -9,6 +14,8 @@ interface LeadSelectorProps {
 }
 
 export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) => {
+  const [open, setOpen] = useState(false);
+
   const { data: leads, isLoading } = useQuery({
     queryKey: ['leads-for-selector'],
     queryFn: async () => {
@@ -28,19 +35,49 @@ export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) 
     }
   });
 
+  const selectedLead = leads?.find(lead => lead.id === value);
+
   return (
-    <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className={className}>
-        <SelectValue placeholder="Select lead (optional)" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="none">No lead selected</SelectItem>
-        {leads?.map((lead) => (
-          <SelectItem key={lead.id} value={lead.id}>
-            {lead.client_name} ({lead.contact_person})
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className={cn("w-full justify-between", className)}
+        >
+          {value && selectedLead
+            ? `${selectedLead.client_name} (${selectedLead.contact_person})`
+            : "Select lead..."}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[400px] p-0">
+        <Command>
+          <CommandInput placeholder="Search leads..." />
+          <CommandEmpty>No lead found.</CommandEmpty>
+          <CommandGroup className="max-h-[300px] overflow-y-auto">
+            {leads?.map((lead) => (
+              <CommandItem
+                key={lead.id}
+                value={`${lead.client_name} ${lead.contact_person}`}
+                onSelect={() => {
+                  onChange(lead.id);
+                  setOpen(false);
+                }}
+              >
+                <Check
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    value === lead.id ? "opacity-100" : "opacity-0"
+                  )}
+                />
+                {lead.client_name} ({lead.contact_person})
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 };

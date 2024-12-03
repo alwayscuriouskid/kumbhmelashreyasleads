@@ -9,6 +9,7 @@ import { TeamMemberSelect } from "../shared/TeamMemberSelect";
 import { LeadSelector } from "../shared/LeadSelector";
 import { useLeadConversion } from "@/hooks/useLeadConversion";
 import { Label } from "@/components/ui/label";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectContent,
@@ -30,13 +31,15 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [selectedLeadId, setSelectedLeadId] = useState("");
+  const [paymentDate, setPaymentDate] = useState<Date>();
   const [formData, setFormData] = useState({
     customerName: "",
     customerEmail: "",
     customerPhone: "",
     customerAddress: "",
     teamMemberId: "",
-    paymentMethod: "",
+    advancePayment: "",
+    creditPeriod: "",
     notes: "",
   });
 
@@ -79,11 +82,13 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
       })),
       totalAmount: totalWithGst,
       leadId: selectedLeadId || null,
+      paymentDate: paymentDate?.toISOString(),
+      advancePaymentPercentage: parseInt(formData.advancePayment),
+      creditPeriod: formData.creditPeriod,
     };
 
     await onSubmit(orderData);
 
-    // Convert lead if one was selected
     if (selectedLeadId) {
       await convertLead.mutateAsync({
         leadId: selectedLeadId,
@@ -97,6 +102,9 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
   };
 
   const { subtotal, gstAmount, totalWithGst } = calculateTotalAmount();
+
+  const advancePaymentOptions = ['30', '40', '50', '60', '70', '80', '90', '100'];
+  const creditPeriodOptions = ['10days', '15days', '20days', '25days', '30days', '40days', '45days'];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -148,22 +156,49 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label>Payment Method</Label>
-            <Select
-              value={formData.paymentMethod}
-              onValueChange={(value) => handleFormChange("paymentMethod", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select payment method" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="cash">Cash</SelectItem>
-                <SelectItem value="card">Card</SelectItem>
-                <SelectItem value="upi">UPI</SelectItem>
-                <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Advance Payment (%)</Label>
+              <Select
+                value={formData.advancePayment}
+                onValueChange={(value) => handleFormChange("advancePayment", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select advance payment %" />
+                </SelectTrigger>
+                <SelectContent>
+                  {advancePaymentOptions.map((option) => (
+                    <SelectItem key={option} value={option}>{option}%</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Credit Period</Label>
+              <Select
+                value={formData.creditPeriod}
+                onValueChange={(value) => handleFormChange("creditPeriod", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select credit period" />
+                </SelectTrigger>
+                <SelectContent>
+                  {creditPeriodOptions.map((option) => (
+                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Payment Date</Label>
+              <DatePicker
+                selected={paymentDate}
+                onSelect={setPaymentDate}
+                placeholderText="Select payment date"
+              />
+            </div>
           </div>
         </CardContent>
       </Card>

@@ -576,9 +576,11 @@ export type Database = {
       orders: {
         Row: {
           additional_details: string | null
+          advance_payment_percentage: number | null
           commission_amount: number | null
           commission_percentage: number | null
           created_at: string | null
+          credit_period: string | null
           customer_address: string | null
           customer_email: string | null
           customer_name: string | null
@@ -601,9 +603,11 @@ export type Database = {
         }
         Insert: {
           additional_details?: string | null
+          advance_payment_percentage?: number | null
           commission_amount?: number | null
           commission_percentage?: number | null
           created_at?: string | null
+          credit_period?: string | null
           customer_address?: string | null
           customer_email?: string | null
           customer_name?: string | null
@@ -626,9 +630,11 @@ export type Database = {
         }
         Update: {
           additional_details?: string | null
+          advance_payment_percentage?: number | null
           commission_amount?: number | null
           commission_percentage?: number | null
           created_at?: string | null
+          credit_period?: string | null
           customer_address?: string | null
           customer_email?: string | null
           customer_name?: string | null
