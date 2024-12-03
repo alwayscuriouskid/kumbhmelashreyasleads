@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CustomerInfoSection } from "./CustomerInfoSection";
@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { calculateNextPaymentDate } from "./utils/dateCalculations";
 
 interface OrderFormProps {
   onSubmit: (data: any) => void;
@@ -32,6 +33,7 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [selectedLeadId, setSelectedLeadId] = useState("");
   const [paymentDate, setPaymentDate] = useState<Date>();
+  const [nextPaymentDate, setNextPaymentDate] = useState<Date>();
   const [formData, setFormData] = useState({
     customerName: "",
     customerEmail: "",
@@ -42,6 +44,13 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
     creditPeriod: "",
     notes: "",
   });
+
+  // Calculate next payment date when payment date or credit period changes
+  useEffect(() => {
+    const calculatedDate = calculateNextPaymentDate(paymentDate, formData.creditPeriod);
+    console.log('Updating next payment date:', calculatedDate);
+    setNextPaymentDate(calculatedDate);
+  }, [paymentDate, formData.creditPeriod]);
 
   const calculateTotalAmount = () => {
     const subtotal = selectedItems.reduce((total, itemId) => {
@@ -83,6 +92,7 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
       totalAmount: totalWithGst,
       leadId: selectedLeadId || null,
       paymentDate: paymentDate?.toISOString(),
+      nextPaymentDate: nextPaymentDate?.toISOString(),
       advancePaymentPercentage: parseInt(formData.advancePayment),
       creditPeriod: formData.creditPeriod,
     };
@@ -197,6 +207,15 @@ export const OrderForm = ({ onSubmit, onCancel }: OrderFormProps) => {
                 selected={paymentDate}
                 onSelect={setPaymentDate}
                 placeholderText="Select payment date"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Next Payment Date</Label>
+              <DatePicker
+                selected={nextPaymentDate}
+                disabled
+                placeholderText="Auto-calculated based on credit period"
               />
             </div>
           </div>
