@@ -28,36 +28,48 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       console.log("Checking user role for ID:", userId);
       
-      const { data, error } = await supabase
+      // First try to get the profile
+      const { data: existingProfile, error: fetchError } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', userId)
         .maybeSingle();
 
-      if (error) {
-        console.error("Error fetching user role:", error);
-        // Don't throw error, just log it and continue with default non-admin state
-        return;
-      }
-
-      if (!data) {
-        console.log("No profile found for user, creating one...");
-        const { error: insertError } = await supabase
-          .from('profiles')
-          .insert([{ id: userId, role: 'user' }]);
-
-        if (insertError) {
-          console.error("Error creating user profile:", insertError);
-        }
+      if (fetchError) {
+        console.error("Error fetching user profile:", fetchError);
+        // Continue with default state but don't block the auth flow
         setIsAdmin(false);
         return;
       }
 
-      console.log("User role from database:", data.role);
-      setIsAdmin(data.role === "admin");
+      // If profile doesn't exist, create it
+      if (!existingProfile) {
+        console.log("Creating new profile for user:", userId);
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert([{ 
+            id: userId,
+            role: 'user' 
+          }]);
+
+        if (insertError) {
+          console.error("Error creating user profile:", insertError);
+          // Continue with default state
+          setIsAdmin(false);
+          return;
+        }
+
+        console.log("Successfully created new profile");
+        setIsAdmin(false);
+        return;
+      }
+
+      // If we have a profile, set the admin status
+      console.log("Found existing profile with role:", existingProfile.role);
+      setIsAdmin(existingProfile.role === "admin");
     } catch (error) {
-      console.error("Error in checkUserRole:", error);
-      // Continue with default non-admin state
+      console.error("Unexpected error in checkUserRole:", error);
+      // Continue with default state
       setIsAdmin(false);
     }
   };
