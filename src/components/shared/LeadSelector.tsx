@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { 
+  Select,
+  SelectContent, 
+  SelectItem,
+  SelectTrigger,
+  SelectValue 
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 interface LeadSelectorProps {
   value: string;
@@ -13,16 +16,10 @@ interface LeadSelectorProps {
   className?: string;
 }
 
-interface Lead {
-  id: string;
-  client_name: string;
-  contact_person: string;
-}
-
 export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) => {
-  const [open, setOpen] = useState(false);
-
-  const { data: leads, isLoading } = useQuery<Lead[]>({
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  const { data: leads = [] } = useQuery({
     queryKey: ['leads-for-selector'],
     queryFn: async () => {
       console.log('Fetching leads for selector');
@@ -37,67 +34,48 @@ export const LeadSelector = ({ value, onChange, className }: LeadSelectorProps) 
           return [];
         }
         
-        console.log('Fetched leads:', data);
         return data || [];
       } catch (error) {
         console.error('Error in leads query:', error);
         return [];
       }
-    },
-    initialData: [] // Initialize with empty array
+    }
   });
 
-  const safeLeads = leads || [];
-  const selectedLead = safeLeads.find(lead => lead.id === value);
+  // Filter leads based on search query
+  const filteredLeads = leads.filter(lead => 
+    lead.client_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    lead.contact_person.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  if (isLoading) {
-    return (
-      <Button variant="outline" className={cn("w-full justify-between", className)} disabled>
-        Loading leads...
-      </Button>
-    );
-  }
+  const selectedLead = leads.find(lead => lead.id === value);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className={cn("w-full justify-between", className)}
-        >
-          {selectedLead
-            ? `${selectedLead.client_name} (${selectedLead.contact_person})`
-            : "Select lead..."}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[400px] p-0">
-        <Command>
-          <CommandInput placeholder="Search leads..." />
-          <CommandEmpty>No lead found.</CommandEmpty>
-          <CommandGroup className="max-h-[300px] overflow-y-auto">
-            {safeLeads.map((lead) => (
-              <CommandItem
-                key={lead.id}
-                onSelect={() => {
-                  onChange(lead.id);
-                  setOpen(false);
-                }}
-              >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    value === lead.id ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                {`${lead.client_name} (${lead.contact_person})`}
-              </CommandItem>
+    <div className={className}>
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger>
+          <SelectValue placeholder="Select lead">
+            {selectedLead ? `${selectedLead.client_name} (${selectedLead.contact_person})` : "Select lead"}
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          <div className="p-2">
+            <Input
+              placeholder="Search leads..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="mb-2"
+            />
+          </div>
+          <div className="max-h-[300px] overflow-y-auto">
+            {filteredLeads.map((lead) => (
+              <SelectItem key={lead.id} value={lead.id}>
+                {lead.client_name} ({lead.contact_person})
+              </SelectItem>
             ))}
-          </CommandGroup>
-        </Command>
-      </PopoverContent>
-    </Popover>
+          </div>
+        </SelectContent>
+      </Select>
+    </div>
   );
 };
