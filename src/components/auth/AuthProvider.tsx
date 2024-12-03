@@ -26,15 +26,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const checkUserRole = async (userId: string) => {
     try {
-      const { data, error } = await supabase
+      console.log("Checking user role for:", userId);
+      const { data: profile, error } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', userId)
         .single();
 
       if (error) {
+        console.error("Error checking role:", error);
         if (error.code === 'PGRST116') {
-          // No profile found, create one
+          console.log("Creating new profile for user:", userId);
           const { error: insertError } = await supabase
             .from('profiles')
             .insert([{ id: userId, role: 'user' }]);
@@ -42,23 +44,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           if (insertError) {
             console.error("Error creating profile:", insertError);
           }
-          return;
         }
-        console.error("Error checking role:", error);
         return;
       }
 
-      setIsAdmin(data?.role === 'admin');
+      console.log("User profile found:", profile);
+      setIsAdmin(profile?.role === 'admin');
     } catch (error) {
       console.error("Error in checkUserRole:", error);
     }
   };
 
   useEffect(() => {
+    console.log("AuthProvider: Setting up auth listeners");
+    
     // Check current session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+      console.log("Current session:", session?.user?.email);
       if (session?.user) {
+        setUser(session.user);
         checkUserRole(session.user.id);
       }
     });
@@ -68,22 +72,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session?.user?.email);
-      setUser(session?.user ?? null);
       
       if (session?.user) {
+        setUser(session.user);
         await checkUserRole(session.user.id);
+        
         if (event === "SIGNED_IN") {
+          console.log("User signed in, redirecting to /leads");
           toast.success("Successfully signed in");
           navigate("/leads");
         }
-      } else if (event === "SIGNED_OUT") {
+      } else {
+        setUser(null);
         setIsAdmin(false);
-        toast.info("Signed out");
-        navigate("/login");
+        if (event === "SIGNED_OUT") {
+          console.log("User signed out, redirecting to /login");
+          toast.info("Signed out");
+          navigate("/login");
+        }
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      console.log("Cleaning up auth subscription");
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   return (
