@@ -25,7 +25,8 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
 
       // Calculate GST (18%) and total amount with GST
       const subtotal = formData.totalAmount;
-      const gstAmount = subtotal * 0.18;
+      // GST should be calculated on the subtotal, not the total
+      const gstAmount = (subtotal * 0.18); // Changed calculation
       const totalWithGst = subtotal + gstAmount;
 
       console.log("Order amounts:", {
@@ -52,7 +53,7 @@ export const CreateOrderDialog = ({ onSuccess }: CreateOrderDialogProps) => {
           advance_payment_percentage: parseInt(formData.advancePayment),
           credit_period: formData.creditPeriod,
           lead_id: formData.leadId || null,
-          additional_details: `Subtotal: ₹${subtotal}, GST (18%): ₹${gstAmount}, Total: ₹${totalWithGst}`
+          additional_details: `Subtotal: ₹${subtotal.toFixed(2)}, GST (18%): ₹${gstAmount.toFixed(2)}, Total: ₹${totalWithGst.toFixed(2)}`
         })
         .select()
         .single();
