@@ -8,10 +8,27 @@ export const useLeads = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: leads = dummyLeads, isLoading } = useQuery({
+  const { data: leads = dummyLeads, isLoading, error } = useQuery({
     queryKey: ['leads'],
     queryFn: async () => {
+      console.log("Starting leads fetch...");
+      
+      // Check if we have an active session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error("Session error:", sessionError);
+        throw new Error("Authentication error");
+      }
+
+      if (!session) {
+        console.log("No active session found");
+        return dummyLeads;
+      }
+
+      console.log("Authenticated user:", session.user.email);
       console.log("Fetching leads from database");
+      
       const { data, error } = await supabase
         .from('leads')
         .select('*')
@@ -19,13 +36,20 @@ export const useLeads = () => {
 
       if (error) {
         console.error("Error fetching leads:", error);
+        toast({
+          title: "Error fetching leads",
+          description: error.message,
+          variant: "destructive",
+        });
         return dummyLeads;
       }
 
+      console.log("Fetched leads data:", data);
       const fetchedLeads = (data as LeadDB[]).map(dbToFrontend);
-      console.log("Fetched leads:", fetchedLeads);
+      console.log("Transformed leads:", fetchedLeads);
       return fetchedLeads.length > 0 ? fetchedLeads : dummyLeads;
-    }
+    },
+    retry: 1
   });
 
   const addLead = useMutation({
@@ -140,6 +164,7 @@ export const useLeads = () => {
   return {
     leads,
     isLoading,
+    error,
     addLead,
     updateLead
   };
