@@ -40,6 +40,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (session?.user) {
         console.log("Setting user from session:", session.user);
         setUser(session.user);
+        
+        // Ensure profile exists
+        const { data: existingProfile, error: profileCheckError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profileCheckError || !existingProfile) {
+          console.log("Creating new profile for user");
+          const { error: createError } = await supabase
+            .from('profiles')
+            .insert([{ id: session.user.id, role: 'user' }]);
+
+          if (createError) {
+            console.error("Error creating profile:", createError);
+          }
+        }
+
         // Check if user has admin role
         const { data: profile, error: profileError } = await supabase
           .from('profiles')

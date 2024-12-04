@@ -27,9 +27,25 @@ export const useLeads = () => {
       }
 
       console.log("Authenticated user:", session.user.email);
+      console.log("User ID:", session.user.id);
       console.log("Fetching leads from database");
       
       try {
+        // First verify if the user has a profile
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profileError) {
+          console.error("Error fetching user profile:", profileError);
+          throw new Error("Profile not found");
+        }
+
+        console.log("User profile:", profile);
+
+        // Now fetch leads
         const { data, error: leadsError } = await supabase
           .from('leads')
           .select(`
