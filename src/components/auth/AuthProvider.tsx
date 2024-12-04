@@ -86,8 +86,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // Check current session
     const initializeAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error } = await supabase.auth.getSession();
       console.log("Current session:", session?.user?.email);
+      
+      if (error) {
+        console.error("Error getting session:", error);
+        toast.error("Error checking session");
+        return;
+      }
       
       if (session?.user) {
         setUser(session.user);
@@ -109,7 +115,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         if (event === "SIGNED_IN") {
           console.log("User signed in, redirecting to /leads");
-          toast.success("Successfully signed in");
           navigate("/leads");
         }
       } else {
@@ -117,7 +122,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setIsAdmin(false);
         if (event === "SIGNED_OUT") {
           console.log("User signed out, redirecting to /login");
-          toast.info("Signed out");
           navigate("/login");
         }
       }

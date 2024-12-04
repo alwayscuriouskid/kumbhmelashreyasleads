@@ -16,6 +16,7 @@ const LoginPage = () => {
       
       if (error) {
         console.error("Session check error:", error);
+        toast.error("Error checking session");
         return;
       }
       
@@ -25,7 +26,25 @@ const LoginPage = () => {
       }
     };
 
+    // Set up auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed:", event, session?.user?.email);
+      
+      if (event === "SIGNED_IN" && session) {
+        console.log("Sign in successful, redirecting to /leads");
+        toast.success("Successfully signed in!");
+        navigate("/leads");
+      } else if (event === "SIGNED_OUT") {
+        console.log("User signed out");
+        toast.info("Signed out");
+      }
+    });
+
     checkSession();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   return (
