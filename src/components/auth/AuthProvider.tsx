@@ -76,6 +76,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log("No active session found");
         setUser(null);
         setIsAdmin(false);
+        navigate("/login");
       }
     };
 
@@ -85,6 +86,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log("Auth state changed:", event, session?.user?.email);
+
+        if (event === "SIGNED_OUT") {
+          console.log("User signed out, clearing state and redirecting to /login");
+          setUser(null);
+          setIsAdmin(false);
+          navigate("/login");
+          return;
+        }
 
         if (session?.user) {
           setUser(session.user);
@@ -100,13 +109,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           if (event === "SIGNED_IN") {
             console.log("User signed in, redirecting to /leads");
             navigate("/leads");
-          }
-        } else {
-          setUser(null);
-          setIsAdmin(false);
-          if (event === "SIGNED_OUT") {
-            console.log("User signed out, redirecting to /login");
-            navigate("/login");
           }
         }
       }
