@@ -56,10 +56,17 @@ const LoginPage = () => {
           redirectTo={window.location.origin}
           showLinks={false}
           view="sign_in"
-          onError={(error) => {
-            console.error("Auth error:", error);
-            toast.error("Login failed. Please try again.");
+          localization={{
+            variables: {
+              sign_in: {
+                email_label: 'Email',
+                password_label: 'Password',
+                button_label: 'Sign In',
+                loading_button_label: 'Signing in...',
+              }
+            }
           }}
+          onlyThirdPartyProviders={false}
         />
       </div>
     </div>
