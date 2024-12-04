@@ -21,20 +21,12 @@ export const useLeadQueries = () => {
         }
 
         if (!session) {
-          console.log("No active session found, returning dummy data");
-          return dummyLeads;
+          console.log("No active session found");
+          throw new Error("No authenticated session");
         }
 
         console.log("Authenticated user:", session.user.email);
         
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-
-        console.log("User profile:", profile);
-
         const { data, error: leadsError } = await supabase
           .from('leads')
           .select(`
@@ -42,6 +34,12 @@ export const useLeadQueries = () => {
             team_members (
               name,
               email
+            ),
+            activities (
+              id,
+              type,
+              notes,
+              created_at
             )
           `)
           .order('created_at', { ascending: false });
@@ -51,12 +49,12 @@ export const useLeadQueries = () => {
         if (leadsError) {
           console.error("Error fetching leads:", leadsError);
           toast.error("Error fetching leads");
-          return dummyLeads;
+          throw leadsError;
         }
 
         if (!data) {
-          console.log("No leads data returned, using dummy data");
-          return dummyLeads;
+          console.log("No leads data returned");
+          return [];
         }
 
         console.log("Fetched leads data:", data);
@@ -66,12 +64,12 @@ export const useLeadQueries = () => {
       } catch (error) {
         console.error("Unexpected error during leads fetch:", error);
         toast.error("An unexpected error occurred while fetching leads");
-        return dummyLeads;
+        throw error;
       }
     },
     retry: 1,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: false,
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 0, // Always fetch fresh data
+    refetchOnWindowFocus: true,
+    refetchInterval: 5000, // Refetch every 5 seconds
   });
 };

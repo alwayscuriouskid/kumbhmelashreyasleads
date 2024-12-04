@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Lead } from "@/types/leads";
@@ -9,9 +9,11 @@ import LeadForm from "@/components/leads/LeadForm";
 import ImportLeadsDialog from "@/components/leads/ImportLeadsDialog";
 import { useLeads } from "@/hooks/useLeads";
 import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Leads = () => {
-  const { leads, isLoading, addLead, updateLead } = useLeads();
+  const { leads, isLoading, error, addLead, updateLead } = useLeads();
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -21,23 +23,54 @@ const Leads = () => {
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [customStatuses, setCustomStatuses] = useState<string[]>([]);
   const [visibleColumns, setVisibleColumns] = useState({
-    date: false, // Hidden by default
+    date: false,
     clientName: true,
-    location: false, // Hidden by default
-    contactPerson: false, // Hidden by default
-    phone: false, // Hidden by default
-    email: false, // Hidden by default
+    location: false,
+    contactPerson: false,
+    phone: false,
+    email: false,
     requirements: true,
     status: true,
-    teamMember: true, // Added team member column
-    leadRef: false, // Hidden by default
-    leadSource: false, // Hidden by default
-    priceQuoted: false, // Hidden by default
-    activityType: false, // Hidden by default
-    activityOutcome: false, // Hidden by default
-    activityNextAction: false, // Hidden by default
-    activityNextActionDate: false // Hidden by default
+    teamMember: true,
+    leadRef: false,
+    leadSource: false,
+    priceQuoted: false,
+    activityType: false,
+    activityOutcome: false,
+    activityNextAction: false,
+    activityNextActionDate: false
   });
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      console.log("Current auth session in Leads:", session?.user?.email, error);
+    };
+    checkAuth();
+  }, []);
+
+  // Subscribe to real-time updates
+  useEffect(() => {
+    const subscription = supabase
+      .channel('leads-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'leads' },
+        (payload) => {
+          console.log('Real-time update received:', payload);
+          queryClient.invalidateQueries({ queryKey: ['leads'] });
+        }
+      )
+      .subscribe((status) => {
+        console.log('Real-time subscription status:', status);
+      });
+
+    return () => {
+      console.log('Cleaning up real-time subscription');
+      subscription.unsubscribe();
+    };
+  }, [queryClient]);
 
   const handleAddLead = async (newLead: Partial<Lead>) => {
     await addLead.mutateAsync({
@@ -83,7 +116,22 @@ const Leads = () => {
     );
 
   if (isLoading) {
-    return <div>Loading leads...</div>;
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-100px)]">
+        <div className="text-lg">Loading leads...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    console.error("Error in Leads component:", error);
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-100px)]">
+        <div className="text-lg text-red-500">
+          Error loading leads. Please try refreshing the page.
+        </div>
+      </div>
+    );
   }
 
   return (
