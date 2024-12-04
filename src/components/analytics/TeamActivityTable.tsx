@@ -7,6 +7,7 @@ import { useActivityFilters } from "./team-activities/useActivityFilters";
 import { useState, useEffect } from "react";
 import { Activity } from "@/types/activity";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const TeamActivityTable = () => {
   const [sortBy, setSortBy] = useState("date_desc");
@@ -27,7 +28,7 @@ const TeamActivityTable = () => {
     applyFilters
   } = useActivityFilters();
 
-  const { data: activities = [], refetch } = useTeamActivities(
+  const { data: activities = [], isLoading, error, refetch } = useTeamActivities(
     selectedTeamMember,
     activityType,
     leadSearch,
@@ -53,7 +54,9 @@ const TeamActivityTable = () => {
           refetch();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log("Subscription status:", status);
+      });
 
     return () => {
       console.log("Cleaning up real-time subscription");
@@ -88,6 +91,16 @@ const TeamActivityTable = () => {
     }
   }, [activities, selectedTeamMember, activityType, leadSearch, selectedDate, nextActionDateFilter, sortBy, applyFilters]);
 
+  if (isLoading) {
+    return <div>Loading activities...</div>;
+  }
+
+  if (error) {
+    console.error("Error loading activities:", error);
+    toast.error("Failed to load activities");
+    return <div>Error loading activities. Please try again.</div>;
+  }
+
   return (
     <div className="space-y-4">
       <TeamActivityFilters
@@ -113,13 +126,21 @@ const TeamActivityTable = () => {
         <Table>
           <TeamActivityTableHeader visibleColumns={visibleColumns} />
           <TableBody>
-            {filteredActivities.map((activity) => (
-              <TeamActivityRow 
-                key={activity.id}
-                activity={activity}
-                visibleColumns={visibleColumns}
-              />
-            ))}
+            {filteredActivities.length === 0 ? (
+              <tr>
+                <td colSpan={Object.keys(visibleColumns).filter(key => visibleColumns[key]).length} className="p-4 text-center text-muted-foreground">
+                  No activities found
+                </td>
+              </tr>
+            ) : (
+              filteredActivities.map((activity) => (
+                <TeamActivityRow 
+                  key={activity.id}
+                  activity={activity}
+                  visibleColumns={visibleColumns}
+                />
+              ))
+            )}
           </TableBody>
         </Table>
       </div>
