@@ -28,6 +28,15 @@ const TeamActivityTable = () => {
     applyFilters
   } = useActivityFilters();
 
+  // Get current auth session
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      console.log("Current auth session:", session?.user?.email, error);
+    };
+    checkSession();
+  }, []);
+
   const { data: activities = [], isLoading, error, refetch } = useTeamActivities(
     selectedTeamMember,
     activityType,
@@ -83,22 +92,24 @@ const TeamActivityTable = () => {
 
   // Update filtered activities when data changes
   useEffect(() => {
+    console.log("Raw activities data:", activities);
     if (activities) {
-      console.log("Updating filtered activities with new data:", activities);
       const filtered = applyFilters(activities);
+      console.log("Filtered activities:", filtered);
       const sorted = sortActivities(filtered);
+      console.log("Sorted activities:", sorted);
       setFilteredActivities(sorted);
     }
   }, [activities, selectedTeamMember, activityType, leadSearch, selectedDate, nextActionDateFilter, sortBy, applyFilters]);
 
   if (isLoading) {
-    return <div>Loading activities...</div>;
+    return <div className="p-8 text-center">Loading activities...</div>;
   }
 
   if (error) {
     console.error("Error loading activities:", error);
     toast.error("Failed to load activities");
-    return <div>Error loading activities. Please try again.</div>;
+    return <div className="p-8 text-center text-red-500">Error loading activities. Please try again.</div>;
   }
 
   return (
@@ -128,8 +139,8 @@ const TeamActivityTable = () => {
           <TableBody>
             {filteredActivities.length === 0 ? (
               <tr>
-                <td colSpan={Object.keys(visibleColumns).filter(key => visibleColumns[key]).length} className="p-4 text-center text-muted-foreground">
-                  No activities found
+                <td colSpan={Object.keys(visibleColumns).filter(key => visibleColumns[key]).length} className="p-8 text-center text-muted-foreground">
+                  No activities found. {activities.length > 0 ? "Try adjusting your filters." : ""}
                 </td>
               </tr>
             ) : (

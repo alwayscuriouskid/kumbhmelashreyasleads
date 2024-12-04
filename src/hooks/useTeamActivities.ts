@@ -23,6 +23,21 @@ export const useTeamActivities = (
       });
 
       try {
+        // First check if we have an authenticated session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error("Session error:", sessionError);
+          throw new Error("Authentication error");
+        }
+
+        if (!session) {
+          console.error("No active session found");
+          throw new Error("No authenticated session");
+        }
+
+        console.log("Fetching activities for user:", session.user.email);
+
         let query = supabase
           .from('activities')
           .select(`
@@ -101,9 +116,9 @@ export const useTeamActivities = (
         throw error;
       }
     },
-    staleTime: 0,
+    staleTime: 0, // Always fetch fresh data
     refetchOnWindowFocus: true,
     refetchOnMount: true,
-    refetchInterval: 5000
+    refetchInterval: 5000 // Refetch every 5 seconds
   });
 };
