@@ -5,38 +5,33 @@ import { dummyLeads } from "../dummyData";
 import { toast } from "sonner";
 
 export const useLeadQueries = () => {
+  console.log("Initializing useLeadQueries hook");
+  
   return useQuery({
     queryKey: ['leads'],
     queryFn: async () => {
       console.log("Starting leads fetch...");
       
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) {
-        console.error("Session error:", sessionError);
-        throw new Error("Authentication error");
-      }
-
-      if (!session) {
-        console.log("No active session found, returning dummy data");
-        return dummyLeads;
-      }
-
-      console.log("Authenticated user:", session.user.email);
-      console.log("User ID:", session.user.id);
-      console.log("Fetching leads from database");
-      
       try {
-        const { data: profile, error: profileError } = await supabase
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error("Session error:", sessionError);
+          throw new Error("Authentication error");
+        }
+
+        if (!session) {
+          console.log("No active session found, returning dummy data");
+          return dummyLeads;
+        }
+
+        console.log("Authenticated user:", session.user.email);
+        
+        const { data: profile } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', session.user.id)
           .single();
-
-        if (profileError) {
-          console.error("Error fetching user profile:", profileError);
-          throw new Error("Profile not found");
-        }
 
         console.log("User profile:", profile);
 
@@ -74,6 +69,8 @@ export const useLeadQueries = () => {
         return dummyLeads;
       }
     },
-    retry: 1
+    retry: 1,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false
   });
 };
