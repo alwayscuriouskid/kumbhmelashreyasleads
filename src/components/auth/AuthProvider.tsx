@@ -48,6 +48,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
           if (insertError) {
             console.error("Error creating profile:", insertError);
+            toast.error("Error setting up user profile");
             return;
           }
 
@@ -60,11 +61,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
           if (fetchError) {
             console.error("Error fetching new profile:", fetchError);
+            toast.error("Error retrieving user profile");
             return;
           }
 
           profile = newProfile;
+          toast.success("Profile created successfully");
         } else {
+          toast.error("Error checking user role");
           return;
         }
       }
@@ -73,6 +77,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsAdmin(profile?.role === 'admin');
     } catch (error) {
       console.error("Error in checkUserRole:", error);
+      toast.error("An unexpected error occurred");
     }
   };
 

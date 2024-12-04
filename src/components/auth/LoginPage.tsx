@@ -3,20 +3,29 @@ import { supabase } from "@/integrations/supabase/client";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const LoginPage = () => {
   console.log("Rendering LoginPage");
   const navigate = useNavigate();
   
   useEffect(() => {
-    // Check if user is already logged in
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const checkSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
       console.log("Checking existing session:", session?.user?.email);
+      
+      if (error) {
+        console.error("Session check error:", error);
+        return;
+      }
+      
       if (session?.user) {
         console.log("User already logged in, redirecting to /leads");
         navigate("/leads");
       }
-    });
+    };
+
+    checkSession();
   }, [navigate]);
 
   return (
@@ -47,6 +56,10 @@ const LoginPage = () => {
           redirectTo={window.location.origin}
           showLinks={false}
           view="sign_in"
+          onError={(error) => {
+            console.error("Auth error:", error);
+            toast.error("Login failed. Please try again.");
+          }}
         />
       </div>
     </div>
