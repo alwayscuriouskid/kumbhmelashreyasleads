@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 const AuthContext = createContext<{
   user: any;
@@ -18,6 +19,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     console.log("AuthProvider: Setting up auth listeners");
@@ -91,7 +93,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           console.log("User signed out, clearing state and redirecting to /login");
           setUser(null);
           setIsAdmin(false);
-          navigate("/login");
+          queryClient.clear(); // Clear all queries from cache
+          navigate("/login", { replace: true });
           return;
         }
 
@@ -119,7 +122,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("Cleaning up auth subscription");
       subscription.unsubscribe();
     };
-  }, [navigate, toast]);
+  }, [navigate, toast, queryClient]);
 
   return (
     <AuthContext.Provider value={{ user, isAdmin }}>

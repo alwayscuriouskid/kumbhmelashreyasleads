@@ -35,9 +35,16 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }: SidebarProps) => {
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
+      console.log("Initiating logout...");
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Error during logout:", error);
+        toast.error("Error logging out");
+        return;
+      }
+      console.log("Logout successful");
       toast.success("Logged out successfully");
-      navigate("/login");
+      navigate("/login", { replace: true });
     } catch (error) {
       console.error("Error logging out:", error);
       toast.error("Error logging out");
@@ -110,7 +117,6 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }: SidebarProps) => {
         </div>
       </div>
 
-      {/* Logout button at the bottom */}
       <div className="p-3 mt-auto border-t">
         <Button
           variant="ghost"
