@@ -62,7 +62,7 @@ export const useLeadQueries = () => {
         console.log("Fetched leads data:", data);
         const fetchedLeads = (data as LeadDB[]).map(dbToFrontend);
         console.log("Transformed leads:", fetchedLeads);
-        return fetchedLeads.length > 0 ? fetchedLeads : dummyLeads;
+        return fetchedLeads;
       } catch (error) {
         console.error("Unexpected error during leads fetch:", error);
         toast.error("An unexpected error occurred while fetching leads");
@@ -71,6 +71,7 @@ export const useLeadQueries = () => {
     },
     retry: 1,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 };
