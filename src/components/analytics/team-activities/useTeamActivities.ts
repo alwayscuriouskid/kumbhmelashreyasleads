@@ -35,7 +35,20 @@ export const useTeamActivities = () => {
 
   const fetchActivities = async () => {
     try {
-      console.log('Fetching activities...');
+      console.log('Checking authentication session...');
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        console.error('No authenticated session found');
+        toast({
+          title: "Authentication Error",
+          description: "Please log in to view activities",
+          variant: "destructive",
+        });
+        return [];
+      }
+
+      console.log('Fetching activities for user:', session.user.email);
       const { data: activitiesData, error: activitiesError } = await supabase
         .from('activities')
         .select(`
@@ -51,7 +64,10 @@ export const useTeamActivities = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (activitiesError) throw activitiesError;
+      if (activitiesError) {
+        console.error("Error fetching activities:", activitiesError);
+        throw activitiesError;
+      }
 
       console.log('Fetched activities:', activitiesData);
       const transformedActivities = activitiesData.map(transformActivity);
@@ -69,6 +85,7 @@ export const useTeamActivities = () => {
   };
 
   useEffect(() => {
+    console.log('Setting up activity subscriptions...');
     fetchActivities();
     
     // Subscribe to real-time updates for activities
@@ -81,12 +98,14 @@ export const useTeamActivities = () => {
           schema: 'public',
           table: 'activities'
         },
-        async () => {
-          console.log('Real-time activity update received');
+        async (payload) => {
+          console.log('Real-time activity update received:', payload);
           await fetchActivities();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Activities subscription status:', status);
+      });
 
     // Subscribe to real-time updates for leads
     const leadsChannel = supabase
@@ -98,14 +117,17 @@ export const useTeamActivities = () => {
           schema: 'public',
           table: 'leads'
         },
-        async () => {
-          console.log('Real-time lead update received');
+        async (payload) => {
+          console.log('Real-time lead update received:', payload);
           await fetchActivities();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Leads subscription status:', status);
+      });
 
     return () => {
+      console.log('Cleaning up subscriptions');
       supabase.removeChannel(activitiesChannel);
       supabase.removeChannel(leadsChannel);
     };

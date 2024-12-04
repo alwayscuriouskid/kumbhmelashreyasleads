@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Lead, LeadDB, dbToFrontend } from "@/types/leads";
-import { dummyLeads } from "../dummyData";
 import { toast } from "sonner";
 
 export const useLeadQueries = () => {

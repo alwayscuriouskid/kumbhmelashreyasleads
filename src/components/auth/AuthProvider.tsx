@@ -74,6 +74,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         setIsAdmin(profile?.role === 'admin');
         console.log("User role:", profile?.role);
+
+        // Invalidate and refetch queries after successful auth
+        queryClient.invalidateQueries();
       } else {
         console.log("No active session found");
         setUser(null);
@@ -112,6 +115,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           if (event === "SIGNED_IN") {
             console.log("User signed in, redirecting to /leads");
             navigate("/leads");
+            // Invalidate and refetch queries after sign in
+            queryClient.invalidateQueries();
           }
         }
       }
