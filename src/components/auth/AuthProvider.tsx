@@ -38,6 +38,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
       
       if (session?.user) {
+        console.log("Setting user from session:", session.user);
         setUser(session.user);
         // Check if user has admin role
         const { data: profile } = await supabase
@@ -48,6 +49,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         setIsAdmin(profile?.role === 'admin');
         console.log("User role:", profile?.role);
+      } else {
+        console.log("No active session found");
       }
     };
 

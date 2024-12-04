@@ -22,25 +22,36 @@ export const useLeads = () => {
       }
 
       if (!session) {
-        console.log("No active session found");
+        console.log("No active session found, returning dummy data");
         return dummyLeads;
       }
 
       console.log("Authenticated user:", session.user.email);
       console.log("Fetching leads from database");
       
-      const { data, error } = await supabase
+      const { data, error: leadsError } = await supabase
         .from('leads')
-        .select('*')
+        .select(`
+          *,
+          team_members (
+            name,
+            email
+          )
+        `)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error("Error fetching leads:", error);
+      if (leadsError) {
+        console.error("Error fetching leads:", leadsError);
         toast({
           title: "Error fetching leads",
-          description: error.message,
+          description: leadsError.message,
           variant: "destructive",
         });
+        return dummyLeads;
+      }
+
+      if (!data) {
+        console.log("No leads data returned, using dummy data");
         return dummyLeads;
       }
 
@@ -124,7 +135,8 @@ export const useLeads = () => {
             location: updatedLead.location,
             phone: updatedLead.phone,
             email: updatedLead.email,
-            requirement: updatedLead.requirement
+            requirement: updatedLead.requirement,
+            status: updatedLead.status
           })
           .eq('id', updatedLead.id)
           .select()
