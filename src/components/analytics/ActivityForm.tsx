@@ -3,9 +3,10 @@ import { Activity } from "@/types/leads";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TeamMemberSelect } from "@/components/shared/TeamMemberSelect";
 import { DatePicker } from "@/components/ui/date-picker";
+import { ActivityTypeSelect } from "./activity-form/ActivityTypeSelect";
+import { CallTypeSelect } from "./activity-form/CallTypeSelect";
 
 interface ActivityFormProps {
   onSubmit: (formData: Partial<Activity>) => void;
@@ -16,8 +17,6 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
   const [activityType, setActivityType] = useState<Activity["type"]>("call");
   const [notes, setNotes] = useState("");
   const [outcome, setOutcome] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
   const [nextAction, setNextAction] = useState("");
   const [nextActionDate, setNextActionDate] = useState<Date>();
@@ -31,8 +30,6 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
       activityType,
       notes,
       outcome,
-      startTime,
-      endTime,
       assignedTo,
       nextAction,
       nextActionDate,
@@ -44,11 +41,6 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
     const formData: Partial<Activity> = {
       type: activityType,
       date: new Date().toISOString(),
-      startTime,
-      endTime,
-      duration: startTime && endTime ? 
-        (new Date(`2000/01/01 ${endTime}`).getTime() - new Date(`2000/01/01 ${startTime}`).getTime()) / 60000 : 
-        undefined,
       outcome,
       notes,
       nextAction,
@@ -65,8 +57,6 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
     // Reset form
     setNotes("");
     setOutcome("");
-    setStartTime("");
-    setEndTime("");
     setNextAction("");
     setNextActionDate(undefined);
     setLocation("");
@@ -76,72 +66,11 @@ export const ActivityForm = ({ onSubmit, contactPerson }: ActivityFormProps) => 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <label>Activity Type</label>
-          <Select 
-            value={activityType} 
-            onValueChange={(value: Activity["type"]) => {
-              console.log("Activity type changed:", value);
-              setActivityType(value);
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select activity type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="call">Call</SelectItem>
-              <SelectItem value="meeting">Meeting</SelectItem>
-              <SelectItem value="email">Email</SelectItem>
-              <SelectItem value="note">Note</SelectItem>
-              <SelectItem value="follow_up">Follow-up</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <ActivityTypeSelect value={activityType} onChange={setActivityType} />
 
         {activityType === "call" && (
-          <div className="space-y-2">
-            <label>Call Type</label>
-            <Select 
-              value={callType} 
-              onValueChange={(value: "incoming" | "outgoing") => {
-                console.log("Call type changed:", value);
-                setCallType(value);
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select call type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="incoming">Incoming</SelectItem>
-                <SelectItem value="outgoing">Outgoing</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <CallTypeSelect value={callType} onChange={setCallType} />
         )}
-
-        <div className="space-y-2">
-          <label>Start Time</label>
-          <Input
-            type="time"
-            value={startTime}
-            onChange={(e) => {
-              console.log("Start time changed:", e.target.value);
-              setStartTime(e.target.value);
-            }}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label>End Time</label>
-          <Input
-            type="time"
-            value={endTime}
-            onChange={(e) => {
-              console.log("End time changed:", e.target.value);
-              setEndTime(e.target.value);
-            }}
-          />
-        </div>
 
         <div className="space-y-2">
           <label>Assigned To</label>
